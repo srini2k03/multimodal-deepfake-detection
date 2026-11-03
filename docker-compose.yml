@@ -1,0 +1,23 @@
+services:
+  api:
+    build:
+      context: ./backend
+      args:
+        INSTALL_TF: "1"   # set to "0" for a slim image (placeholder demo mode only)
+    environment:
+      DFD_API__WEIGHTS_DIR: /app/weights
+      DFD_API__MAX_UPLOAD_MB: "100"
+      DFD_LOG_LEVEL: INFO
+    volumes:
+      - ./backend/weights:/app/weights:ro
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+
+  web:
+    build: ./frontend
+    depends_on:
+      - api
+    ports:
+      - "8080:80"
+    restart: unless-stopped

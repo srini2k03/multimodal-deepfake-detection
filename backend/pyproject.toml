@@ -6,7 +6,6 @@ build-backend = "setuptools.build_meta"
 name = "deepfake-detector"
 version = "0.1.0"
 description = "Multi-modal deepfake detection: Xception/InceptionV3 face ensembles, temporal attention pooling, audio branch and a Flask API."
-readme = "../README.md"
 license = { text = "MIT" }
 authors = [{ name = "Srinivasan Balasubramanian" }]
 requires-python = ">=3.10"

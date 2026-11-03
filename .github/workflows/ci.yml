@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend-lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install "ruff>=0.6,<1"
+      - run: ruff check .
+      - run: ruff format --check .
+
+  backend-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: core (no TensorFlow)
+            python: "3.11"
+            tf: false
+          - name: full (TensorFlow CPU)
+            python: "3.11"
+            tf: true
+    name: tests - ${{ matrix.name }}
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+          cache-dependency-path: backend/requirements*.txt
+      - name: Install dependencies
+        run: |
+          pip install -r requirements-dev.txt
+          if [ "${{ matrix.tf }}" = "true" ]; then pip install "tensorflow-cpu>=2.16,<2.22"; fi
+      - name: Run tests
+        env:
+          TF_CPP_MIN_LOG_LEVEL: "3"
+        run: python -m pytest --cov=deepfake_detector --cov-report=term-missing
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run build
