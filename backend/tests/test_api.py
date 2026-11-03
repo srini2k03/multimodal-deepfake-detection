@@ -155,3 +155,11 @@ def test_end_to_end_with_placeholder_detector(cfg, image_file):
     body = upload(client, image_file).get_json()
     assert body["mode"] == "demo" and "DEMO MODE" in body["warning"]
     assert body["gradcam"]["overlay"].startswith("data:image/png;base64,")
+
+
+def test_upload_removed_when_detector_fails_to_load(cfg, image_file, tmp_path):
+    cfg.api.demo_mode = "off"  # no weights in cfg.api.weights_dir -> detector construction fails
+    app = create_app(cfg)
+    r = upload(app.test_client(), image_file)
+    assert r.status_code == 500
+    assert list((tmp_path / "uploads").iterdir()) == []

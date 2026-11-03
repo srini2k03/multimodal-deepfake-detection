@@ -124,11 +124,11 @@ def predict():
 
     try:
         meta = check_content(tmp, media_type, cfg.api.max_video_seconds)
+        detector = _holder().get()
     except Exception:
         cleanup()
         raise
 
-    detector = _holder().get()
     filename = Path(upload.filename).name
 
     def run() -> dict[str, Any]:
