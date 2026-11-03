@@ -1,6 +1,7 @@
 # Multi-Modal Deepfake Detection System
 
 [![CI](https://github.com/srini2k03/multimodal-deepfake-detection/actions/workflows/ci.yml/badge.svg)](https://github.com/srini2k03/multimodal-deepfake-detection/actions/workflows/ci.yml)
+[![Live demo](https://img.shields.io/badge/live%20demo-GitHub%20Pages-2563eb?logo=github)](https://srini2k03.github.io/multimodal-deepfake-detection/)
 ![Python](https://img.shields.io/badge/python-3.10%2B-3776AB?logo=python&logoColor=white)
 ![TensorFlow](https://img.shields.io/badge/TensorFlow-2.16%2B-FF6F00?logo=tensorflow&logoColor=white)
 ![OpenCV](https://img.shields.io/badge/OpenCV-4.x-5C3EE8?logo=opencv&logoColor=white)
@@ -12,11 +13,14 @@ An end-to-end system for detecting manipulated media. Video frames go through Op
 
 > **Status / honesty note.** This repository contains the full training, evaluation and serving code. It does **not** ship trained weights or benchmark numbers. Without weights, the API runs in a clearly labelled **demo mode** that uses untrained (randomly initialised) networks, and every response carries a warning. To get real results, train the models on a benchmark dataset with the commands below. Then run the evaluation script to fill in the results table.
 
+**Live demo:** <https://srini2k03.github.io/multimodal-deepfake-detection/>. This is a static **browser demo** with no server. It runs the real preprocessing pipeline in your browser: frame sampling, MediaPipe face detection, eye-based alignment and 299×299 crops. It shows the sampled frame timeline and the crops the models would receive. No trained model runs there, so every score on that page is a clearly labelled **placeholder** computed from simple pixel or loudness statistics, not a deepfake verdict. Real detection needs the Python backend with trained weights (see [Quick start](#quick-start)).
+
 ---
 
 ## Contents
 
 - [Features](#features)
+- [Browser demo (GitHub Pages)](#browser-demo-github-pages)
 - [Architecture](#architecture)
 - [Pipeline details](#pipeline-details)
 - [Quick start](#quick-start)
@@ -52,6 +56,23 @@ An end-to-end system for detecting manipulated media. Video frames go through Op
 | API | Flask: `/api/health`, `/api/models`, `/api/predict` (image/video/audio), `/api/jobs/<id>` async jobs, upload validation and size limits, CORS, JSON structured logs with request IDs, consistent JSON errors |
 | Frontend | React + Vite: drag-and-drop, upload progress, gauge, interactive per-frame timeline, Grad-CAM opacity slider, per-model bars, audio segment chart. Only `react` and `react-dom` at runtime |
 | Ops | Dockerfiles (API + nginx web), docker-compose, Makefile, ruff, pytest, GitHub Actions |
+
+## Browser demo (GitHub Pages)
+
+The site at <https://srini2k03.github.io/multimodal-deepfake-detection/> is the React dashboard built with `VITE_DEMO=browser` (`npm run build:pages`, which reads `frontend/.env.pages`). In this mode the frontend never calls Flask. Instead it does the following:
+
+| Step | In the browser demo | Real? |
+|---|---|---|
+| Frame sampling | 16 frames at the centre of 16 equal time segments (same rule as `sample_indices`), decoded with a `<video>` element | Yes |
+| Face detection | MediaPipe BlazeFace short-range (`@mediapipe/tasks-vision@0.10.35` from jsDelivr; the 230 KB Apache-2.0 model is in `frontend/public/models/`). Largest face kept | Yes |
+| Alignment and crop | 30% margin square box, roll correction from the two eye keypoints (±30° limit), 299×299 crop, centre-crop fallback when no face is found | Yes |
+| Audio | Web Audio decode, mono 16 kHz, 4 s segments | Yes |
+| Scores | Placeholder heuristics: crop sharpness (Laplacian variance), crop colour saturation and segment loudness, squashed to 0..1 and fused with the configured 0.7 / 0.3 weights | **No: placeholders, not a classifier** |
+| Grad-CAM | Not available (needs trained models) | n/a |
+
+The page states this in a standing banner and on every result card, shows no "likely manipulated/authentic" verdict, and hides the decision threshold. Nothing is uploaded: files stay in the browser. AVI and MKV files usually cannot be decoded by browsers, so use MP4 (H.264) or WebM there.
+
+`.github/workflows/pages.yml` builds this on every push to `main` (or by manual dispatch) and publishes `frontend/dist` to the `gh-pages` branch with `peaceiris/actions-gh-pages`. To serve it, set **Settings → Pages → Build and deployment** to *Deploy from a branch*, `gh-pages` / `(root)`.
 
 ## Architecture
 
@@ -307,6 +328,8 @@ The `frontend/` folder holds a React 18 + Vite app with no UI or chart libraries
 
 Set `VITE_API_BASE` (see `.env.example`) when the UI is hosted apart from the API. In Docker, nginx proxies `/api` to the API container.
 
+`npm run build:pages` produces the static [browser demo](#browser-demo-github-pages) instead: `VITE_DEMO=browser`, base path `/multimodal-deepfake-detection/`, a landing/overview section (architecture diagram, pipeline, models, published benchmark, API summary), and client-side preprocessing with placeholder scores. The regular `npm run build` is unchanged and still talks to the API.
+
 ## Configuration
 
 All settings live in [`backend/configs/default.yaml`](backend/configs/default.yaml) and are typed by dataclasses in `deepfake_detector/config.py`. Unknown keys are rejected. Any value can be overridden with `DFD_<SECTION>__<KEY>`, for example:
@@ -341,11 +364,11 @@ Fill this table from your own training runs. Run `python -m deepfake_detector.ev
 
 ## Screenshots
 
-> Placeholders: add images to `docs/screenshots/` after running the app.
-
-| Upload | Result dashboard | Grad-CAM |
+| Result dashboard (browser demo, placeholder scores) | Upload | Grad-CAM |
 |---|---|---|
-| `docs/screenshots/upload.png` | `docs/screenshots/dashboard.png` | `docs/screenshots/gradcam.png` |
+| [![Browser demo dashboard](docs/screenshots/dashboard.png)](docs/screenshots/dashboard.png) | _to add: `docs/screenshots/upload.png`_ | _to add: `docs/screenshots/gradcam.png` (needs trained weights)_ |
+
+The dashboard screenshot comes from the [live browser demo](https://srini2k03.github.io/multimodal-deepfake-detection/) after uploading a short generated clip built from a public-domain NASA portrait. The face boxes, sampled frames and aligned crops are real pipeline output. The scores are placeholders, not model predictions.
 
 ## Project structure
 
@@ -369,10 +392,12 @@ multimodal-deepfake-detection/
 │   ├── weights/                    # put trained *.keras files here (git-ignored)
 │   ├── Dockerfile  gunicorn.conf.py  wsgi.py  pyproject.toml  requirements*.txt
 ├── frontend/
-│   ├── src/components/             # UploadZone, ProbabilityGauge, FrameTimeline, GradCamViewer, ModelBreakdown, ...
-│   ├── src/api.js  App.jsx  styles.css
+│   ├── src/components/             # UploadZone, ProbabilityGauge, FrameTimeline, GradCamViewer, ModelBreakdown, Overview, ...
+│   ├── src/demo/                   # browser demo: client-side sampling, face detection, alignment, placeholder scores
+│   ├── public/models/              # BlazeFace short-range .tflite for the browser demo
+│   ├── src/api.js  App.jsx  styles.css  .env.pages
 │   └── Dockerfile  nginx.conf  vite.config.js  package.json
-├── .github/workflows/ci.yml
+├── .github/workflows/          # ci.yml, pages.yml (browser demo -> gh-pages)
 ├── docker-compose.yml  Makefile  LICENSE  README.md
 ```
 
@@ -386,7 +411,7 @@ make test-fast   # only tests that do not need TensorFlow
 
 The model tests build both backbones at 75×75 with random weights, so nothing is downloaded. They cover the ensemble, both temporal pooling modes (including a save/load round trip), the audio CNN, Grad-CAM and loading trained weights. The API tests use a mocked detector and also run one end-to-end request in placeholder demo mode.
 
-GitHub Actions runs ruff, then pytest in two jobs (one without TensorFlow, one with `tensorflow-cpu`), then the frontend production build.
+GitHub Actions runs ruff, then pytest in two jobs (one without TensorFlow, one with `tensorflow-cpu`), then the frontend production build. A separate `Pages` workflow builds the browser demo and publishes it to `gh-pages`.
 
 ## Roadmap
 

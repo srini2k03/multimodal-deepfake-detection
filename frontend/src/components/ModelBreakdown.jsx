@@ -1,6 +1,6 @@
 import { riskColor } from "./ProbabilityGauge.jsx";
 
-function Bar({ name, probability, meta, threshold }) {
+function Bar({ name, probability, meta, threshold, placeholder }) {
   return (
     <div className="bar-row">
       <div className="bar-head">
@@ -8,8 +8,8 @@ function Bar({ name, probability, meta, threshold }) {
         <span className="bar-value">{(probability * 100).toFixed(1)}%</span>
       </div>
       <div className="bar-track">
-        <div className="bar-fill" style={{ width: `${probability * 100}%`, background: riskColor(probability) }} />
-        <div className="bar-threshold" style={{ left: `${threshold * 100}%` }} />
+        <div className="bar-fill" style={{ width: `${probability * 100}%`, background: placeholder ? "var(--neutral)" : riskColor(probability) }} />
+        {!placeholder && <div className="bar-threshold" style={{ left: `${threshold * 100}%` }} />}
       </div>
       {meta && <div className="bar-meta">{meta}</div>}
     </div>
@@ -20,27 +20,37 @@ function Bar({ name, probability, meta, threshold }) {
 export default function ModelBreakdown({ result }) {
   const { visual, audio } = result.modalities;
   const t = result.threshold;
+  const placeholder = result.mode === "browser-demo";
+  const heuristics = result.browser?.heuristics || {};
   return (
     <div className="breakdown">
+      {placeholder && (
+        <p className="placeholder-note">
+          Xception, InceptionV3, the temporal head and the audio CNN do not run in the browser demo. The bars below
+          are placeholder heuristics in their slots, not model outputs.
+        </p>
+      )}
       {visual && (
         <>
-          <h4>Visual models</h4>
+          <h4>{placeholder ? "Visual slots (placeholder heuristics)" : "Visual models"}</h4>
           {Object.entries(visual.per_model).map(([name, m]) => (
             <Bar
               key={name}
               name={name}
               probability={m.probability}
               threshold={t}
-              meta={`ensemble weight ${m.weight} · ${m.status.replace("_", " ")}`}
+              placeholder={placeholder}
+              meta={heuristics[name] || `ensemble weight ${m.weight} · ${m.status.replace("_", " ")}`}
             />
           ))}
           {visual.temporal_probability != null && (
             <Bar name="temporal head" probability={visual.temporal_probability} threshold={t} meta="attention pooling" />
           )}
           <Bar
-            name="visual (ensemble)"
+            name={placeholder ? "visual (mean of placeholders)" : "visual (ensemble)"}
             probability={visual.probability}
             threshold={t}
+            placeholder={placeholder}
             meta={`aggregation: ${visual.aggregation} over ${visual.faces_detected}/${visual.frames_analyzed} face frames`}
           />
         </>
@@ -48,9 +58,10 @@ export default function ModelBreakdown({ result }) {
       <h4>Audio</h4>
       {audio?.available ? (
         <Bar
-          name="audio CNN"
+          name={placeholder ? "audio (loudness placeholder)" : "audio CNN"}
           probability={audio.probability}
           threshold={t}
+          placeholder={placeholder}
           meta={`${audio.segments.length} segment(s) · ${audio.duration}s · ${audio.status.replace("_", " ")}`}
         />
       ) : (

@@ -6,7 +6,7 @@ const PAD = { l: 40, r: 16, t: 14, b: 32 };
 const MODEL_COLORS = ["var(--series-2)", "var(--series-3)", "var(--series-4)"];
 
 /** Per-frame P(fake) over time: ensemble line, faint per-model lines, threshold and hover readout. */
-export default function FrameTimeline({ frames, threshold = 0.5 }) {
+export default function FrameTimeline({ frames, threshold = 0.5, showThreshold = true }) {
   const [hover, setHover] = useState(null);
   const [showModels, setShowModels] = useState(true);
 
@@ -32,7 +32,7 @@ export default function FrameTimeline({ frames, threshold = 0.5 }) {
     <div className="timeline">
       <div className="legend">
         <span className="legend-item">
-          <i style={{ background: "var(--series-1)" }} /> ensemble
+          <i style={{ background: "var(--series-1)" }} /> {showThreshold ? "ensemble" : "mean of placeholders"}
         </span>
         {showModels &&
           models.map((m, i) => (
@@ -63,10 +63,14 @@ export default function FrameTimeline({ frames, threshold = 0.5 }) {
             </text>
           </g>
         ))}
-        <line x1={PAD.l} x2={W - PAD.r} y1={y(threshold)} y2={y(threshold)} className="threshold-line" />
-        <text x={W - PAD.r} y={y(threshold) - 4} textAnchor="end" className="axis-label">
-          threshold
-        </text>
+        {showThreshold && (
+          <>
+            <line x1={PAD.l} x2={W - PAD.r} y1={y(threshold)} y2={y(threshold)} className="threshold-line" />
+            <text x={W - PAD.r} y={y(threshold) - 4} textAnchor="end" className="axis-label">
+              threshold
+            </text>
+          </>
+        )}
         {showModels &&
           models.map((m, i) => (
             <path
@@ -104,7 +108,7 @@ export default function FrameTimeline({ frames, threshold = 0.5 }) {
       <div className="timeline-readout" aria-live="polite">
         {h ? (
           <>
-            Frame {h.index} @ {h.timestamp.toFixed(2)}s &middot; ensemble <b>{(h.probability * 100).toFixed(1)}%</b>
+            Frame {h.index} @ {h.timestamp.toFixed(2)}s &middot; {showThreshold ? "ensemble" : "mean placeholder"} <b>{(h.probability * 100).toFixed(1)}%</b>
             {models.map((m) => (
               <span key={m}>
                 {" "}
