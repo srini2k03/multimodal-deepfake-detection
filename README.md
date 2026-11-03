@@ -113,7 +113,7 @@ flowchart LR
 
 **1. Frame sampling.** `sample_indices` picks `N` frames spread evenly across the video (the centre of each of `N` segments), or every `k`-th frame. The frames are decoded in one sequential grab/retrieve pass, which works more reliably than random seeking across codecs.
 
-**2. Face detection.** The default detector is OpenCV's ResNet-10 SSD (`face.detector: dnn`, downloaded by `scripts/download_face_models.sh`). The bundled Haar cascade is used automatically as a fallback. The largest face in each frame is kept.
+**2. Face detection.** The default detector is the Haar cascade bundled with OpenCV (`face.detector: haar` in `configs/default.yaml`), which needs no downloads. Set `face.detector: dnn` to use OpenCV's more accurate ResNet-10 SSD (downloaded by `scripts/download_face_models.sh`); if its model files are missing, the Haar cascade is used automatically as a fallback. The largest face in each frame is kept.
 
 **3. Alignment without landmarks.** The box is expanded by a relative margin (30% by default) and made square, so the crop keeps the face boundary where blending artifacts appear. A Haar eye cascade runs inside the upper half of the face. When two plausible eyes are found, the frame is rotated about the face centre so the eye line is horizontal. Otherwise the pipeline falls back to bounding-box normalisation only. Crops are resized to 299×299 (the native size of both backbones).
 
