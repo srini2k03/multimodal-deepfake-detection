@@ -1,0 +1,33 @@
+# Tiny configuration for an end-to-end CPU smoke run on synthetic data
+# (see `make smoke`). Not intended to produce a useful detector.
+face:
+  detector: haar
+  crop_size: 96
+sampling:
+  frames_per_video: 6
+data:
+  dataset: generic
+  raw_root: data/synthetic/videos
+  crops_root: data/smoke/crops
+  audio_root: data/synthetic/audio
+  image_size: 96
+  batch_size: 8
+  seq_len: 4
+  val_fraction: 0.25
+  test_fraction: 0.25
+  augment: true
+model:
+  backbones: [xception, inception_v3]
+  ensemble_weights: [0.5, 0.5]
+  pretrained: false
+  temporal_pooling: attention
+train:
+  epochs_head: 1
+  epochs_finetune: 1
+  mixed_precision: false
+  output_dir: data/smoke/artifacts
+audio:
+  clip_seconds: 2.0
+api:
+  weights_dir: data/smoke/weights
+  frames_per_video: 6

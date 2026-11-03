@@ -1,0 +1,83 @@
+# Default configuration. Override any key with an env var: DFD_<SECTION>__<KEY>=value
+face:
+  detector: haar            # "dnn" needs the res10 SSD files (scripts/download_face_models.sh)
+  dnn_prototxt: models/face/deploy.prototxt
+  dnn_weights: models/face/res10_300x300_ssd_iter_140000.caffemodel
+  confidence: 0.6
+  margin: 0.3
+  min_face_size: 40
+  align: true
+  crop_size: 299
+
+sampling:
+  frames_per_video: 32
+  strategy: uniform
+  stride: 10
+  max_frames: 64
+
+data:
+  dataset: faceforensics    # faceforensics | celebdf | generic
+  raw_root: data/raw
+  crops_root: data/crops
+  audio_root: data/audio
+  cache_dir: data/cache
+  image_size: 299
+  batch_size: 32
+  seq_len: 8
+  val_fraction: 0.1
+  test_fraction: 0.1
+  shuffle_buffer: 2048
+  augment: true
+  seed: 42
+  compression: c23
+
+model:
+  backbones: [xception, inception_v3]
+  ensemble_weights: [0.5, 0.5]
+  pretrained: true
+  dropout: 0.5
+  temporal_pooling: none    # none | mean | attention
+  attention_units: 128
+
+train:
+  epochs_head: 3
+  epochs_finetune: 12
+  lr_head: 0.001
+  lr_finetune: 0.00002
+  unfreeze_fraction: 0.35
+  mixed_precision: true
+  class_weighting: true
+  label_smoothing: 0.0
+  early_stopping_patience: 4
+  reduce_lr_patience: 2
+  output_dir: artifacts
+
+audio:
+  enabled: true
+  sample_rate: 16000
+  n_fft: 512
+  hop_length: 160
+  n_mels: 64
+  fmin: 20.0
+  fmax: 8000.0
+  clip_seconds: 4.0
+
+fusion:
+  method: weighted          # weighted | logit
+  visual_weight: 0.7
+  audio_weight: 0.3
+  threshold: 0.5
+
+api:
+  weights_dir: weights
+  max_upload_mb: 100
+  max_video_seconds: 300
+  frames_per_video: 16
+  frame_aggregation: mean   # mean | median | max | topk_mean | confidence_weighted
+  gradcam: true
+  demo_mode: auto           # auto | on | off
+  demo_backend: auto        # auto | keras | numpy
+  cors_origins: ["*"]
+  async_workers: 2
+  job_ttl_seconds: 3600
+  upload_dir: uploads
