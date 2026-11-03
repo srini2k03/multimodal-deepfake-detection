@@ -317,7 +317,19 @@ DFD_API__MAX_UPLOAD_MB=50 DFD_API__FRAME_AGGREGATION=topk_mean DFD_FUSION__METHO
 
 ## Results
 
-> **No results are reported yet.** The numbers below must come from your own training runs. Reproduce them with `python -m deepfake_detector.evaluation.evaluate --split test` and paste the generated `reports/metrics.md` here. Do not copy numbers from papers into this table.
+### Reference benchmark (published)
+
+Published results for the Xception backbone used in this project, from the FaceForensics++ benchmark (Rössler et al., *FaceForensics++: Learning to Detect Manipulated Facial Images*, ICCV 2019). These come from the paper. This repository did not produce them.
+
+| Dataset | Compression | Model | Accuracy |
+|---|---|---|---|
+| FaceForensics++ (all four manipulations) | Raw | XceptionNet (face crops) | 99.26% |
+| FaceForensics++ (all four manipulations) | c23 (HQ) | XceptionNet (face crops) | 95.73% |
+| FaceForensics++ (all four manipulations) | c40 (LQ) | XceptionNet (face crops) | 81.00% |
+
+### This repository's results
+
+Fill this table from your own training runs. Run `python -m deepfake_detector.evaluation.evaluate --split test` and paste the generated `reports/metrics.md` here.
 
 | Dataset (split) | Model | Level | AUC | Accuracy | F1 | EER |
 |---|---|---|---|---|---|---|
