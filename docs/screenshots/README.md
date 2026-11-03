@@ -1,3 +1,4 @@
 # Screenshots
 
-Add `upload.png`, `dashboard.png` and `gradcam.png` here after running the app (see the README).
+`dashboard.png` shows the browser demo (GitHub Pages build) after uploading a short generated clip. Its scores are placeholders.
+Still to add: `upload.png`, and `gradcam.png`, which needs the backend with trained weights (see the README).

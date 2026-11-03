@@ -20,24 +20,35 @@ export function riskColor(p) {
   return "var(--real)";
 }
 
-/** Semicircular gauge for P(fake) with the decision threshold marked. */
-export default function ProbabilityGauge({ probability, threshold = 0.5, label }) {
+/**
+ * Semicircular gauge for P(fake) with the decision threshold marked.
+ * `placeholder` renders a neutral colour, no verdict and a "placeholder score" caption.
+ */
+export default function ProbabilityGauge({ probability, threshold = 0.5, label, placeholder = false }) {
   const p = Math.min(1, Math.max(0, probability ?? 0));
   const [nx, ny] = polar(p);
   const [tx1, ty1] = polar(threshold);
-  const color = riskColor(p);
+  const color = placeholder ? "var(--neutral)" : riskColor(p);
   return (
     <figure className="gauge">
-      <svg viewBox="0 0 200 120" role="img" aria-label={`Manipulation probability ${(p * 100).toFixed(1)} percent`}>
+      <svg
+        viewBox="0 0 200 120"
+        role="img"
+        aria-label={
+          placeholder
+            ? `Placeholder score ${(p * 100).toFixed(1)} percent, not a manipulation probability`
+            : `Manipulation probability ${(p * 100).toFixed(1)} percent`
+        }
+      >
         <path d={arc(0, 1)} className="gauge-track" />
         {p > 0.001 && <path d={arc(0, p)} stroke={color} className="gauge-value" />}
-        <line x1={CX} y1={CY} x2={tx1} y2={ty1} className="gauge-threshold" />
+        {!placeholder && <line x1={CX} y1={CY} x2={tx1} y2={ty1} className="gauge-threshold" />}
         <circle cx={nx} cy={ny} r="6" fill={color} stroke="var(--surface)" strokeWidth="2" />
         <text x={CX} y={CY - 18} textAnchor="middle" className="gauge-number">
           {(p * 100).toFixed(1)}%
         </text>
         <text x={CX} y={CY + 2} textAnchor="middle" className="gauge-caption">
-          P(manipulated)
+          {placeholder ? "placeholder score" : "P(manipulated)"}
         </text>
         <text x={CX - R} y={CY + 16} textAnchor="middle" className="gauge-tick">
           0
@@ -46,7 +57,8 @@ export default function ProbabilityGauge({ probability, threshold = 0.5, label }
           1
         </text>
       </svg>
-      {label && (
+      {placeholder && <figcaption className="verdict verdict-none">No verdict: placeholder score only</figcaption>}
+      {!placeholder && label && (
         <figcaption className={`verdict ${label === "FAKE" ? "verdict-fake" : "verdict-real"}`}>
           {label === "FAKE" ? "Likely manipulated" : "Likely authentic"}
         </figcaption>

@@ -1,3 +1,5 @@
+import { BROWSER_DEMO } from "./demo/config.js";
+
 const API_BASE = (import.meta.env.VITE_API_BASE || "").replace(/\/$/, "");
 
 export const ACCEPTED = {
@@ -22,6 +24,7 @@ async function parseError(res) {
 }
 
 export async function getHealth(signal) {
+  if (BROWSER_DEMO) return { status: "ok", mode: "browser-demo", version: "static" };
   const res = await fetch(`${API_BASE}/api/health`, { signal });
   if (!res.ok) throw new Error(await parseError(res));
   return res.json();
@@ -60,6 +63,11 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
  * hit proxy timeouts; images and audio are analysed synchronously.
  */
 export async function predict(file, { onUploadProgress, onStage, signal } = {}) {
+  if (BROWSER_DEMO) {
+    // Static build: run the preprocessing pipeline client-side; no request leaves the browser.
+    const { analyseInBrowser } = await import("./demo/browserAnalysis.js");
+    return analyseInBrowser(file, { onStage, onProgress: onUploadProgress, signal });
+  }
   const useAsync = mediaTypeOf(file.name) === "video";
   const url = `${API_BASE}/api/predict${useAsync ? "?async=1" : ""}`;
   onStage?.("uploading");
