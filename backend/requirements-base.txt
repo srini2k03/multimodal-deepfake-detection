@@ -1,0 +1,7 @@
+# Runtime dependencies that do NOT include TensorFlow (API demo mode, preprocessing, tests).
+numpy>=1.26,<3
+opencv-python-headless>=4.9,<5
+PyYAML>=6.0,<7
+Flask>=3.0,<4
+flask-cors>=4.0,<7
+gunicorn>=22.0,<24
