@@ -203,10 +203,14 @@ def main() -> None:
             "eval_min_tdcf": s["eval"].get("min_tdcf"),
             "dev_threshold_logit": s["dev_threshold_logit"],
             "platt": s["platt"],
+            "prior_fake": s["dev"]["n_spoof"] / s["dev"]["n"],
             "run_id": m["meta"]["run_id"],
             "git_sha": m["meta"]["git_sha"],
             "release": args.release,
         }
+        itw = Path(args.meta).with_name("cross_dataset_in_the_wild.json")
+        if itw.exists():
+            manifest["benchmark"]["in_the_wild_eer"] = json.loads(itw.read_text())["systems"][args.system]["eer"]
     (out / "audio_cnn.json").write_text(json.dumps(manifest, indent=1) + "\n")
 
     # 3) parity fixture: Python preprocessing + Keras logits for every clip of a test signal

@@ -16,6 +16,12 @@ export const MEDIAPIPE_CDN = (
 // BlazeFace short-range model (Apache-2.0), committed under public/models.
 export const FACE_MODEL_URL = `${import.meta.env.BASE_URL}models/blaze_face_short_range.tflite`;
 
+// Trained audio CNN exported by backend/scripts/export_audio_web.py. The Pages workflow downloads it
+// from the GitHub release and refuses to deploy it unless scripts/audio-parity.mjs passes. When the
+// files are absent the demo falls back to the loudness placeholder.
+export const AUDIO_MODEL_URL = `${import.meta.env.BASE_URL}models/audio/`;
+export const BROWSER_AUDIO_MAX_SECONDS = 60; // longer audio is truncated in the browser
+
 // Mirrors backend/configs/default.yaml so the browser pipeline behaves like the Python one.
 export const PIPELINE = {
   framesPerVideo: 16, // api.frames_per_video
@@ -32,6 +38,12 @@ export const PIPELINE = {
 
 export const BROWSER_WARNING =
   "This page shows the preprocessing pipeline (frame sampling, face detection, alignment and " +
-  "cropping) running in your browser. The scores are placeholder heuristics computed from simple pixel and " +
-  "loudness statistics. They are not produced by a deepfake classifier and say nothing about whether the media " +
-  "is manipulated. Real detection needs the Python backend with trained weights.";
+  "cropping) running in your browser. The visual scores are placeholder heuristics computed from simple pixel " +
+  "statistics: no face classifier runs here, and they say nothing about whether the media is manipulated. " +
+  "Visual detection needs the Python backend with trained weights.";
+
+export const AUDIO_MODEL_NOTE =
+  "Audio is scored by the trained audio CNN (ASVspoof 2019 LA) running in your browser, with the same " +
+  "preprocessing as the Python backend (numerically checked before deployment). It was trained on English " +
+  "read speech and 2019-era synthesis systems; on other speech it is much less reliable (see the benchmark " +
+  "section). Treat the number as a model assessment, not a verdict.";

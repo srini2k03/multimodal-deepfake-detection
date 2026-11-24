@@ -21,13 +21,17 @@ export default function ModelBreakdown({ result }) {
   const { visual, audio } = result.modalities;
   const t = result.threshold;
   const placeholder = result.mode === "browser-demo";
+  const audioReal = audio?.status === "trained";
   const heuristics = result.browser?.heuristics || {};
   return (
     <div className="breakdown">
       {placeholder && (
         <p className="placeholder-note">
-          Xception, InceptionV3, the temporal head and the audio CNN do not run in the browser demo. The bars below
-          are placeholder heuristics in their slots, not model outputs.
+          {visual &&
+            "No face classifier runs in the browser demo: the visual bars below are placeholder heuristics in their slots, not model outputs. "}
+          {audioReal
+            ? "The audio bar is real output of the trained audio CNN."
+            : "The audio CNN is not deployed here, so the audio bar is a loudness placeholder."}
         </p>
       )}
       {visual && (
@@ -58,11 +62,13 @@ export default function ModelBreakdown({ result }) {
       <h4>Audio</h4>
       {audio?.available ? (
         <Bar
-          name={placeholder ? "audio (loudness placeholder)" : "audio CNN"}
+          name={placeholder && !audioReal ? "audio (loudness placeholder)" : "audio CNN"}
           probability={audio.probability}
           threshold={t}
-          placeholder={placeholder}
-          meta={`${audio.segments.length} segment(s) · ${audio.duration}s · ${audio.status.replace("_", " ")}`}
+          placeholder={placeholder && !audioReal}
+          meta={`${audio.segments.length} segment(s) · ${audio.duration}s · ${audio.status.replace("_", " ")}${
+            audio.calibrated ? " · calibrated" : ""
+          }${audio.raw_probability != null ? ` · raw ${(100 * audio.raw_probability).toFixed(1)}%` : ""}`}
         />
       ) : (
         <p className="muted small">{audio?.reason ? `Not used: ${audio.reason}` : "Not applicable for images."}</p>
@@ -72,6 +78,7 @@ export default function ModelBreakdown({ result }) {
         {result.fusion.method} &middot; weights visual {result.fusion.weights.visual} / audio{" "}
         {result.fusion.weights.audio} &middot; modalities used: {result.fusion.used.join(", ")}
       </p>
+      {result.fusion.note && <p className="small muted">{result.fusion.note}</p>}
     </div>
   );
 }

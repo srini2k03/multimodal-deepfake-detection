@@ -32,3 +32,6 @@ frontend/.env.local
 .vscode/
 .idea/
 .DS_Store
+
+# Browser audio model is fetched from the release at build time
+frontend/public/models/audio/

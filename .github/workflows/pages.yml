@@ -30,6 +30,19 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
+      - name: Fetch the browser audio model and verify parity
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p public/models/audio
+          if gh release download audio-asvspoof2019-v1 -p "audio_cnn.json" -p "audio_cnn.bin" -p "audio_fixture.json" -D public/models/audio; then
+            # Deploy the model only if the JavaScript port still matches Python/Keras.
+            node scripts/audio-parity.mjs public/models/audio
+            rm public/models/audio/audio_fixture.json
+          else
+            echo "No browser audio model released yet; the demo keeps the loudness placeholder."
+            rm -rf public/models/audio
+          fi
       - name: Build browser demo
         run: npm run build:pages
       - name: Publish to gh-pages

@@ -1,5 +1,6 @@
 import ArchitectureDiagram from "./ArchitectureDiagram.jsx";
-import { AlertIcon, ArrowDown, ArrowUpRight, GitHubIcon } from "./Icons.jsx";
+import BenchmarkResults, { benchmarkData } from "./BenchmarkResults.jsx";
+import { ArrowDown, ArrowUpRight, GitHubIcon } from "./Icons.jsx";
 import { REPO_URL, SETUP_URL, TRAINING_URL } from "../demo/config.js";
 
 const STEPS = [
@@ -11,25 +12,52 @@ const STEPS = [
     "Face detection",
     "OpenCV Haar cascade by default; the ResNet-10 SSD is opt-in, with Haar as its fallback. The largest face in each frame is kept.",
   ],
-  ["Alignment and crop", "Box expanded by a 30% margin and made square; eye-line roll correction; resized to 299×299."],
+  [
+    "Alignment and crop",
+    "Box expanded by a 30% margin and made square; eye-line roll correction; resized to the model input (224² or 299²).",
+  ],
   [
     "Frame classifiers",
-    "Xception and InceptionV3 fine-tuned in two stages: frozen-backbone head, then partial unfreeze.",
+    "EfficientNetV2-B0 fine-tuned on DeepFakeFace; the Xception + InceptionV3 two-stage ensemble is implemented too.",
   ],
   [
-    "Ensemble and temporal",
-    "Weighted per-frame ensemble, then mean / median / top-k aggregation or an attention-pooling head.",
+    "Frame to video",
+    "Per-frame scores aggregated by mean, median, max or top-k mean; an attention-pooling head is implemented.",
   ],
-  ["Audio branch", "Mono 16 kHz audio split into 4 s clips, 64-band log-mel spectrograms scored by a compact CNN."],
-  ["Late fusion", "Weighted average in probability or logit space over the modalities that are present."],
+  [
+    "Audio branch",
+    "Mono 16 kHz, optional silence trimming, 4 s repeat-padded clips, 64-band log-mel, CNN trained on ASVspoof 2019 LA.",
+  ],
+  [
+    "Calibration and fusion",
+    "Platt scaling from the validation split; modalities reported separately; heuristic fusion over those present.",
+  ],
   ["Explainability", "Grad-CAM on the last convolutional block of the most suspicious frame, returned as an overlay."],
 ];
 
+const TRAINED_AUDIO = Boolean(benchmarkData.audio);
+const TRAINED_VISUAL = Boolean(benchmarkData.visual);
 const MODELS = [
-  ["Xception", "ImageNet transfer learning, 299×299 face crops, single-logit head", "frame"],
-  ["InceptionV3", "ImageNet transfer learning, same input pipeline, weighted ensemble with Xception", "frame"],
-  ["Temporal attention head", "TimeDistributed backbone + additive attention, α = softmax(vᵀ tanh(W hₜ))", "video"],
-  ["Audio CNN", "3-block CNN on standardised log-mel spectrograms with SpecAugment-style masking", "audio"],
+  [
+    "EfficientNetV2-B0",
+    "ImageNet transfer learning on 224×224 face crops: frozen-feature probe and top-30% fine-tuning on DeepFakeFace.",
+    TRAINED_VISUAL ? "frame · trained" : "frame",
+  ],
+  [
+    "Audio CNN",
+    "Three conv blocks (16-32-64) on standardised log-mel with SpecAugment, trained on ASVspoof 2019 LA.",
+    TRAINED_AUDIO ? "audio · trained" : "audio",
+  ],
+  [
+    "Xception + InceptionV3",
+    "Two-stage fine-tuning ensemble. Implemented and tested; not trained, because FaceForensics++ needs an access request.",
+    "frame · untrained",
+  ],
+  [
+    "Temporal attention head",
+    "TimeDistributed backbone + additive attention, α = softmax(vᵀ tanh(W hₜ)). Needs labelled video; not trained.",
+    "video · untrained",
+  ],
 ];
 
 const BENCHMARK = [
@@ -45,14 +73,22 @@ const ENDPOINTS = [
   ["GET", "/api/jobs/<job_id>", "{status: queued | running | done | error, result, error}"],
 ];
 
-// Facts taken from the repository: modalities and backbones from the model code, the test count from
-// backend/tests (61 `def test_` functions; pytest collects more cases through parametrisation) and the
-// crop size from configs/default.yaml (face.crop_size).
+// Facts from the repository: the test count is the number of `def test_` functions in backend/tests
+// (pytest collects a few more cases through parametrisation); benchmark numbers come from
+// src/data/benchmarks.json (built from committed results by backend/scripts/make_report.py).
+const TEST_FUNCTIONS = "100";
+const fmtPct = (v) => `${(100 * v).toFixed(1)}%`;
+const audioMain = benchmarkData.audio?.systems?.cnn_trim || benchmarkData.audio?.systems?.cnn;
+const visualMain = benchmarkData.visual?.systems?.effnet_ft || benchmarkData.visual?.systems?.effnet_probe;
 const STATS = [
-  ["3", "Modalities", "video, image, audio"],
-  ["2", "CNN backbones ensembled", "Xception + InceptionV3"],
-  ["61", "Test functions", "CI runs with and without TensorFlow"],
-  ["299²", "Aligned face crops", "eye-based roll correction"],
+  audioMain
+    ? [fmtPct(audioMain.eval_eer), "Audio eval EER", "ASVspoof 2019 LA, unseen attacks"]
+    : ["3", "Modalities", "video, image, audio"],
+  visualMain
+    ? [visualMain.test_auc.toFixed(3), "Visual test ROC-AUC", "DeepFakeFace, identity-disjoint"]
+    : ["2", "Branches", "visual and audio"],
+  [TEST_FUNCTIONS, "Test functions", "CI runs with and without TensorFlow"],
+  ["0", "Fusion claims", "no lawful paired AV data"],
 ];
 
 /** Kicker (index, rule, label), heading and optional lead, as on the portfolio's case studies. */
@@ -105,13 +141,18 @@ export function Hero() {
           Multi-Modal Deepfake <span className="sb-serif">Detection</span>
         </h1>
         <p className="sb-lead hero-lead">
-          An end-to-end system for detecting manipulated media: OpenCV face preprocessing, a transfer-learning ensemble,
-          temporal and audio branches, a Flask REST API and this React dashboard.
+          Face and voice manipulation detectors trained and evaluated on lawfully available public data, with
+          speaker- and identity-disjoint splits, unseen-attack tests, robustness and calibration measurements, a Flask API
+          and this dashboard. Every score is a probabilistic model assessment, not a verdict.
         </p>
         <div className="sb-hero__meta">
-          <span className="sb-pill">Pipeline &amp; serving complete</span>
-          <span className="sb-pill sb-pill--pending">Benchmark training pending</span>
-          <span className="sb-pill sb-pill--plain">Face preprocessing runs in your browser</span>
+          <span className={`sb-pill${TRAINED_AUDIO ? "" : " sb-pill--pending"}`}>
+            {TRAINED_AUDIO ? "Audio: trained on ASVspoof 2019 LA" : "Audio benchmark pending"}
+          </span>
+          <span className={`sb-pill${TRAINED_VISUAL ? "" : " sb-pill--pending"}`}>
+            {TRAINED_VISUAL ? "Visual: trained on DeepFakeFace" : "Visual benchmark pending"}
+          </span>
+          <span className="sb-pill sb-pill--pending">Fusion not evaluated</span>
         </div>
         <div className="sb-hero__actions">
           <a className="sb-btn sb-btn--primary btn-primary" href="#demo">
@@ -200,69 +241,72 @@ export default function Overview() {
           ))}
         </div>
         <p className="sb-small models-note">
-          No trained weights are published with this project. Train them with the{" "}
+          {TRAINED_AUDIO || TRAINED_VISUAL ? (
+            <>
+              Trained weights are GitHub release assets (not in git); <code>python scripts/fetch_weights.py</code>{" "}
+              verifies their checksums and writes the calibration model card for the API.{" "}
+            </>
+          ) : (
+            <>No trained weights are published yet. </>
+          )}
+          See the{" "}
           <a href={TRAINING_URL} target="_blank" rel="noreferrer">
-            training commands
-          </a>{" "}
-          to get real scores from the API.
+            training and benchmark commands
+          </a>
+          .
         </p>
       </Section>
 
       <Section
         id="benchmark"
         index="05"
-        label="Reference benchmark (published)"
+        label="Benchmark"
         title={
           <>
-            Published results, <span className="sb-serif">not reproduced</span> here.
+            Measured on lawful, <span className="sb-serif">public</span> data.
           </>
         }
+        lead="Each branch is trained and scored on its own dataset with leakage-free splits. Thresholds and calibration come from the validation split; test numbers are computed once."
       >
-        <div className="sb-card benchmark-card">
-          <p className="card-intro">
-            Published results for the Xception backbone used in this project, from the FaceForensics++ benchmark
-            (Rössler et al., <i>FaceForensics++: Learning to Detect Manipulated Facial Images</i>, ICCV 2019).{" "}
-            <strong>Published, not reproduced here:</strong> these come from the paper. This repository did not produce
-            them, and the browser demo on this page does not run Xception.
-          </p>
-          <div className="sb-table-wrap table-wrap" tabIndex={0} role="region" aria-label="Published benchmark table">
-            <table className="sb-table stack-sm">
-              <thead>
-                <tr>
-                  <th scope="col">Dataset</th>
-                  <th scope="col">Compression</th>
-                  <th scope="col">Model</th>
-                  <th scope="col" className="num">
-                    Accuracy
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {BENCHMARK.map((r) => (
-                  <tr key={r[1]}>
-                    <td data-label="Dataset">{r[0]}</td>
-                    <td data-label="Compression">{r[1]}</td>
-                    <td data-label="Model">{r[2]}</td>
-                    <td data-label="Accuracy" className="num">
-                      {r[3]}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="sb-callout sb-callout--warn repo-results">
-            <span className="callout-icon" aria-hidden="true">
-              <AlertIcon size={16} />
-            </span>
-            <p>
-              <strong>This repository&apos;s own results: TBD.</strong> No model has been trained yet, so the
-              README&apos;s results table (AUC, accuracy, F1, EER on FaceForensics++ and Celeb-DF) stays empty until
-              training runs.
-            </p>
-          </div>
-          <p className="sb-card__foot">Source: Rössler et al., ICCV 2019 · README › Reference benchmark (published)</p>
-        </div>
+        <BenchmarkResults
+          published={
+            <details className="sb-card published-ref">
+              <summary>Published reference: FaceForensics++ (not reproduced here)</summary>
+              <p className="card-intro">
+                Published results for the Xception backbone, from Rössler et al.,{" "}
+                <i>FaceForensics++: Learning to Detect Manipulated Facial Images</i>, ICCV 2019. These come from the
+                paper; this repository did not produce them, because FaceForensics++ requires an access request.
+              </p>
+              <div className="sb-table-wrap table-wrap" tabIndex={0} role="region" aria-label="Published benchmark table">
+                <table className="sb-table stack-sm">
+                  <thead>
+                    <tr>
+                      <th scope="col">Dataset</th>
+                      <th scope="col">Compression</th>
+                      <th scope="col">Model</th>
+                      <th scope="col" className="num">
+                        Accuracy
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {BENCHMARK.map((r) => (
+                      <tr key={r[1]}>
+                        <td data-label="Dataset">{r[0]}</td>
+                        <td data-label="Compression">{r[1]}</td>
+                        <td data-label="Model">{r[2]}</td>
+                        <td data-label="Accuracy" className="num">
+                          {r[3]}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="sb-card__foot">Source: Rössler et al., ICCV 2019</p>
+            </details>
+          }
+        />
       </Section>
 
       <Section
