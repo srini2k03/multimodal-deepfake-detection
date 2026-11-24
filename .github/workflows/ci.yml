@@ -57,7 +57,7 @@ jobs:
         run: python -m pytest --cov=deepfake_detector --cov-report=term-missing
 
   frontend:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # Playwright's browser dependencies are not packaged for newer images yet
     defaults:
       run:
         working-directory: frontend
@@ -70,3 +70,8 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npm run build
+      - name: Browser smoke test (Pages build)
+        run: |
+          npm run build:pages
+          npx playwright install --with-deps chromium > /dev/null
+          node scripts/smoke.mjs
