@@ -279,6 +279,25 @@ def visual_section(res: Path, figs: Path) -> tuple[str, dict]:
             lines.append(f"| {c} | " + " | ".join(num(r[k]["roc_auc"]) for k in systems) + " | "
                          + " | ".join(pct(r[k]["fpr_at_val_threshold"]) for k in systems) + " |")  # fmt: skip
         site["robustness"] = {c: {k: rob["conditions"][c][k]["roc_auc"] for k in systems} for c in conds}
+    wdf = _load(res / "cross_dataset_wilddeepfake.json")
+    if wdf:
+        aggs = list(next(iter(wdf["systems"].values()))["sequence_level"])
+        lines += ["", f"Cross-dataset, video level: WildDeepfake test ({wdf['n_videos']} videos, {wdf['n_sequences']} face "
+                  f"sequences, {wdf['n_frames']:,} frames; nothing fitted on it):", "",
+                  "| System | Frame AUC | " + " | ".join(f"Sequence AUC ({a})" for a in aggs) + " |",
+                  "|---|---|" + "---|" * len(aggs)]  # fmt: skip
+        for k, e in wdf["systems"].items():
+            lines.append(f"| {VISUAL_NAMES.get(k, k)} | {num(e['frame_level']['roc_auc'])} | "
+                         + " | ".join(num(e["sequence_level"][a]["roc_auc"]) for a in aggs) + " |")  # fmt: skip
+        site["wilddeepfake"] = {
+            "meta": wdf["meta"],
+            "n_videos": wdf["n_videos"],
+            "n_sequences": wdf["n_sequences"],
+            "n_frames": wdf["n_frames"],
+            "systems": {k: {"label": VISUAL_NAMES.get(k, k), "frame_auc": e["frame_level"]["roc_auc"],
+                            "sequence_auc": {a: e["sequence_level"][a]["roc_auc"] for a in aggs}}
+                        for k, e in wdf["systems"].items()},
+        }  # fmt: skip
     if lat:
         site["latency"] = {
             "face_detect_align_crop_ms": lat["face_detect_align_crop"]["mean_ms"],
