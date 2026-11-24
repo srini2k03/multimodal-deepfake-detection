@@ -6,7 +6,22 @@ Two independently trained detectors are released as GitHub release assets (not s
 here come from the committed results; see [BENCHMARKS.md](BENCHMARKS.md) for the full tables.
 
 <!-- card:start -->
-_Filled in from the committed benchmark results._
+### Audio countermeasure (`cnn_trim`)
+
+- Architecture: 3-block log-mel CNN, 154,641 parameters
+- Training data: ASVspoof 2019 LA train (speaker-disjoint official protocol), leading/trailing silence trimmed
+- ASVspoof 2019 LA eval: EER 19.01%, min t-DCF 0.449, ROC-AUC 0.8934
+- In-the-Wild (cross-dataset): EER 45.46%
+- CPU latency per 4 s clip: Keras 15.9 ms, TFLite int8 1.4 ms (164 KB)
+- Provenance: [run 45371433877](https://github.com/srini2k03/multimodal-deepfake-detection/actions/runs/45371433877), commit `c9b2215`, release `audio-asvspoof2019-v1`
+
+### Visual classifier (`effnet_ft`)
+
+- Architecture: EfficientNetV2-B0 (ImageNet) + dropout + logit head, 224x224 face crops
+- Training data: DeepFakeFace train split (identity-disjoint sample)
+- DeepFakeFace test: ROC-AUC 0.914, EER 16.92%, face-size-matched AUC 0.910
+- CPU latency per face crop: Keras batch 1 181 ms, batch 16 25 ms/image; face detection + alignment 33 ms
+- Provenance: [run 45373710322](https://github.com/srini2k03/multimodal-deepfake-detection/actions/runs/45373710322), commit `8724ec3`, release `visual-dff-v1`
 <!-- card:end -->
 
 ## Intended use

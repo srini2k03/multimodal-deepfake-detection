@@ -53,6 +53,15 @@ trained and evaluated separately, on different datasets.
 - **Splits (official, speaker-disjoint):** train and dev use attacks A01–A06. Eval uses A07–A19.
   A16 and A19 reuse the A04 and A06 systems, so **11 of the 13 eval attacks are never seen in
   training**. Speaker overlap between splits is measured in the audit (expected 0).
+- **Measured (`results/audio/asvspoof2019_la/data_audit.json`):**
+
+  | Split | Utterances | Bona fide | Spoof | Speakers | Attacks | Median leading silence, bona fide / spoof |
+  |---|---|---|---|---|---|---|
+  | train | 25,380 | 2,580 | 22,800 | 20 | A01–A06 | 0.71 s / 0.33 s |
+  | dev | 24,844 | 2,548 | 22,296 | 20 | A01–A06 | 0.88 s / 0.33 s |
+  | eval | 71,237 | 7,355 | 63,882 | 67 | A07–A19 | 0.75 s / 0.04 s |
+
+  Speaker overlap between every pair of splits: 0. Archive SHA-256 `208a7e4e…e4ec`.
 - **Leakage control:** the official speaker-disjoint protocol is used unchanged. Model selection
   uses dev only. Eval is scored once, at the dev-chosen operating point.
 - **Known bias:** the duration of leading and trailing non-speech differs between bona fide and
@@ -64,9 +73,10 @@ trained and evaluated separately, on different datasets.
 
 ## In-the-Wild (audio, cross-dataset test only)
 
-Real and deepfaked speech of public figures, collected from the internet. It is used only as an
-out-of-distribution test set for the ASVspoof-trained systems, with no training or threshold
-tuning on it. The operating threshold and the Platt calibration come from ASVspoof dev.
+Real and deepfaked speech of public figures, collected from the internet: 31,779 clips
+(19,963 bona fide, 11,816 spoofed) from 54 speakers. It is used
+only as an out-of-distribution test set for the ASVspoof-trained systems, with no training or
+threshold tuning on it. The operating threshold and the Platt calibration come from ASVspoof dev.
 
 ## DeepFakeFace (visual)
 
@@ -80,10 +90,16 @@ tuning on it. The operating threshold and the Platt calibration come from ASVspo
   parses, and whole groups are assigned to train / val / test by a seeded hash. A person, and
   every fake made from their photo, appears in exactly one split. The audit reports the group
   overlap between splits (expected 0) and how many fake keys match a real key.
+- **Selected sample (`results/visual/dff/data_audit.json`):** train 20,000 images (5,000 identities:
+  5,000 real, 15,000 fake), val 3,200 (800 identities), test 10,000 (2,500 identities). The
+  identity overlap between splits is 0. Every one of the 30,000 fake keys per type matches a real
+  key, and 99.99% of the file names yield an IMDB-WIKI person id.
 - **Manipulation-type generalisation:** leave-one-generator-out models never see one fake type
   during training. They measure how detection degrades on an unseen manipulation.
-- **Known biases (measured, not assumed):** the real photos are web JPEGs of varied resolution,
-  while the fakes are generated at a fixed resolution in another container format. The benchmark
+- **Known biases (measured, not assumed):** in the test sample, every fake (all three types) is a
+  512×512 JPEG, while the real photos are mostly JPEG (2,404 of 2,500) with varied size (median
+  440×532, 5th percentile 234 px wide). The face detector fires on 72% of real photos and on 67–83%
+  of fakes. A classifier on these file properties alone reaches test ROC-AUC 0.967 (BENCHMARKS.md). The benchmark
   re-encodes every face crop as JPEG at the same quality and adds random JPEG and rescale
   augmentation to both classes. It also reports a *metadata-only* classifier (file format,
   resolution, bytes per pixel, face-box size) that quantifies how much the files leak without

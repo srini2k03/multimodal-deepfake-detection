@@ -53,8 +53,33 @@ deployment. No face classifier runs in the browser, so visual scores there are l
 ## Results at a glance
 
 <!-- results:start -->
-_Filled in from the committed benchmark results._
+| Branch | Test set | System | Result | Source |
+|---|---|---|---|---|
+| Audio | ASVspoof 2019 LA eval (unseen speakers, 11 of 13 attacks unseen) | Log-mel CNN, silence trimmed | EER **19.01%**, min t-DCF 0.449 | [run 45371433877](https://github.com/srini2k03/multimodal-deepfake-detection/actions/runs/45371433877) |
+| Audio | ASVspoof 2019 LA eval (unseen speakers, 11 of 13 attacks unseen) | Log-mel CNN | EER **7.65%**, min t-DCF 0.138 | [run 45371433877](https://github.com/srini2k03/multimodal-deepfake-detection/actions/runs/45371433877) |
+| Audio | ASVspoof 2019 LA eval (unseen speakers, 11 of 13 attacks unseen) | Log-mel statistics (LR) | EER **17.14%**, min t-DCF 0.456 | [run 45371433877](https://github.com/srini2k03/multimodal-deepfake-detection/actions/runs/45371433877) |
+| Audio | ASVspoof 2019 LA eval (unseen speakers, 11 of 13 attacks unseen) | Silence/duration only (LR) | EER **17.74%**, min t-DCF 0.476 | [run 45371433877](https://github.com/srini2k03/multimodal-deepfake-detection/actions/runs/45371433877) |
+| Audio | In-the-Wild (31,779 clips, cross-dataset) | Log-mel CNN, silence trimmed | EER **45.46%** | [run 45371433877](https://github.com/srini2k03/multimodal-deepfake-detection/actions/runs/45371433877) |
+| Audio | In-the-Wild (31,779 clips, cross-dataset) | Log-mel CNN | EER **47.86%** | [run 45371433877](https://github.com/srini2k03/multimodal-deepfake-detection/actions/runs/45371433877) |
+| Visual | DeepFakeFace test (identity-disjoint, images) | EfficientNetV2-B0 fine-tuned | ROC-AUC **0.914**, face-size-matched AUC 0.910 | [run 45373710322](https://github.com/srini2k03/multimodal-deepfake-detection/actions/runs/45373710322) |
+| Visual | DeepFakeFace test (identity-disjoint, images) | Fine-tuned, 96 px resolution cap | ROC-AUC **0.894**, face-size-matched AUC 0.891 | [run 45373710322](https://github.com/srini2k03/multimodal-deepfake-detection/actions/runs/45373710322) |
+| Visual | DeepFakeFace test (identity-disjoint, images) | EfficientNetV2-B0 frozen + LR | ROC-AUC **0.818**, face-size-matched AUC 0.817 | [run 45373710322](https://github.com/srini2k03/multimodal-deepfake-detection/actions/runs/45373710322) |
+| Visual | DeepFakeFace test (identity-disjoint, images) | File metadata only (LR) | ROC-AUC **0.967**, face-size-matched AUC 0.964 | [run 45373710322](https://github.com/srini2k03/multimodal-deepfake-detection/actions/runs/45373710322) |
+| Visual | DeepFakeFace test, face swaps never seen in training | Fine-tuned without face swaps | AUC on face swaps **0.714** | [run 45373710322](https://github.com/srini2k03/multimodal-deepfake-detection/actions/runs/45373710322) |
+| Fusion | none: no lawful paired audio-visual data | heuristic weighted average | **not evaluated** | [why](docs/DATASETS.md#consequence-for-fusion) |
+| Serving | 10 s 720p video, 16 frames, CPU (4 vCPU) | API detector end to end | median **1.77 s** (2.21 s with Grad-CAM) | [run 45440058636](https://github.com/srini2k03/multimodal-deepfake-detection/actions/runs/45440058636) |
 <!-- results:end -->
+
+How to read these numbers:
+
+- **Shortcuts.** On ASVspoof 2019 LA, silence alone gives 17.7% EER, and the untrimmed CNN's 7.65%
+  relies on it: it reaches 21.6% on trimmed audio and flags every bona fide clip once a second of
+  silence is prepended. The served audio model is the silence-trimmed CNN, which is worse in-benchmark
+  but stable under noise and silence edits. On DeepFakeFace, file metadata alone (fakes are all
+  512×512) gives AUC 0.967, higher than any image model, so the visual numbers measure
+  generalisation within a biased dataset.
+- **Out of distribution, the audio branch is near chance** (In-the-Wild EER 45–48%). The visual branch
+  drops on an unseen manipulation type (face-swap AUC 0.877 → 0.714 when swaps are held out).
 
 Full tables, per-attack and per-manipulation breakdowns, robustness, calibration and latency:
 **[docs/BENCHMARKS.md](docs/BENCHMARKS.md)**.
@@ -190,7 +215,8 @@ evaluates, commits its JSON results and attaches the models to a release.
 |---|---|---|
 | [`benchmark-audio.yml`](.github/workflows/benchmark-audio.yml) | ASVspoof 2019 LA features → 2 CNNs + 2 linear baselines → eval, per-attack, calibration, robustness, latency/TFLite parity → In-the-Wild | `results/audio/asvspoof2019_la/`, release `audio-asvspoof2019-v1` |
 | [`benchmark-visual.yml`](.github/workflows/benchmark-visual.yml) | DeepFakeFace identity-grouped split → face crops → metadata probe, frozen probe, fine-tuning, leave-one-generator-out, resolution control → robustness, Grad-CAM statistics, latency | `results/visual/dff/`, release `visual-dff-v1` |
-| [`export-audio-web.yml`](.github/workflows/export-audio-web.yml) | Released audio CNN → browser format; JS/Python parity check | release assets, `browser_parity.json` |
+| [`publish-results.yml`](.github/workflows/publish-results.yml) | Commits a finished run's results from its artifact; exports the audio CNN for the browser and checks JS/Python parity; attaches the models to the release | `results/…`, `frontend/public/models/audio/`, releases |
+| [`benchmark-visual-cross.yml`](.github/workflows/benchmark-visual-cross.yml) | WildDeepfake test split, frame- vs video-level AUC for the released visual models | `results/visual/dff/cross_dataset_wilddeepfake.json` |
 | [`benchmark-inference.yml`](.github/workflows/benchmark-inference.yml) | End-to-end API latency with the released models | `results/inference/latency.json` |
 | [`dataset-access.yml`](.github/workflows/dataset-access.yml) | Licence and gating checks of candidate datasets | `results/datasets/access_check.json` |
 
@@ -277,12 +303,12 @@ Celery or RQ behind the same interface.
 | Step | In the browser | Real? |
 |---|---|---|
 | Frame sampling, face detection (MediaPipe BlazeFace), alignment, crops | same rules as the backend | Yes |
-| Audio decode, silence trim, 4 s clips, log-mel, **audio CNN** | JavaScript port of the Python code, weights from the `audio-asvspoof2019-v1` release | **Yes: trained model, parity-checked** |
+| Audio decode, silence trim, 4 s clips, log-mel, **audio CNN** | JavaScript port of the Python code; weights in `frontend/public/models/audio/` (0.6 MB, exported from the released `cnn_trim` model) | **Yes: trained model, parity-checked** |
 | Visual scores | crop sharpness and saturation, squashed to 0..1 | **No: labelled placeholders** |
 | Grad-CAM | not available (needs the Python backend) | n/a |
 
-The Pages workflow downloads the exported audio model from the release and runs
-`frontend/scripts/audio-parity.mjs` before building. If the JavaScript log-mel or CNN drifts from
+The Pages workflow and CI run `frontend/scripts/audio-parity.mjs` against the committed model
+before building. If the JavaScript log-mel or CNN drifts from
 Python/Keras beyond 2e-3, the deployment fails. A real audio score is never averaged with
 placeholder visual scores.
 
@@ -325,7 +351,14 @@ publishes the demo to `gh-pages`.
 ## Screenshots
 
 <!-- screenshots:start -->
-_Refreshed from the deployed site once the models are released._
+| Benchmark section (site) | Browser demo: video (real face pipeline + trained audio CNN) |
+|---|---|
+| [![Benchmark section](docs/screenshots/benchmark.png)](docs/screenshots/benchmark.png) | [![Browser demo, video](docs/screenshots/demo-video.jpg)](docs/screenshots/demo-video.jpg) |
+| **API dashboard with the released models: calibrated score, stage latency, Grad-CAM** | **Browser demo: audio scored by the trained CNN in the page** |
+| [![API dashboard](docs/screenshots/api-gradcam.jpg)](docs/screenshots/api-gradcam.jpg) | [![Browser demo, audio](docs/screenshots/demo-audio.jpg)](docs/screenshots/demo-audio.jpg) |
+
+The inputs are a public-domain NASA portrait (authentic) and generated tones. The screenshots show
+real functionality, not accuracy claims: see [docs/screenshots/README.md](docs/screenshots/README.md).
 <!-- screenshots:end -->
 
 ## Project structure
@@ -355,7 +388,7 @@ multimodal-deepfake-detection/
 │   └── scripts/                 # audio-parity.mjs, smoke.mjs
 ├── results/                     # committed benchmark outputs (JSON, per-item scores)
 ├── docs/                        # BENCHMARKS.md, DATASETS.md, MODEL_CARD.md, figures/, screenshots/
-├── .github/workflows/           # ci, pages, benchmark-*, export-audio-web, dataset-access
+├── .github/workflows/           # ci, pages, benchmark-*, publish-results, dataset-access
 └── docker-compose.yml  Makefile  LICENSE  README.md
 ```
 
