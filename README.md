@@ -9,125 +9,155 @@
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-An end-to-end system for detecting manipulated media. Video frames go through OpenCV face detection and alignment, then an **Xception + InceptionV3 transfer-learning ensemble** scores the face crops. An optional **attention-based temporal head** turns frame scores into a video-level score, and a **mel-spectrogram audio CNN** adds a second modality through **late fusion**. A **Flask REST API** serves the models, and a **React** dashboard shows the probability gauge, a per-frame timeline, **Grad-CAM** heatmaps and the score from each model.
+Face and voice manipulation detectors, trained and evaluated on **lawfully available public data**
+with leakage-free splits, then served through a Flask API and a React dashboard. The visual branch
+covers face detection, alignment, a CNN classifier, frame-to-video aggregation and Grad-CAM. The
+audio branch covers log-mel features, a CNN and spectrogram saliency. Both report calibrated
+probabilities. Every score is a probabilistic model assessment, never a verdict.
 
-> **Status / honesty note.** This repository contains the full training, evaluation and serving code. It does **not** ship trained weights or benchmark numbers. Without weights, the API runs in a clearly labelled **demo mode** that uses untrained (randomly initialised) networks, and every response carries a warning. To get real results, train the models on a benchmark dataset with the commands below. Then run the evaluation script to fill in the results table.
+> **What is and is not established.** The audio branch is trained and evaluated on ASVspoof 2019 LA
+> (speaker-disjoint, with unseen attacks) and tested cross-dataset on In-the-Wild. The visual branch
+> is trained and evaluated at image level on DeepFakeFace (identity-disjoint, one generator held
+> out). **Audio-visual fusion is implemented but not evaluated**, because every dataset with paired,
+> labelled audio and video needs an access request ([why](docs/DATASETS.md#consequence-for-fusion)).
+> The Xception + InceptionV3 ensemble and the attention temporal head are implemented and tested, but
+> not trained, because the data they were designed for (FaceForensics++, Celeb-DF) is gated. Every
+> number below comes from a workflow run whose output is committed in [`results/`](results).
 
-**Live demo:** <https://srini2k03.github.io/multimodal-deepfake-detection/>. This is a static **browser demo** with no server. It runs the real preprocessing pipeline in your browser: frame sampling, MediaPipe face detection, eye-based alignment and 299×299 crops. It shows the sampled frame timeline and the crops the models would receive. No trained model runs there, so every score on that page is a clearly labelled **placeholder** computed from simple pixel or loudness statistics, not a deepfake verdict. Real detection needs the Python backend with trained weights (see [Quick start](#quick-start)).
+**Live demo:** <https://srini2k03.github.io/multimodal-deepfake-detection/>. The face pipeline
+(sampling, MediaPipe detection, alignment, crops) runs in your browser, and so does the **trained
+audio CNN**: a JavaScript port whose output is checked numerically against Python before every
+deployment. No face classifier runs in the browser, so visual scores there are labelled placeholders.
 
 ---
 
 ## Contents
 
-- [Features](#features)
-- [Browser demo (GitHub Pages)](#browser-demo-github-pages)
+- [Results at a glance](#results-at-a-glance)
+- [Datasets](#datasets)
 - [Architecture](#architecture)
 - [Pipeline details](#pipeline-details)
 - [Quick start](#quick-start)
-- [Dataset preparation](#dataset-preparation)
-- [Training](#training)
-- [Evaluation](#evaluation)
-- [Inference](#inference)
-- [REST API](#rest-api)
+- [Reproducing the benchmarks](#reproducing-the-benchmarks)
+- [Training on other datasets](#training-on-other-datasets)
+- [Inference and REST API](#inference-and-rest-api)
+- [Browser demo](#browser-demo-github-pages)
 - [Frontend](#frontend)
 - [Configuration](#configuration)
-- [Results](#results)
+- [Testing and CI](#testing-and-ci)
 - [Screenshots](#screenshots)
 - [Project structure](#project-structure)
-- [Testing and CI](#testing-and-ci)
-- [Roadmap](#roadmap)
 - [Limitations and responsible use](#limitations-and-responsible-use)
 - [References](#references)
-- [License](#license)
 
-## Features
+## Results at a glance
 
-| Area | What is implemented |
-|---|---|
-| Face preprocessing | OpenCV DNN (ResNet-10 SSD) or Haar face detector, eye-based roll alignment without landmarks, square margin crops, uniform/stride frame sampling, on-disk crop cache, multiprocess dataset extraction |
-| Datasets | FaceForensics++ (all manipulation methods, any compression), Celeb-DF (official test list) and a generic `real/` + `fake/` layout. Splits are **grouped by identity**, so a person never appears in both train and test |
-| Visual models | Xception and InceptionV3 (ImageNet transfer learning), **two-stage fine-tuning** (frozen head training, then partial unfreezing with BatchNorm kept frozen), weighted ensemble |
-| Temporal | Frame to video aggregation by mean, median, max, top-k or confidence weighting, or a trainable **attention-pooling** head (`TimeDistributed` CNN + additive attention) |
-| Audio | NumPy log-mel spectrograms (no librosa), SpecAugment-style masking, compact CNN, per-segment scores |
-| Fusion | Late fusion in probability space or log-odds space; modalities that are missing are dropped and the remaining weights are renormalised |
-| Training | `tf.data` pipelines, mixed precision on GPU, class weighting, checkpointing on best val AUC, early stopping, LR scheduling, CSV and TensorBoard logs |
-| Evaluation | Frame-level and video-level AUC, accuracy, precision, recall, F1, **EER**, confusion matrix, ROC plot, ensemble-weight tuning on the validation split |
-| Explainability | **Grad-CAM** on the last convolutional block of each backbone, returned as base64 PNG overlays |
-| API | Flask: `/api/health`, `/api/models`, `/api/predict` (image/video/audio), `/api/jobs/<id>` async jobs, upload validation and size limits, CORS, JSON structured logs with request IDs, consistent JSON errors |
-| Frontend | React + Vite: drag-and-drop, upload progress, gauge, interactive per-frame timeline, Grad-CAM opacity slider, per-model bars, audio segment chart. Only `react` and `react-dom` at runtime |
-| Ops | Dockerfiles (API + nginx web), docker-compose, Makefile, ruff, pytest, GitHub Actions |
+<!-- results:start -->
+_Filled in from the committed benchmark results._
+<!-- results:end -->
 
-## Browser demo (GitHub Pages)
+Full tables, per-attack and per-manipulation breakdowns, robustness, calibration and latency:
+**[docs/BENCHMARKS.md](docs/BENCHMARKS.md)**.
 
-The site at <https://srini2k03.github.io/multimodal-deepfake-detection/> is the React dashboard built with `VITE_DEMO=browser` (`npm run build:pages`, which reads `frontend/.env.pages`). In this mode the frontend never calls Flask. Instead it does the following:
+## Datasets
 
-| Step | In the browser demo | Real? |
-|---|---|---|
-| Frame sampling | 16 frames at the centre of 16 equal time segments (same rule as `sample_indices`), decoded with a `<video>` element | Yes |
-| Face detection | MediaPipe BlazeFace short-range (`@mediapipe/tasks-vision@0.10.35` from jsDelivr; the 230 KB Apache-2.0 model is in `frontend/public/models/`). Largest face kept | Yes |
-| Alignment and crop | 30% margin square box, roll correction from the two eye keypoints (±30° limit), 299×299 crop, centre-crop fallback when no face is found | Yes |
-| Audio | Web Audio decode, mono 16 kHz, 4 s segments | Yes |
-| Scores | Placeholder heuristics: crop sharpness (Laplacian variance), crop colour saturation and segment loudness, squashed to 0..1 and fused with the configured 0.7 / 0.3 weights | **No: placeholders, not a classifier** |
-| Grad-CAM | Not available (needs trained models) | n/a |
+| Dataset | Used for | Licence (as published) | Access |
+|---|---|---|---|
+| [ASVspoof 2019 LA](https://datashare.ed.ac.uk/handle/10283/3336) | audio train / dev / eval | ODC-By 1.0 | open download |
+| [In-the-Wild](https://huggingface.co/datasets/mueller91/In-The-Wild) | audio cross-dataset test only | CC BY-SA 4.0 card / CC BY-NC 4.0 site | ungated |
+| [DeepFakeFace](https://huggingface.co/datasets/OpenRL/DeepFakeFace) | visual train / val / test (images) | OpenRAIL card; real photos from IMDB-WIKI (research use) | ungated |
 
-The page states this in a standing banner and on every result card, shows no "likely manipulated/authentic" verdict, and hides the decision threshold. Nothing is uploaded: files stay in the browser. AVI and MKV files usually cannot be decoded by browsers, so use MP4 (H.264) or WebM there.
-
-`.github/workflows/pages.yml` builds this on every push to `main` (or by manual dispatch) and publishes `frontend/dist` to the `gh-pages` branch with `peaceiris/actions-gh-pages`. To serve it, set **Settings → Pages → Build and deployment** to *Deploy from a branch*, `gh-pages` / `(root)`.
+FaceForensics++, DFDC, Celeb-DF, DeeperForensics, FakeAVCeleb, LAV-DF, AV-Deepfake1M and DeepSpeak
+need a form, an EULA or gated access, so they are not used. The repository still reads their
+layouts for anyone who has access. The access checks are reproducible: the
+[`dataset-access.yml`](.github/workflows/dataset-access.yml) workflow records what each host
+reports in [`results/datasets/access_check.json`](results/datasets/access_check.json). Licences,
+split construction and known biases: **[docs/DATASETS.md](docs/DATASETS.md)**. No dataset media is
+committed to this repository.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
     subgraph Client
-        UI[React dashboard<br/>upload · gauge · timeline · Grad-CAM]
+        UI[React dashboard<br/>upload · per-modality scores · timeline<br/>Grad-CAM · spectrogram · latency]
+        BR[Browser demo<br/>MediaPipe faces · JS log-mel + audio CNN]
     end
 
     subgraph API[Flask API]
-        V[Validation<br/>type · size · decode] --> J{sync / async job}
+        V[Validation<br/>type · size · duration · decode<br/>rate limit] --> J{sync / async job}
     end
 
     subgraph Engine[Inference engine]
         direction TB
-        S[Frame sampler<br/>OpenCV] --> FD[Face detector<br/>DNN SSD / Haar]
-        FD --> AL[Alignment + crop<br/>eye roll · margin · 299²]
-        AL --> X[Xception]
-        AL --> I[InceptionV3]
-        X --> E[Weighted ensemble<br/>per-frame P fake]
-        I --> E
-        E --> AG[Temporal aggregation<br/>mean / top-k / attention head]
-        X -.-> GC[Grad-CAM]
-        A[Audio track<br/>ffmpeg / wav] --> M[Log-mel spectrogram] --> AC[Audio CNN]
-        AG --> F[Late fusion]
-        AC --> F
+        S[Frame sampler] --> FD[Face detector<br/>Haar / DNN SSD]
+        FD --> AL[Align + crop<br/>eye roll · 224²]
+        AL --> EF[EfficientNetV2-B0<br/>trained on DeepFakeFace]
+        AL -.-> XI[Xception + InceptionV3<br/>implemented, untrained]
+        EF --> CV[Platt calibration<br/>per frame]
+        CV --> AG[Frame → video<br/>mean / median / top-k]
+        EF -.-> GC[Grad-CAM]
+        A[Audio track<br/>ffmpeg / soundfile] --> T[Silence trim<br/>4 s clips]
+        T --> M[Log-mel 64 bands] --> AC[Audio CNN<br/>trained on ASVspoof 2019 LA]
+        AC --> CA[Platt calibration]
+        AC -.-> AS[Spectrogram Grad-CAM]
+        AG --> F[Late fusion<br/>heuristic weights, not evaluated]
+        CA --> F
     end
 
     UI -- multipart upload --> V
     J --> S
     J --> A
-    F --> R[JSON: label · probability ·<br/>per-model · per-frame · heatmap]
+    F --> R[JSON: per-modality calibrated scores ·<br/>per-frame · timings · explanations]
     GC --> R
+    AS --> R
     R --> UI
 ```
 
 ## Pipeline details
 
-**1. Frame sampling.** `sample_indices` picks `N` frames spread evenly across the video (the centre of each of `N` segments), or every `k`-th frame. The frames are decoded in one sequential grab/retrieve pass, which works more reliably than random seeking across codecs.
+**1. Frame sampling.** `sample_indices` picks `N` frames spread evenly across the video (the centre
+of each of `N` segments), decoded in one sequential pass, which is more reliable than random
+seeking across codecs.
 
-**2. Face detection.** The default detector is the Haar cascade bundled with OpenCV (`face.detector: haar` in `configs/default.yaml`), which needs no downloads. Set `face.detector: dnn` to use OpenCV's more accurate ResNet-10 SSD (downloaded by `scripts/download_face_models.sh`); if its model files are missing, the Haar cascade is used automatically as a fallback. The largest face in each frame is kept.
+**2. Face detection.** By default the Haar cascade bundled with OpenCV (no downloads). Set
+`face.detector: dnn` for OpenCV's ResNet-10 SSD (`scripts/download_face_models.sh`); Haar is the
+fallback. The largest face is kept, and frames without a face fall back to a centre crop that is
+flagged in the response.
 
-**3. Alignment without landmarks.** The box is expanded by a relative margin (30% by default) and made square, so the crop keeps the face boundary where blending artifacts appear. A Haar eye cascade runs inside the upper half of the face. When two plausible eyes are found, the frame is rotated about the face centre so the eye line is horizontal. Otherwise the pipeline falls back to bounding-box normalisation only. Crops are resized to 299×299 (the native size of both backbones).
+**3. Alignment without landmarks.** The box gets a 30% margin and is made square. A Haar eye
+cascade estimates the roll angle and the crop is rotated so the eye line is level. The crop is
+resized to the model input (224² for EfficientNetV2-B0, 299² for Xception/InceptionV3).
 
-**4. Frame classifiers.** Each backbone (`include_top=False`, global average pooling) feeds a dropout layer and a single-logit head. Inputs are scaled to `[-1, 1]`, which is the preprocessing both Xception and InceptionV3 expect, so one input pipeline serves every model.
-- *Stage 1* freezes the backbone and trains only the head (`lr = 1e-3`).
-- *Stage 2* unfreezes the top 35% of backbone layers and keeps every BatchNorm layer frozen (`lr = 2e-5`). A checkpoint threshold makes sure stage 2 never overwrites a better stage-1 checkpoint.
+**4. Frame classifier.** EfficientNetV2-B0 (ImageNet weights) with a dropout and single-logit head.
+Every classifier takes the same `[-1, 1]` input; EfficientNet's classifier maps it to `[0, 255]`
+internally. Training is two-stage: one epoch on the head, then the top 30% of layers unfrozen with
+BatchNorm kept frozen, with class-balanced epochs and augmentation applied to both classes alike
+(flip, random JPEG, down/up-scaling, brightness). The Xception + InceptionV3 ensemble and its
+two-stage recipe are still available.
 
-**5. Ensemble and temporal aggregation.** The per-frame ensemble score is a convex combination of the backbone scores, and `evaluate --tune-ensemble` grid-searches the weights on the validation split. Frame scores are aggregated into a video score with a configurable method; `topk_mean` is robust when only part of a clip is manipulated. The optional temporal model runs the fine-tuned backbone over `T` frames and pools them with additive attention, `α = softmax(vᵀ tanh(W h_t))`, so it can learn to focus on the few frames that show artifacts.
+**5. Frame to video.** Per-frame probabilities are aggregated by mean, median, max, top-k mean or
+confidence weighting (`api.frame_aggregation`). An attention-pooling temporal head is implemented
+(`α = softmax(vᵀ tanh(W hₜ))`), but it needs labelled video to train.
 
-**6. Audio branch.** The audio track is decoded with ffmpeg (or the stdlib `wave` module for WAV), converted to mono 16 kHz and split into 4 s clips. Each clip becomes a 64-band standardised log-mel spectrogram and is scored by a 3-block CNN. Training adds random time and frequency masking.
+**6. Audio branch.** Audio is decoded (soundfile, ffmpeg for other containers), converted to mono
+16 kHz and truncated to `audio.max_seconds`. Leading and trailing silence is trimmed when the
+released model was trained that way, the audio is split into 4 s clips (repeat-padded), each clip
+becomes a standardised 64-band log-mel spectrogram, and a 3-block CNN scores it. The utterance
+score is the mean clip logit.
 
-**7. Late fusion.** `P = Σ w_m p_m / Σ w_m` over the modalities that are available (visual 0.7, audio 0.3 by default), or the same average in logit space (`fusion.method: logit`). Silent or missing audio is excluded automatically.
+**7. Calibration.** Each branch's raw logits go through Platt scaling fitted on that dataset's
+validation split, re-weighted to equal class priors (`weights/model_card.json`). Raw and calibrated
+probabilities are both returned.
 
-**8. Explainability.** Grad-CAM uses the gradient of the pre-sigmoid logit with respect to `block14_sepconv2_act` (Xception) or `mixed10` (InceptionV3). It is computed on the most suspicious frame and returned as an overlay plus the raw crop, so the UI can blend the two.
+**8. Fusion.** A weighted average over the modalities that are present (visual 0.7, audio 0.3,
+probability or logit space). Missing or silent audio is dropped, never counted as evidence. These
+weights are a heuristic: **fusion has not been evaluated** (see [Datasets](#datasets)), and the
+response says so in `fusion.validated: false`.
+
+**9. Explanations.** Grad-CAM on the frame classifier's last convolutional block for the most
+suspicious frame, and Grad-CAM on the audio CNN's last convolution over the log-mel spectrogram of
+the most suspicious clip. They are diagnostic evidence of what the model reacts to, not proof.
 
 ## Quick start
 
@@ -135,240 +165,168 @@ flowchart LR
 git clone https://github.com/srini2k03/multimodal-deepfake-detection.git
 cd multimodal-deepfake-detection
 
-# Backend (Python 3.10–3.12 recommended for TensorFlow)
+# Backend (Python 3.10-3.12)
 python -m venv .venv && source .venv/bin/activate
 make install            # TensorFlow + dev tools  (or: make install-dev for a TF-free setup)
-make api                # http://localhost:5000  (demo mode until weights exist)
+make fetch-weights      # released models (SHA-256 checked) + calibration model card -> backend/weights/
+make serve              # http://localhost:5000 with configs/serve.yaml (refuses to start without weights)
 
 # Frontend (second terminal)
 make frontend-install
-make frontend-dev       # http://localhost:5173  (proxies /api to :5000)
+make frontend-dev       # http://localhost:5173 (proxies /api to :5000)
 ```
 
-With Docker:
+Without weights, `make api` starts in a clearly labelled **demo mode** (untrained networks, warning
+on every response). With Docker: `docker compose up --build` (web on :8080, API on :5000). Put the
+fetched files in `backend/weights/`, which is mounted read-only. API settings can also come from
+environment variables; see [`backend/.env.example`](backend/.env.example).
 
-```bash
-docker compose up --build      # web: http://localhost:8080   api: http://localhost:5000
-```
+## Reproducing the benchmarks
 
-Place trained `.keras` files in `backend/weights/` (mounted read-only into the API container) and restart. `/api/health` will then report `"mode": "trained"`.
+All heavy compute runs in GitHub Actions on CPU runners. Each workflow downloads the data, trains,
+evaluates, commits its JSON results and attaches the models to a release.
 
-**Pipeline smoke test.** `make smoke` generates a tiny *synthetic* dataset of drawn shapes, not faces. It then runs extraction, trains every model for one epoch per stage at 96 px on CPU, and evaluates. This checks that the plumbing works end to end. The resulting numbers mean nothing.
+| Workflow | What it does | Output |
+|---|---|---|
+| [`benchmark-audio.yml`](.github/workflows/benchmark-audio.yml) | ASVspoof 2019 LA features → 2 CNNs + 2 linear baselines → eval, per-attack, calibration, robustness, latency/TFLite parity → In-the-Wild | `results/audio/asvspoof2019_la/`, release `audio-asvspoof2019-v1` |
+| [`benchmark-visual.yml`](.github/workflows/benchmark-visual.yml) | DeepFakeFace identity-grouped split → face crops → metadata probe, frozen probe, fine-tuning, leave-one-generator-out, resolution control → robustness, Grad-CAM statistics, latency | `results/visual/dff/`, release `visual-dff-v1` |
+| [`export-audio-web.yml`](.github/workflows/export-audio-web.yml) | Released audio CNN → browser format; JS/Python parity check | release assets, `browser_parity.json` |
+| [`benchmark-inference.yml`](.github/workflows/benchmark-inference.yml) | End-to-end API latency with the released models | `results/inference/latency.json` |
+| [`dataset-access.yml`](.github/workflows/dataset-access.yml) | Licence and gating checks of candidate datasets | `results/datasets/access_check.json` |
 
-## Dataset preparation
+Locally (same code): `make bench-asvspoof LA_ZIP=/path/to/LA.zip` and
+`make bench-dff DFF_DIR=/dir/with/zips`. `make report` regenerates the tables in
+`docs/BENCHMARKS.md`, the figures in `docs/figures/` and the site's
+`frontend/src/data/benchmarks.json` from `results/`. Exact package versions are pinned in
+`backend/requirements-bench.txt`; seeds are fixed and TensorFlow ops run deterministically.
 
-Datasets are **not** included. Request access from the dataset authors and respect their licences.
+## Training on other datasets
 
-### FaceForensics++
-
-Download with the official script (for example `-c c23 -t videos`) into `backend/data/raw`:
-
-```
-data/raw/
-├── original_sequences/youtube/c23/videos/000.mp4 ...
-└── manipulated_sequences/
-    ├── Deepfakes/c23/videos/000_003.mp4 ...
-    ├── Face2Face/ FaceSwap/ NeuralTextures/ FaceShifter/
-```
-
-```yaml
-# configs/ffpp.yaml (copy default.yaml and edit)
-data:
-  dataset: faceforensics
-  raw_root: data/raw
-  compression: c23
-```
-
-Videos named `000_003` are linked to identities `000` and `003` using union-find. Every connected identity group lands in a single split, which mirrors the pairing used by the official splits.
-
-### Celeb-DF (v1/v2)
-
-```
-data/raw/
-├── Celeb-real/  ├── YouTube-real/  ├── Celeb-synthesis/
-└── List_of_testing_videos.txt
-```
-
-Set `data.dataset: celebdf`. Videos in the official test list, and every identity connected to them, go to `test`. The rest is split into train and val.
-
-### Any other dataset
-
-Use `data.dataset: generic` with `raw_root/real/**` and `raw_root/fake/**` (nested folders are fine).
-
-### Audio
-
-Put audio files (or videos with audio tracks) in `data/audio/real/**` and `data/audio/fake/**`. For example, use bona fide and spoofed utterances from ASVspoof 2019 LA, or the audio of FakeAVCeleb. Then run:
-
-```bash
-make extract CONFIG=configs/ffpp.yaml          # face crops + data/crops/manifest.csv
-make extract-audio CONFIG=configs/ffpp.yaml    # log-mel clips + manifest
-```
-
-Extraction is idempotent: videos that were already processed are skipped. Use `--overwrite` to redo them and `--limit N` for a quick trial.
-
-## Training
+The original training CLI supports FaceForensics++, Celeb-DF and a generic `real/` + `fake/`
+layout. Splits are grouped by identity: union-find over the ids in each file name, so a person
+never appears in two splits. If you have access to those datasets:
 
 ```bash
 cd backend
+python -m deepfake_detector.preprocessing.extract faces --config configs/ffpp.yaml    # crops + manifest
 python -m deepfake_detector.training.train --config configs/ffpp.yaml --model xception
 python -m deepfake_detector.training.train --config configs/ffpp.yaml --model inception_v3
+python -m deepfake_detector.training.train --config configs/ffpp.yaml --model efficientnetv2_b0
 python -m deepfake_detector.training.train --config configs/ffpp.yaml --model temporal --backbone xception
-python -m deepfake_detector.training.train --config configs/ffpp.yaml --model audio
-```
-
-- Each run writes `artifacts/<model>_<timestamp>/` containing `best.keras`, `history.csv`, `run.json` (config, class weights, history) and TensorBoard logs. The best checkpoint is exported to `weights/<name>.keras`, which is where the API looks for it.
-- Mixed precision (`mixed_float16`) turns on automatically when a GPU is present and `train.mixed_precision: true`.
-- The temporal model starts from the fine-tuned `weights/xception.keras` if it exists.
-- You can override settings quickly with `--epochs-head`, `--epochs-finetune` and `--batch-size`, or with environment variables such as `DFD_TRAIN__LR_FINETUNE=1e-5`.
-
-## Evaluation
-
-```bash
 python -m deepfake_detector.evaluation.evaluate --config configs/ffpp.yaml --split test --output reports/
-python -m deepfake_detector.evaluation.evaluate --config configs/ffpp.yaml --tune-ensemble   # on val split
 ```
 
-The evaluation writes `reports/metrics.json`, `reports/metrics.md` (a Markdown table you can paste below) and `reports/roc.png`. It reports frame-level and video-level metrics for each backbone, the ensemble and the temporal head.
+Expected layouts:
 
-## Inference
+```
+FaceForensics++                                 Celeb-DF                       generic
+data/raw/original_sequences/youtube/c23/videos  data/raw/Celeb-real/           data/raw/real/**
+data/raw/manipulated_sequences/<Method>/c23/... data/raw/Celeb-synthesis/      data/raw/fake/**
+                                                data/raw/List_of_testing_videos.txt
+```
+
+## Inference and REST API
 
 ```bash
 python -m deepfake_detector.inference.cli path/to/video.mp4 --output result.json --gradcam cam.png
+curl -F file=@clip.mp4 http://localhost:5000/api/predict
 ```
-
-```python
-from deepfake_detector.config import load_config
-from deepfake_detector.inference import DeepfakeDetector
-
-detector = DeepfakeDetector(load_config())
-result = detector.predict_file("clip.mp4")   # images, videos and audio files
-print(result["label"], result["probability_fake"], result["mode"])
-```
-
-## REST API
-
-Base URL: `http://localhost:5000`. Every error has the shape `{"error": {"status", "message", "request_id"}}`, and every response carries an `X-Request-ID` header.
 
 | Method | Path | Description |
 |---|---|---|
-| `GET` | `/api/health` | Liveness, version and model mode (`trained` / `partial` / `demo`) with a warning when not trained |
-| `GET` | `/api/models` | Loaded models and their status (`trained`, `random_weights`, `placeholder`), plus ensemble weights and fusion settings |
-| `POST` | `/api/predict` | `multipart/form-data` with a `file` field. Add `?async=1` to get `202 {job_id, status_url}` |
-| `GET` | `/api/jobs/<job_id>` | `{status: queued|running|done|error, result, error}` |
+| `GET` | `/api/health` | Liveness, version and model mode (`trained` / `partial` / `demo`) |
+| `GET` | `/api/models` | Loaded models and their status, calibration, model card (provenance + benchmark numbers), fusion note |
+| `POST` | `/api/predict` | `multipart/form-data` with a `file` field; `?async=1` returns `202 {job_id, status_url}` |
+| `GET` | `/api/jobs/<job_id>` | `{status: queued \| running \| done \| error, result, error}` |
 
-**Accepted types:** images `.jpg .jpeg .png .bmp .webp`, videos `.mp4 .avi .mov .mkv .webm`, audio `.wav .flac .mp3 .m4a .ogg`. Every upload is decoded before inference to confirm it is what its extension claims.
-
-**Status codes:**
+**Accepted types:** images `.jpg .jpeg .png .bmp .webp`, videos `.mp4 .avi .mov .mkv .webm`, audio
+`.wav .flac .mp3 .m4a .ogg`. Every upload is decoded before inference to confirm it is what its
+extension claims.
 
 | Code | Meaning |
 |---|---|
 | 400 | No file was sent |
-| 413 | The file is larger than `api.max_upload_mb`, or the video is longer than `api.max_video_seconds` |
-| 415 | The file type is not supported |
+| 413 | File larger than `api.max_upload_mb`, video longer than `api.max_video_seconds` or audio longer than `api.max_audio_seconds` |
+| 415 | Unsupported file type |
 | 422 | The file could not be decoded |
-| 500 | Unexpected server error (the details are logged, not returned) |
+| 429 | More than `api.rate_limit_per_minute` uploads from one client; `Retry-After` header |
+| 500 | Unexpected server error (details are logged, not returned) |
 
-```bash
-curl -F file=@clip.mp4 http://localhost:5000/api/predict
-```
+The response reports each modality separately. `modalities.visual` and `modalities.audio` carry the
+calibrated `probability`, the `raw_probability`, `calibrated: true|false`, per-frame or per-clip
+scores, and the audio `explanation` (spectrogram and Grad-CAM PNGs). `fusion` lists the modalities
+used, with `validated: false` and a note. `timings_ms` breaks down latency by stage (decode and face
+crop, visual inference, Grad-CAM, audio decode, features and inference, fusion). The top-level
+`label` / `probability_fake` is the heuristic fused value. Read the per-modality values first.
 
-<details>
-<summary>Example response (abridged; values illustrative, from demo mode)</summary>
+**Security and privacy.** Uploads go to a private (0700) directory with random `mkstemp` names
+(the client's file name never becomes a path) and are deleted after the request or job; stale
+files are removed at start-up. Uploads are never executed, never sent to external services, and
+neither their content nor their file names are logged. Request and size limits, decode validation
+and an in-process rate limiter protect the public endpoint. Put a reverse proxy in front for TLS
+and for multi-process rate limiting.
 
-```json
-{
-  "media_type": "video",
-  "mode": "demo",
-  "warning": "DEMO MODE: no trained weights were found, so scores come from untrained ...",
-  "label": "REAL",
-  "probability_fake": 0.47208,
-  "threshold": 0.5,
-  "modalities": {
-    "visual": {
-      "probability": 0.47208,
-      "per_model": {
-        "xception":     {"probability": 0.42211, "weight": 0.5, "status": "placeholder"},
-        "inception_v3": {"probability": 0.52205, "weight": 0.5, "status": "placeholder"}
-      },
-      "temporal_probability": null,
-      "aggregation": "mean",
-      "frames": [
-        {"index": 0, "timestamp": 0.0, "face_found": true, "probability": 0.51121,
-         "per_model": {"xception": 0.59028, "inception_v3": 0.43215}}
-      ],
-      "faces_detected": 16,
-      "frames_analyzed": 16
-    },
-    "audio": {"available": false, "reason": "no decodable audio stream found"}
-  },
-  "fusion": {"method": "weighted", "weights": {"visual": 0.7, "audio": 0.3}, "used": ["visual"]},
-  "gradcam": {"frame_index": 18, "model": "xception", "method": "pseudo-saliency (demo)",
-              "overlay": "data:image/png;base64,...", "face": "data:image/png;base64,..."},
-  "processing_ms": 414.5,
-  "file": {"name": "clip.avi", "size_bytes": 63700, "frames": 20, "fps": 10.0, "duration": 2.0}
-}
-```
-</details>
+**Deployment.** The API image runs gunicorn with one worker process (models loaded once) and
+several threads. Async jobs use an in-process pool; for horizontal scaling, swap `api/jobs.py` for
+Celery or RQ behind the same interface.
 
-**Demo mode.** `api.demo_mode` can be `auto`, `on` or `off`. In `auto`, any backbone without weights is replaced by a randomly initialised Keras model, or by a deterministic hash-based placeholder when TensorFlow is not installed. The response's `mode`, `warning` and per-model `status` fields say so explicitly. Set `demo_mode: off` in production so the API refuses to start without weights.
+## Browser demo (GitHub Pages)
 
-**Production.** The API image runs gunicorn with one worker process (the models are loaded once) and several threads. Async jobs use an in-process thread pool. For horizontal scaling, replace `api/jobs.py` with Celery or RQ behind the same interface.
+`npm run build:pages` builds the dashboard with `VITE_DEMO=browser`: no server, nothing uploaded.
+
+| Step | In the browser | Real? |
+|---|---|---|
+| Frame sampling, face detection (MediaPipe BlazeFace), alignment, crops | same rules as the backend | Yes |
+| Audio decode, silence trim, 4 s clips, log-mel, **audio CNN** | JavaScript port of the Python code, weights from the `audio-asvspoof2019-v1` release | **Yes: trained model, parity-checked** |
+| Visual scores | crop sharpness and saturation, squashed to 0..1 | **No: labelled placeholders** |
+| Grad-CAM | not available (needs the Python backend) | n/a |
+
+The Pages workflow downloads the exported audio model from the release and runs
+`frontend/scripts/audio-parity.mjs` before building. If the JavaScript log-mel or CNN drifts from
+Python/Keras beyond 2e-3, the deployment fails. A real audio score is never averaged with
+placeholder visual scores.
 
 ## Frontend
 
-The `frontend/` folder holds a React 18 + Vite app with no UI or chart libraries. All charts are hand-written SVG.
-
-- Drag-and-drop or click-to-browse upload, with type checks on the client
-- Upload progress bar (XHR). Videos use the async job API with polling
-- Semicircular **probability gauge** with the threshold marked, and a verdict
-- **Per-frame timeline** with the ensemble line, toggleable per-model lines, threshold, frames with no face, and a hover readout
-- **Grad-CAM viewer** with an opacity slider over the analysed face crop
-- **Per-model breakdown** (backbones, temporal head, audio CNN, fusion settings) and an audio segment chart
-- A prominent banner whenever results come from untrained or demo weights; light and dark themes
-
-Set `VITE_API_BASE` (see `.env.example`) when the UI is hosted apart from the API. In Docker, nginx proxies `/api` to the API container.
-
-`npm run build:pages` produces the static [browser demo](#browser-demo-github-pages) instead: `VITE_DEMO=browser`, base path `/multimodal-deepfake-detection/`, a landing/overview section (architecture diagram, pipeline, models, published benchmark, API summary), and client-side preprocessing with placeholder scores. The regular `npm run build` is unchanged and still talks to the API.
+React 18 + Vite with no UI or chart libraries; all charts are hand-written SVG. Upload with type
+checks and progress, per-modality gauges with "likely manipulated / likely authentic" wording, a
+per-frame timeline, Grad-CAM and spectrogram viewers, audio segment chart, per-stage latency, and a
+**Benchmark** section built from `src/data/benchmarks.json`: stat tiles and dot plots with keyboard
+focus, tooltips and table fallbacks, with run and commit provenance on each panel. The design
+follows the portfolio's kit (dark and light themes, responsive down to 390 px, reduced motion). Set
+`VITE_API_BASE` when the UI is hosted apart from the API; in Docker, nginx proxies `/api`.
 
 ## Configuration
 
-All settings live in [`backend/configs/default.yaml`](backend/configs/default.yaml) and are typed by dataclasses in `deepfake_detector/config.py`. Unknown keys are rejected. Any value can be overridden with `DFD_<SECTION>__<KEY>`, for example:
+All settings live in [`backend/configs/default.yaml`](backend/configs/default.yaml) and are typed
+by dataclasses in `deepfake_detector/config.py`. Unknown keys are rejected. Any value can be
+overridden with `DFD_<SECTION>__<KEY>`, for example
+`DFD_API__RATE_LIMIT_PER_MINUTE=5 DFD_API__FRAME_AGGREGATION=topk_mean make api`.
+[`configs/serve.yaml`](backend/configs/serve.yaml) serves the released models.
+
+## Testing and CI
 
 ```bash
-DFD_API__MAX_UPLOAD_MB=50 DFD_API__FRAME_AGGREGATION=topk_mean DFD_FUSION__METHOD=logit make api
+make lint          # ruff check + format check
+make test          # full suite (TensorFlow tests included when TF is installed)
+make test-fast     # only tests that do not need TensorFlow
+make frontend-smoke  # Pages build + Playwright smoke test
 ```
 
-## Results
-
-### Reference benchmark (published)
-
-Published results for the Xception backbone used in this project, from the FaceForensics++ benchmark (Rössler et al., *FaceForensics++: Learning to Detect Manipulated Facial Images*, ICCV 2019). These come from the paper. This repository did not produce them.
-
-| Dataset | Compression | Model | Accuracy |
-|---|---|---|---|
-| FaceForensics++ (all four manipulations) | Raw | XceptionNet (face crops) | 99.26% |
-| FaceForensics++ (all four manipulations) | c23 (HQ) | XceptionNet (face crops) | 95.73% |
-| FaceForensics++ (all four manipulations) | c40 (LQ) | XceptionNet (face crops) | 81.00% |
-
-### This repository's results
-
-Fill this table from your own training runs. Run `python -m deepfake_detector.evaluation.evaluate --split test` and paste the generated `reports/metrics.md` here.
-
-| Dataset (split) | Model | Level | AUC | Accuracy | F1 | EER |
-|---|---|---|---|---|---|---|
-| FaceForensics++ c23 (test) | Xception | video | _TBD_ | _TBD_ | _TBD_ | _TBD_ |
-| FaceForensics++ c23 (test) | InceptionV3 | video | _TBD_ | _TBD_ | _TBD_ | _TBD_ |
-| FaceForensics++ c23 (test) | Ensemble | video | _TBD_ | _TBD_ | _TBD_ | _TBD_ |
-| FaceForensics++ c23 (test) | Temporal (attention) | video | _TBD_ | _TBD_ | _TBD_ | _TBD_ |
-| Celeb-DF v2 (official test) | Ensemble (cross-dataset) | video | _TBD_ | _TBD_ | _TBD_ | _TBD_ |
+The suite covers configuration, video and audio parsing, frame sampling, face detection and
+alignment, silence handling, every metric (including EER, min t-DCF, PR-AUC and calibration,
+checked against brute-force definitions), Platt scaling, model construction and loading, Grad-CAM
+(image and audio), fusion with missing modalities, the API (validation, size, duration and rate
+limits, path handling, async jobs), both benchmark CLIs end to end on synthetic archives with the
+real dataset layouts, and JS/Python parity of the browser audio model. CI runs ruff, pytest without
+and with TensorFlow, the frontend builds and a Playwright smoke test of the Pages build. `Pages`
+publishes the demo to `gh-pages`.
 
 ## Screenshots
 
-| Result dashboard (browser demo, placeholder scores) | Upload | Grad-CAM |
-|---|---|---|
-| [![Browser demo dashboard](docs/screenshots/dashboard.png)](docs/screenshots/dashboard.png) | _to add: `docs/screenshots/upload.png`_ | _to add: `docs/screenshots/gradcam.png` (needs trained weights)_ |
-
-The dashboard screenshot comes from the [live browser demo](https://srini2k03.github.io/multimodal-deepfake-detection/) after uploading a short generated clip built from a public-domain NASA portrait. The face boxes, sampled frames and aligned crops are real pipeline output. The scores are placeholders, not model predictions.
+<!-- screenshots:start -->
+_Refreshed from the deployed site once the models are released._
+<!-- screenshots:end -->
 
 ## Project structure
 
@@ -376,71 +334,61 @@ The dashboard screenshot comes from the [live browser demo](https://srini2k03.gi
 multimodal-deepfake-detection/
 ├── backend/
 │   ├── deepfake_detector/
-│   │   ├── config.py               # typed YAML config + env overrides
-│   │   ├── preprocessing/          # face_detector, alignment, video sampling, pipeline (cache), audio, extract CLI
-│   │   ├── data/                   # dataset layouts + identity-grouped splits, tf.data pipelines
-│   │   ├── models/                 # Xception/InceptionV3 classifiers, ensemble, attention temporal head, audio CNN
-│   │   ├── training/train.py       # two-stage fine-tuning CLI
-│   │   ├── evaluation/             # NumPy metrics (AUC/EER/F1/CM) + evaluation CLI
-│   │   ├── explain/gradcam.py      # Grad-CAM + overlays
-│   │   ├── inference/              # DeepfakeDetector, scorers, aggregation + late fusion, CLI
-│   │   ├── api/                    # Flask app factory, validation, async jobs
-│   │   └── utils/                  # JSON logging, optional-dependency helpers
-│   ├── configs/                    # default.yaml, smoke.yaml
-│   ├── scripts/                    # face-model download, synthetic smoke dataset
-│   ├── tests/                      # pytest suite (TF tests auto-skip without TensorFlow)
-│   ├── weights/                    # put trained *.keras files here (git-ignored)
-│   ├── Dockerfile  gunicorn.conf.py  wsgi.py  pyproject.toml  requirements*.txt
+│   │   ├── config.py            # typed YAML config + env overrides
+│   │   ├── preprocessing/       # face detection, alignment, video sampling, audio (log-mel, silence)
+│   │   ├── data/                # dataset layouts, identity-grouped splits, tf.data pipelines
+│   │   ├── models/              # EfficientNetV2-B0 / Xception / InceptionV3, ensemble, temporal head, audio CNN
+│   │   ├── training/train.py    # two-stage fine-tuning CLI
+│   │   ├── evaluation/          # metrics (AUC, PR-AUC, EER, min t-DCF, ECE), calibration, evaluation CLI
+│   │   ├── benchmarks/          # ASVspoof 2019 LA + DeepFakeFace benchmarks, robustness, latency
+│   │   ├── explain/             # Grad-CAM (images), spectrogram + Grad-CAM (audio)
+│   │   ├── inference/           # DeepfakeDetector, scorers, calibration, aggregation + fusion, CLI
+│   │   └── api/                 # Flask app, validation, rate limiting, async jobs
+│   ├── configs/                 # default.yaml, serve.yaml, smoke.yaml
+│   ├── scripts/                 # dataset access check, weight fetch, browser export, report, latency
+│   ├── tests/                   # pytest suite (TF tests auto-skip without TensorFlow)
+│   └── Dockerfile  gunicorn.conf.py  wsgi.py  requirements*.txt  .env.example
 ├── frontend/
-│   ├── src/components/             # UploadZone, ProbabilityGauge, FrameTimeline, GradCamViewer, ModelBreakdown, Overview, ...
-│   ├── src/demo/                   # browser demo: client-side sampling, face detection, alignment, placeholder scores
-│   ├── public/models/              # BlazeFace short-range .tflite for the browser demo
-│   ├── src/api.js  App.jsx  styles.css  .env.pages
-│   └── Dockerfile  nginx.conf  vite.config.js  package.json
-├── .github/workflows/          # ci.yml, pages.yml (browser demo -> gh-pages)
-├── docker-compose.yml  Makefile  LICENSE  README.md
+│   ├── src/components/          # dashboard, benchmark panels, viewers, charts
+│   ├── src/demo/                # browser pipeline, audioModel.js (JS log-mel + CNN)
+│   ├── src/data/benchmarks.json # generated from results/ by make_report.py
+│   └── scripts/                 # audio-parity.mjs, smoke.mjs
+├── results/                     # committed benchmark outputs (JSON, per-item scores)
+├── docs/                        # BENCHMARKS.md, DATASETS.md, MODEL_CARD.md, figures/, screenshots/
+├── .github/workflows/           # ci, pages, benchmark-*, export-audio-web, dataset-access
+└── docker-compose.yml  Makefile  LICENSE  README.md
 ```
-
-## Testing and CI
-
-```bash
-make lint        # ruff check + format check
-make test        # full suite (TensorFlow tests included when TF is installed)
-make test-fast   # only tests that do not need TensorFlow
-```
-
-The model tests build both backbones at 75×75 with random weights, so nothing is downloaded. They cover the ensemble, both temporal pooling modes (including a save/load round trip), the audio CNN, Grad-CAM and loading trained weights. The API tests use a mocked detector and also run one end-to-end request in placeholder demo mode.
-
-GitHub Actions runs ruff, then pytest in two jobs (one without TensorFlow, one with `tensorflow-cpu`), then the frontend production build. A separate `Pages` workflow builds the browser demo and publishes it to `gh-pages`.
-
-## Roadmap
-
-- [ ] Train and publish reproducible baselines on FaceForensics++ c23 and Celeb-DF v2, and fill in the results table
-- [ ] Optional landmark-based alignment (e.g. MediaPipe Face Mesh) as an alternative to eye-cascade roll correction
-- [ ] EfficientNet/ConvNeXt backbones and a frequency-domain (DCT/FFT) branch
-- [ ] Learned fusion head trained on paired audio-visual data (e.g. FakeAVCeleb) and lip-sync consistency features
-- [ ] Probability calibration (temperature scaling) and robustness tests under re-compression
-- [ ] Multi-face tracking across frames instead of taking the largest face per frame
-- [ ] Persistent job queue (Redis/RQ), result caching by file hash and rate limiting
-- [ ] ONNX / TF-Lite export for faster CPU inference
-- [ ] Frontend unit tests and screenshot automation
 
 ## Limitations and responsible use
 
-- Detectors trained on one manipulation family or dataset often generalise poorly to unseen generators, heavy compression or adversarial post-processing. Treat scores as evidence to investigate, not as verdicts.
-- Haar and SSD face detection miss profile, occluded and very small faces. Frames without a face fall back to a centre crop and are flagged in the response.
-- Use benchmark datasets under their licences and only for research. Do not use this tool to harass or to make high-stakes decisions without human review.
+- **Fusion is unvalidated.** Read the per-modality scores; the fused number is a heuristic.
+- **Narrow training distributions.** The audio CNN saw 2019-era English read-speech synthesis. The
+  visual model saw diffusion and InsightFace manipulations of celebrity stills. Both degrade
+  sharply out of distribution (see the cross-dataset and leave-one-generator-out results), and
+  neither has seen modern voice cloning, talking-head video or lip-sync deepfakes.
+- **Dataset shortcuts are real.** ASVspoof 2019 LA leaks labels through silence. DeepFakeFace leaks
+  them through resolution and file properties. Both are measured in
+  [docs/BENCHMARKS.md](docs/BENCHMARKS.md), and the headline numbers should be read with them.
+- **Calibration holds only in distribution.** Platt scaling is fitted on each dataset's validation
+  split.
+- **Face detection** (Haar / SSD) misses profile, occluded and very small faces. Frames without a
+  face are flagged.
+- A detector can only raise or lower suspicion. Do not use these scores to accuse anyone or to
+  make high-stakes decisions without human review and other evidence.
 
 ## References
 
+- Wang et al., *ASVspoof 2019: A large-scale public database of synthesized, converted and replayed speech*, Computer Speech & Language 2020.
+- Kinnunen et al., *Tandem Assessment of Spoofing Countermeasures and Automatic Speaker Verification: Fundamentals*, IEEE/ACM TASLP 2020 (t-DCF).
+- Müller et al., *Speech is Silver, Silence is Golden: What do ASVspoof-trained Models Really Learn?*, ASVspoof Workshop 2021.
+- Müller et al., *Does Audio Deepfake Detection Generalize?*, Interspeech 2022 (In-the-Wild).
+- Song et al., *Robustness and Generalizability of Deepfake Detection: A Study with Diffusion Models*, 2023 (DeepFakeFace).
+- Tan and Le, *EfficientNetV2: Smaller Models and Faster Training*, ICML 2021.
 - Rössler et al., *FaceForensics++: Learning to Detect Manipulated Facial Images*, ICCV 2019.
-- Li et al., *Celeb-DF: A Large-scale Challenging Dataset for DeepFake Forensics*, CVPR 2020.
-- Chollet, *Xception: Deep Learning with Depthwise Separable Convolutions*, CVPR 2017.
-- Szegedy et al., *Rethinking the Inception Architecture for Computer Vision*, CVPR 2016.
-- Selvaraju et al., *Grad-CAM: Visual Explanations from Deep Networks via Gradient-based Localization*, ICCV 2017.
-- Bahdanau et al., *Neural Machine Translation by Jointly Learning to Align and Translate*, ICLR 2015 (additive attention).
-- Park et al., *SpecAugment*, Interspeech 2019.
+- Chollet, *Xception*, CVPR 2017; Szegedy et al., *Rethinking the Inception Architecture*, CVPR 2016.
+- Selvaraju et al., *Grad-CAM*, ICCV 2017; Park et al., *SpecAugment*, Interspeech 2019; Platt, *Probabilistic Outputs for Support Vector Machines*, 1999.
 
 ## License
 
-[MIT](LICENSE) © 2025 Srinivasan Balasubramanian
+[MIT](LICENSE) © 2025 Srinivasan Balasubramanian. Datasets and released model weights are subject
+to the licences of the data they were trained on (see [docs/DATASETS.md](docs/DATASETS.md)).
