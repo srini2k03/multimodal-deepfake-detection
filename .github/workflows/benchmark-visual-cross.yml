@@ -1,0 +1,83 @@
+name: Benchmark visual cross-dataset (WildDeepfake)
+
+# Scores the released DeepFakeFace-trained visual models on the WildDeepfake test split
+# (Apache-2.0, ungated author upload on Hugging Face): frame-level and sequence-level (video)
+# AUC for every frame-aggregation method. Nothing is trained or tuned on WildDeepfake.
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        default: "visual-dff-v1"
+      frames_per_sequence:
+        default: "16"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: benchmark-visual-cross
+  cancel-in-progress: false
+
+env:
+  TF_CPP_MIN_LOG_LEVEL: "3"
+  PYTHONUNBUFFERED: "1"
+  OUT: results/visual/dff
+
+jobs:
+  wilddeepfake:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - name: Free disk space
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL && df -h /
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/requirements-bench.txt
+      - name: Install
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q aria2 > /dev/null
+          pip install -q -r backend/requirements-bench.txt
+          pip install -q --no-deps -e backend
+      - name: Download models and the WildDeepfake test split (~9.9 GB)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/models" "$RUNNER_TEMP/wdf"
+          gh release download "${{ inputs.release_tag }}" -p "effnet_ft_model.keras" -p "effnet_ft_eq96_model.keras" -D "$RUNNER_TEMP/models"
+          python - "$RUNNER_TEMP/wdf" <<'PY'
+          import json, sys, urllib.request
+          base = "https://huggingface.co/api/datasets/xingjunm/WildDeepfake/tree/main/deepfake_in_the_wild/"
+          lines = []
+          for split in ("real_test", "fake_test"):
+              files = json.load(urllib.request.urlopen(base + split))
+              for f in files:
+                  if f["path"].endswith(".tar.gz"):
+                      url = "https://huggingface.co/datasets/xingjunm/WildDeepfake/resolve/main/" + f["path"]
+                      lines += [url, f"  dir={sys.argv[1]}/{split}", f"  out={f['path'].rsplit('/', 1)[1]}"]
+          open(sys.argv[1] + "/urls.txt", "w").write("\n".join(lines) + "\n")
+          print(len(lines) // 3, "files")
+          PY
+          aria2c -q -j 8 -x 4 --max-tries=10 --retry-wait=15 --file-allocation=none -i "$RUNNER_TEMP/wdf/urls.txt"
+          du -sh "$RUNNER_TEMP/wdf"/*; ls "$RUNNER_TEMP/wdf/real_test" | wc -l; ls "$RUNNER_TEMP/wdf/fake_test" | wc -l
+          tar -tzf "$(ls "$RUNNER_TEMP"/wdf/real_test/*.tar.gz | head -1)" | head -5
+      - name: Score (frame and sequence level)
+        working-directory: backend
+        run: |
+          python -m deepfake_detector.benchmarks.wilddeepfake --tars "$RUNNER_TEMP/wdf" \
+            --models "effnet_ft=$RUNNER_TEMP/models/effnet_ft_model.keras" "effnet_ft_eq96=$RUNNER_TEMP/models/effnet_ft_eq96_model.keras:eq96" \
+            --frames-per-sequence ${{ inputs.frames_per_sequence }} --out "../$OUT"
+      - name: Commit results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$OUT/cross_dataset_wilddeepfake.json"
+          git commit -q -m "WildDeepfake cross-dataset results (run ${GITHUB_RUN_ID})" || exit 0
+          for i in 1 2 3 4 5; do
+            git pull --rebase -q origin main && git push -q origin HEAD:main && exit 0
+            sleep $((i * 15))
+          done
+          exit 1
