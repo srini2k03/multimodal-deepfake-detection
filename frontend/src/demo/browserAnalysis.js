@@ -403,6 +403,7 @@ export async function analyseInBrowser(file, { onStage, onProgress, signal } = {
     onProgress?.(mediaType === "video" ? 0.5 + ((i + 1) / frames.length) * 0.45 : (i + 1) / frames.length);
   }
 
+  const tAudio = performance.now();
   const audioStart = mediaType === "video" ? 0.95 : 0;
   const audio =
     mediaType === "image"
@@ -477,6 +478,10 @@ export async function analyseInBrowser(file, { onStage, onProgress, signal } = {
     },
     gradcam: null,
     processing_ms: round(performance.now() - started, 1),
+    timings_ms: {
+      ...(frames.length ? { decode_and_face_crop: round(tAudio - started, 1) } : {}),
+      ...(audio ? { [audioReal ? "audio_model" : "audio_decode"]: round(performance.now() - tAudio, 1) } : {}),
+    },
     file: { name: file.name, size_bytes: file.size, ...fileMeta },
     browser: {
       detector: mediaType === "audio" ? null : DETECTOR_NAME,

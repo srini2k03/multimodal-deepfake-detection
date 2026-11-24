@@ -19,6 +19,8 @@ import logging
 import math
 import threading
 import time
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
@@ -111,7 +113,17 @@ class DeepfakeDetector:
         self.audio: Any | None = None
         self.card: dict[str, Any] = {}
         self.calibration: dict[str, Calibration] = {}
+        self._timings: dict[str, float] = {}
         self._load()
+
+    @contextmanager
+    def _stage(self, name: str) -> Iterator[None]:
+        """Accumulate wall-clock time per pipeline stage (reported as ``timings_ms``)."""
+        t0 = time.perf_counter()
+        try:
+            yield
+        finally:
+            self._timings[name] = self._timings.get(name, 0.0) + (time.perf_counter() - t0) * 1000.0
 
     # ------------------------------------------------------------------ loading
     def _demo_backend(self) -> str:
@@ -239,8 +251,9 @@ class DeepfakeDetector:
     def _score_crops(self, crops: list[FaceCrop]) -> dict[str, Any]:
         weights = self._ensemble_weights()
         size = self.cfg.data.image_size
-        batch = np.stack([preprocess_crop(c.crop_bgr, size) for c in crops])
-        per_model = {name: scorer.predict(batch) for name, scorer in self.frame_scorers.items()}
+        with self._stage("visual_inference"):
+            batch = np.stack([preprocess_crop(c.crop_bgr, size) for c in crops])
+            per_model = {name: scorer.predict(batch) for name, scorer in self.frame_scorers.items()}
         raw_ensemble = sum(per_model[n] * weights[n] for n in per_model) / sum(weights[n] for n in per_model)
         cal = self.calibration.get("visual") if self.mode == "trained" else None
         ensemble = cal(raw_ensemble) if cal else raw_ensemble
@@ -270,7 +283,8 @@ class DeepfakeDetector:
 
         gradcam = None
         if self.cfg.api.gradcam:
-            gradcam = self._gradcam(crops, batch, ensemble, use)
+            with self._stage("gradcam"):
+                gradcam = self._gradcam(crops, batch, ensemble, use)
 
         return {
             "probability": round(float(visual), 5),
@@ -313,7 +327,8 @@ class DeepfakeDetector:
         if self.audio is None:
             return {"available": False, "reason": "audio branch disabled"}
         try:
-            signal = load_audio(path, self.cfg.audio.sample_rate)
+            with self._stage("audio_decode"):
+                signal = load_audio(path, self.cfg.audio.sample_rate)
         except AudioUnavailableError as exc:
             return {"available": False, "reason": str(exc)}
         sr = self.cfg.audio.sample_rate
@@ -323,8 +338,10 @@ class DeepfakeDetector:
         truncated = duration > self.cfg.audio.max_seconds
         if truncated:
             signal = signal[: int(self.cfg.audio.max_seconds * sr)]
-        clips = audio_to_mel_clips(signal, self.cfg.audio)
-        raw = np.clip(self.audio.predict(clips).astype(np.float64), 1e-7, 1 - 1e-7)
+        with self._stage("audio_features"):
+            clips = audio_to_mel_clips(signal, self.cfg.audio)
+        with self._stage("audio_inference"):
+            raw = np.clip(self.audio.predict(clips).astype(np.float64), 1e-7, 1 - 1e-7)
         cal = self.calibration.get("audio") if self.audio.kind == "trained" else None
         scores = cal(raw) if cal else raw
         # utterance score: mean clip logit (the benchmark scores one clip per utterance)
@@ -358,14 +375,18 @@ class DeepfakeDetector:
         media_type = media_type or media_type_for(path)
         start = time.perf_counter()
         with self._lock:
+            self._timings = {}
             visual, gradcam, audio = None, None, None
             if media_type == "image":
-                image = cv2.imread(str(path))
-                if image is None:
-                    raise ValueError("Could not decode image")
-                visual, gradcam = self._score_crops([self.extractor.crop_image(image)])
+                with self._stage("decode_and_face_crop"):
+                    image = cv2.imread(str(path))
+                    if image is None:
+                        raise ValueError("Could not decode image")
+                    crop = self.extractor.crop_image(image)
+                visual, gradcam = self._score_crops([crop])
             elif media_type == "video":
-                result = self.extractor.extract_video(path, self.cfg.api.frames_per_video, use_cache=False)
+                with self._stage("decode_and_face_crop"):
+                    result = self.extractor.extract_video(path, self.cfg.api.frames_per_video, use_cache=False)
                 if not result.crops:
                     raise ValueError("No frames could be decoded from the video")
                 visual, gradcam = self._score_crops(result.crops)
@@ -376,9 +397,11 @@ class DeepfakeDetector:
                     raise ValueError(f"Audio could not be analysed: {audio.get('reason')}")
             else:
                 raise ValueError(f"Unsupported media type '{media_type}'")
-        return self._assemble(media_type, visual, audio, gradcam, start)
+            timings = dict(self._timings)
+        return self._assemble(media_type, visual, audio, gradcam, start, timings)
 
-    def _assemble(self, media_type, visual, audio, gradcam, start) -> dict[str, Any]:
+    def _assemble(self, media_type, visual, audio, gradcam, start, timings=None) -> dict[str, Any]:
+        t_fuse = time.perf_counter()
         f = self.cfg.fusion
         probs = {
             "visual": visual["probability"] if visual else None,
@@ -405,5 +428,9 @@ class DeepfakeDetector:
             },
             "gradcam": gradcam,
             "processing_ms": round((time.perf_counter() - start) * 1000.0, 1),
+            "timings_ms": {
+                **{k: round(v, 1) for k, v in (timings or {}).items()},
+                "fusion": round((time.perf_counter() - t_fuse) * 1000.0, 2),
+            },
             "version": __version__,
         }

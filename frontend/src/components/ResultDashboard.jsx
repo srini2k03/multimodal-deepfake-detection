@@ -171,6 +171,16 @@ export default function ResultDashboard({ result }) {
             </dd>
             <dt>Processing</dt>
             <dd>{(result.processing_ms / 1000).toFixed(2)}s</dd>
+            {result.timings_ms && Object.keys(result.timings_ms).length > 0 && (
+              <>
+                <dt>Stages</dt>
+                <dd className="stage-times">
+                  {Object.entries(result.timings_ms)
+                    .map(([k, v]) => `${k.replaceAll("_", " ")} ${v < 10 ? v.toFixed(1) : Math.round(v)} ms`)
+                    .join(" · ")}
+                </dd>
+              </>
+            )}
           </dl>
         </ResultCard>
 
