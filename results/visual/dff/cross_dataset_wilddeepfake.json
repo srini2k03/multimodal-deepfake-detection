@@ -1,0 +1,88 @@
+{
+ "meta": {
+  "date_utc": "2026-11-24T16:58:27+00:00",
+  "git_sha": "5f07f2e257df24a9c8817335117224828e79e932",
+  "run_id": "45442329373",
+  "runner": "Linux x86_64 cpus=4",
+  "python": "3.11.18",
+  "packages": {
+   "numpy": "2.4.6",
+   "tensorflow-cpu": "2.21.0",
+   "keras": "3.15.1",
+   "soundfile": "0.13.1"
+  }
+ },
+ "dataset": "WildDeepfake test split (cross-dataset; models trained on DeepFakeFace)",
+ "source": "https://huggingface.co/datasets/xingjunm/WildDeepfake (Zi et al., ACM MM 2020)",
+ "licence": "Apache-2.0 (Hugging Face dataset card)",
+ "n_videos": 157,
+ "n_videos_real": 42,
+ "n_sequences": 806,
+ "n_sequences_real": 396,
+ "n_frames": 12896,
+ "frames_per_sequence_max": 16,
+ "face_detected_rate": 0.6021246898263027,
+ "median_source_px": {
+  "real": 224.0,
+  "fake": 224.0
+ },
+ "preprocess_seconds": 81.1,
+ "systems": {
+  "effnet_ft": {
+   "frame_level": {
+    "roc_auc": 0.6283573636517615,
+    "eer": 0.40245057280118257
+   },
+   "sequence_level": {
+    "mean": {
+     "roc_auc": 0.6529132791327913,
+     "eer": 0.3660076373491008
+    },
+    "median": {
+     "roc_auc": 0.6484910076373491,
+     "eer": 0.3709719142645972
+    },
+    "max": {
+     "roc_auc": 0.6453621581670362,
+     "eer": 0.3908290219265829
+    },
+    "topk_mean": {
+     "roc_auc": 0.6482384823848238,
+     "eer": 0.3809004680955901
+    },
+    "confidence_weighted": {
+     "roc_auc": 0.6523343187977334,
+     "eer": 0.3709719142645972
+    }
+   }
+  },
+  "effnet_ft_eq96": {
+   "frame_level": {
+    "roc_auc": 0.5802763486619241,
+    "eer": 0.4400583579699433
+   },
+   "sequence_level": {
+    "mean": {
+     "roc_auc": 0.5963722591771372,
+     "eer": 0.4392091648189209
+    },
+    "median": {
+     "roc_auc": 0.5904964276915496,
+     "eer": 0.44665558019216556
+    },
+    "max": {
+     "roc_auc": 0.5811591525006159,
+     "eer": 0.4392091648189209
+    },
+    "topk_mean": {
+     "roc_auc": 0.5835489036708549,
+     "eer": 0.44665558019216556
+    },
+    "confidence_weighted": {
+     "roc_auc": 0.5957871396895787,
+     "eer": 0.4491377186499138
+    }
+   }
+  }
+ }
+}
