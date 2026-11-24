@@ -20,6 +20,7 @@ here come from the committed results; see [BENCHMARKS.md](BENCHMARKS.md) for the
 - Architecture: EfficientNetV2-B0 (ImageNet) + dropout + logit head, 224x224 face crops
 - Training data: DeepFakeFace train split (identity-disjoint sample)
 - DeepFakeFace test: ROC-AUC 0.914, EER 16.92%, face-size-matched AUC 0.910
+- WildDeepfake (cross-dataset): frame AUC 0.628, sequence AUC (mean) 0.653
 - CPU latency per face crop: Keras batch 1 181 ms, batch 16 25 ms/image; face detection + alignment 33 ms
 - Provenance: [run 45373710322](https://github.com/srini2k03/multimodal-deepfake-detection/actions/runs/45373710322), commit `8724ec3`, release `visual-dff-v1`
 <!-- card:end -->

@@ -15,7 +15,7 @@ statistics in the tables come from the data audits that the benchmark runs commi
 | [ASVspoof 2019 LA](https://datashare.ed.ac.uk/handle/10283/3336) | audio | Open Data Commons Attribution (ODC-By 1.0) | anonymous download, HTTP range requests work | `LA.zip` 7,640,952,520 B | **train / dev / eval of the audio branch** |
 | [In-the-Wild](https://huggingface.co/datasets/mueller91/In-The-Wild) (Müller et al. 2022) | audio | HF card: `cc-by-sa-4.0`; project page: CC BY-NC 4.0 | HF `gated: false` | 8,161,489,023 B | **cross-dataset test of the audio branch only** (non-commercial use assumed) |
 | [DeepFakeFace (DFF)](https://huggingface.co/datasets/OpenRL/DeepFakeFace) (Song et al. 2023) | image | HF card: `openrail` (README body also shows `apache-2.0`); real photos come from IMDB-WIKI (academic research use) | HF `gated: false` | 4 zips, 5,125,305,860 B | **train / val / test of the visual branch** (image level) |
-| [WildDeepfake](https://huggingface.co/datasets/xingjunm/WildDeepfake) (Zi et al. 2020, author upload) | video face sequences | `apache-2.0` | HF `gated: false` | 82.7 GB (test split 9.9 GB) | candidate cross-dataset visual test (see [Status](#status-of-the-candidates)) |
+| [WildDeepfake](https://huggingface.co/datasets/xingjunm/WildDeepfake) (Zi et al. 2020, author upload) | video face sequences | `apache-2.0` | HF `gated: false` | 82.7 GB (test split 9.9 GB) | **cross-dataset, video-level test of the visual branch only** |
 | [OpenForensics](https://zenodo.org/records/5528418) | image (multi-face) | CC BY 4.0 | Zenodo, open | 56.4 GB | not used: too large for the CPU budget; lawful candidate |
 | [ASVspoof 2021 LA/DF eval](https://zenodo.org/records/4837263) | audio | ODC-By (LA) | Zenodo, open; keys on asvspoof.org | 7.8 GB (LA), 34.5 GB (DF) | not used yet; lawful candidate for more cross-dataset tests |
 | [WaveFake](https://zenodo.org/records/5642694) | audio | CC BY-SA 4.0 | Zenodo API returned HTTP 500 during the check | 28.9 GB | not used |
@@ -111,8 +111,9 @@ threshold tuning on it. The operating threshold and the Platt calibration come f
 
 ## Status of the candidates
 
-- **WildDeepfake:** licensed and ungated, with a 9.9 GB test split of video face sequences. It is
-  the natural cross-dataset test for the visual model and for frame-to-video aggregation. Whether
-  it was run is stated in [BENCHMARKS.md](BENCHMARKS.md).
+- **WildDeepfake (used: cross-dataset test only):** licensed and ungated. The test split (42 real and
+  115 fake videos, 806 face sequences) is used to measure frame- versus video-level detection of the
+  DeepFakeFace-trained model, with nothing fitted on it. Note that its `.tar.gz` files are plain
+  tar archives. Results: [BENCHMARKS.md](BENCHMARKS.md).
 - **OpenForensics, ASVspoof 2021, WaveFake:** lawful but not used, because of size or availability
   within the CPU budget.

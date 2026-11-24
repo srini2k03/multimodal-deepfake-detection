@@ -18,7 +18,7 @@ probabilities. Every score is a probabilistic model assessment, never a verdict.
 > **What is and is not established.** The audio branch is trained and evaluated on ASVspoof 2019 LA
 > (speaker-disjoint, with unseen attacks) and tested cross-dataset on In-the-Wild. The visual branch
 > is trained and evaluated at image level on DeepFakeFace (identity-disjoint, one generator held
-> out). **Audio-visual fusion is implemented but not evaluated**, because every dataset with paired,
+> out) and tested cross-dataset at video level on WildDeepfake. **Audio-visual fusion is implemented but not evaluated**, because every dataset with paired,
 > labelled audio and video needs an access request ([why](docs/DATASETS.md#consequence-for-fusion)).
 > The Xception + InceptionV3 ensemble and the attention temporal head are implemented and tested, but
 > not trained, because the data they were designed for (FaceForensics++, Celeb-DF) is gated. Every
@@ -66,6 +66,8 @@ deployment. No face classifier runs in the browser, so visual scores there are l
 | Visual | DeepFakeFace test (identity-disjoint, images) | EfficientNetV2-B0 frozen + LR | ROC-AUC **0.818**, face-size-matched AUC 0.817 | [run 45373710322](https://github.com/srini2k03/multimodal-deepfake-detection/actions/runs/45373710322) |
 | Visual | DeepFakeFace test (identity-disjoint, images) | File metadata only (LR) | ROC-AUC **0.967**, face-size-matched AUC 0.964 | [run 45373710322](https://github.com/srini2k03/multimodal-deepfake-detection/actions/runs/45373710322) |
 | Visual | DeepFakeFace test, face swaps never seen in training | Fine-tuned without face swaps | AUC on face swaps **0.714** | [run 45373710322](https://github.com/srini2k03/multimodal-deepfake-detection/actions/runs/45373710322) |
+| Visual | WildDeepfake test (806 sequences, cross-dataset) | EfficientNetV2-B0 fine-tuned | frame AUC **0.628**, sequence AUC (mean) 0.653 | [run 45442329373](https://github.com/srini2k03/multimodal-deepfake-detection/actions/runs/45442329373) |
+| Visual | WildDeepfake test (806 sequences, cross-dataset) | Fine-tuned, 96 px resolution cap | frame AUC **0.580**, sequence AUC (mean) 0.596 | [run 45442329373](https://github.com/srini2k03/multimodal-deepfake-detection/actions/runs/45442329373) |
 | Fusion | none: no lawful paired audio-visual data | heuristic weighted average | **not evaluated** | [why](docs/DATASETS.md#consequence-for-fusion) |
 | Serving | 10 s 720p video, 16 frames, CPU (4 vCPU) | API detector end to end | median **1.77 s** (2.21 s with Grad-CAM) | [run 45440058636](https://github.com/srini2k03/multimodal-deepfake-detection/actions/runs/45440058636) |
 <!-- results:end -->
@@ -78,8 +80,9 @@ How to read these numbers:
   but stable under noise and silence edits. On DeepFakeFace, file metadata alone (fakes are all
   512×512) gives AUC 0.967, higher than any image model, so the visual numbers measure
   generalisation within a biased dataset.
-- **Out of distribution, the audio branch is near chance** (In-the-Wild EER 45–48%). The visual branch
-  drops on an unseen manipulation type (face-swap AUC 0.877 → 0.714 when swaps are held out).
+- **Out of distribution, both branches degrade sharply.** The audio branch is near chance on
+  In-the-Wild (EER 45–48%). The visual branch drops on an unseen manipulation type (face-swap AUC
+  0.877 → 0.714 when swaps are held out) and reaches only 0.653 video-level AUC on WildDeepfake.
 
 Full tables, per-attack and per-manipulation breakdowns, robustness, calibration and latency:
 **[docs/BENCHMARKS.md](docs/BENCHMARKS.md)**.
@@ -91,6 +94,7 @@ Full tables, per-attack and per-manipulation breakdowns, robustness, calibration
 | [ASVspoof 2019 LA](https://datashare.ed.ac.uk/handle/10283/3336) | audio train / dev / eval | ODC-By 1.0 | open download |
 | [In-the-Wild](https://huggingface.co/datasets/mueller91/In-The-Wild) | audio cross-dataset test only | CC BY-SA 4.0 card / CC BY-NC 4.0 site | ungated |
 | [DeepFakeFace](https://huggingface.co/datasets/OpenRL/DeepFakeFace) | visual train / val / test (images) | OpenRAIL card; real photos from IMDB-WIKI (research use) | ungated |
+| [WildDeepfake](https://huggingface.co/datasets/xingjunm/WildDeepfake) (test split) | visual cross-dataset, video-level test only | Apache-2.0 | ungated |
 
 FaceForensics++, DFDC, Celeb-DF, DeeperForensics, FakeAVCeleb, LAV-DF, AV-Deepfake1M and DeepSpeak
 need a form, an EULA or gated access, so they are not used. The repository still reads their

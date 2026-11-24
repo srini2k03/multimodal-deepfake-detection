@@ -144,6 +144,13 @@ Robustness (test subset, n = 1200):
 | brightness_0.7 | 0.8154 | 0.9112 | 22.33% | 15.00% |
 | brightness_1.3 | 0.8180 | 0.9062 | 26.67% | 17.33% |
 | crop_0.8 | 0.8335 | 0.8901 | 50.33% | 29.67% |
+
+Cross-dataset, video level: WildDeepfake test (157 videos, 806 face sequences, 12,896 frames; nothing fitted on it):
+
+| System | Frame AUC | Sequence AUC (mean) | Sequence AUC (median) | Sequence AUC (max) | Sequence AUC (topk_mean) | Sequence AUC (confidence_weighted) |
+|---|---|---|---|---|---|---|
+| EfficientNetV2-B0 fine-tuned | 0.6284 | 0.6529 | 0.6485 | 0.6454 | 0.6482 | 0.6523 |
+| Fine-tuned, 96 px resolution cap | 0.5803 | 0.5964 | 0.5905 | 0.5812 | 0.5835 | 0.5958 |
 <!-- tables:end -->
 
 ## Interpretation
@@ -216,7 +223,15 @@ Robustness (test subset, n = 1200):
    more at the face centre when it calls a fake, which is consistent with the inpainted regions,
    but this shows where its evidence sits, not that those pixels are synthetic.
    ![Mean Grad-CAM per subset](../results/visual/dff/gradcam_mean_heatmaps.png)
-6. **Latency.** Face detection, alignment and crop take 33 ms per image. The classifier takes 181 ms
+6. **Cross-dataset, video level: barely above chance.** On the WildDeepfake test split (157 internet
+   videos, 806 face sequences, 12,896 sampled frames; nothing fitted on it), the fine-tuned model
+   reaches frame-level ROC-AUC **0.628**. Aggregating to sequence level helps a little: mean 0.653,
+   confidence-weighted 0.652, median 0.649, top-25% mean 0.648, max 0.645. Mean aggregation is the
+   API default and the best here by a small margin. The attention-pooling head could not be compared,
+   because no lawful labelled video training data is available. The 96 px model transfers worse
+   (0.580 / 0.596). A detector trained on DeepFakeFace stills should not be expected to catch
+   in-the-wild face-swap videos.
+7. **Latency.** Face detection, alignment and crop take 33 ms per image. The classifier takes 181 ms
    at Keras batch 1 (eager overhead), 25 ms per image at batch 16, and 6.9 ms as TFLite fp32
    (max probability difference to Keras 1.7e-6). Dynamic-range int8 TFLite is **not** recommended
    for the visual model: its maximum probability difference to Keras is 0.19. Grad-CAM costs
