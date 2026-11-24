@@ -1,0 +1,217 @@
+{
+ "meta": {
+  "date_utc": "2026-11-24T12:01:23+00:00",
+  "git_sha": "8724ec3f0a8752df1cc736e56cd0d70b23fd0442",
+  "run_id": "45373710322",
+  "runner": "Linux x86_64 cpus=4",
+  "python": "3.11.18",
+  "packages": {
+   "numpy": "2.4.6",
+   "tensorflow-cpu": "2.21.0",
+   "keras": "3.15.1",
+   "soundfile": "0.13.1"
+  }
+ },
+ "subset": {
+  "n": 1200,
+  "n_real": 600
+ },
+ "conditions": {
+  "clean": {
+   "effnet_probe": {
+    "roc_auc": 0.8225666666666667,
+    "eer": 0.25666666666666665,
+    "fpr_at_val_threshold": 0.25666666666666665,
+    "fnr_at_val_threshold": 0.26
+   },
+   "effnet_ft": {
+    "roc_auc": 0.9132111111111111,
+    "eer": 0.18333333333333332,
+    "fpr_at_val_threshold": 0.16666666666666666,
+    "fnr_at_val_threshold": 0.18833333333333332
+   }
+  },
+  "jpeg_q90": {
+   "effnet_probe": {
+    "roc_auc": 0.8073444444444444,
+    "eer": 0.2683333333333333,
+    "fpr_at_val_threshold": 0.23,
+    "fnr_at_val_threshold": 0.30333333333333334
+   },
+   "effnet_ft": {
+    "roc_auc": 0.9065222222222222,
+    "eer": 0.19,
+    "fpr_at_val_threshold": 0.18833333333333332,
+    "fnr_at_val_threshold": 0.19
+   }
+  },
+  "jpeg_q70": {
+   "effnet_probe": {
+    "roc_auc": 0.7970666666666667,
+    "eer": 0.27166666666666667,
+    "fpr_at_val_threshold": 0.4033333333333333,
+    "fnr_at_val_threshold": 0.2
+   },
+   "effnet_ft": {
+    "roc_auc": 0.9000888888888889,
+    "eer": 0.19666666666666666,
+    "fpr_at_val_threshold": 0.21333333333333335,
+    "fnr_at_val_threshold": 0.17833333333333334
+   }
+  },
+  "jpeg_q50": {
+   "effnet_probe": {
+    "roc_auc": 0.7847944444444445,
+    "eer": 0.28833333333333333,
+    "fpr_at_val_threshold": 0.41,
+    "fnr_at_val_threshold": 0.18
+   },
+   "effnet_ft": {
+    "roc_auc": 0.8928222222222222,
+    "eer": 0.20333333333333334,
+    "fpr_at_val_threshold": 0.22666666666666666,
+    "fnr_at_val_threshold": 0.17166666666666666
+   }
+  },
+  "jpeg_q30": {
+   "effnet_probe": {
+    "roc_auc": 0.7717027777777777,
+    "eer": 0.30666666666666664,
+    "fpr_at_val_threshold": 0.4266666666666667,
+    "fnr_at_val_threshold": 0.19833333333333333
+   },
+   "effnet_ft": {
+    "roc_auc": 0.884475,
+    "eer": 0.20833333333333334,
+    "fpr_at_val_threshold": 0.215,
+    "fnr_at_val_threshold": 0.20166666666666666
+   }
+  },
+  "downscale_0.5": {
+   "effnet_probe": {
+    "roc_auc": 0.7748361111111111,
+    "eer": 0.29,
+    "fpr_at_val_threshold": 0.7883333333333333,
+    "fnr_at_val_threshold": 0.03
+   },
+   "effnet_ft": {
+    "roc_auc": 0.8820805555555555,
+    "eer": 0.21,
+    "fpr_at_val_threshold": 0.3516666666666667,
+    "fnr_at_val_threshold": 0.12
+   }
+  },
+  "downscale_0.25": {
+   "effnet_probe": {
+    "roc_auc": 0.7162055555555555,
+    "eer": 0.335,
+    "fpr_at_val_threshold": 0.9283333333333333,
+    "fnr_at_val_threshold": 0.011666666666666667
+   },
+   "effnet_ft": {
+    "roc_auc": 0.8440805555555555,
+    "eer": 0.25,
+    "fpr_at_val_threshold": 0.415,
+    "fnr_at_val_threshold": 0.12666666666666668
+   }
+  },
+  "blur_sigma1": {
+   "effnet_probe": {
+    "roc_auc": 0.7752277777777777,
+    "eer": 0.29333333333333333,
+    "fpr_at_val_threshold": 0.7933333333333333,
+    "fnr_at_val_threshold": 0.03333333333333333
+   },
+   "effnet_ft": {
+    "roc_auc": 0.882775,
+    "eer": 0.21166666666666667,
+    "fpr_at_val_threshold": 0.34833333333333333,
+    "fnr_at_val_threshold": 0.12166666666666667
+   }
+  },
+  "blur_sigma2": {
+   "effnet_probe": {
+    "roc_auc": 0.7194888888888888,
+    "eer": 0.34833333333333333,
+    "fpr_at_val_threshold": 0.9633333333333334,
+    "fnr_at_val_threshold": 0.0033333333333333335
+   },
+   "effnet_ft": {
+    "roc_auc": 0.8426916666666666,
+    "eer": 0.24,
+    "fpr_at_val_threshold": 0.5366666666666666,
+    "fnr_at_val_threshold": 0.08666666666666667
+   }
+  },
+  "noise_sigma5": {
+   "effnet_probe": {
+    "roc_auc": 0.7657194444444444,
+    "eer": 0.2966666666666667,
+    "fpr_at_val_threshold": 0.06666666666666667,
+    "fnr_at_val_threshold": 0.6433333333333333
+   },
+   "effnet_ft": {
+    "roc_auc": 0.8926972222222223,
+    "eer": 0.195,
+    "fpr_at_val_threshold": 0.11833333333333333,
+    "fnr_at_val_threshold": 0.295
+   }
+  },
+  "noise_sigma15": {
+   "effnet_probe": {
+    "roc_auc": 0.7498194444444445,
+    "eer": 0.31333333333333335,
+    "fpr_at_val_threshold": 0.043333333333333335,
+    "fnr_at_val_threshold": 0.7733333333333333
+   },
+   "effnet_ft": {
+    "roc_auc": 0.8623111111111111,
+    "eer": 0.23166666666666666,
+    "fpr_at_val_threshold": 0.1,
+    "fnr_at_val_threshold": 0.3933333333333333
+   }
+  },
+  "brightness_0.7": {
+   "effnet_probe": {
+    "roc_auc": 0.8153611111111111,
+    "eer": 0.26166666666666666,
+    "fpr_at_val_threshold": 0.22333333333333333,
+    "fnr_at_val_threshold": 0.31
+   },
+   "effnet_ft": {
+    "roc_auc": 0.9112027777777778,
+    "eer": 0.17666666666666667,
+    "fpr_at_val_threshold": 0.15,
+    "fnr_at_val_threshold": 0.20833333333333334
+   }
+  },
+  "brightness_1.3": {
+   "effnet_probe": {
+    "roc_auc": 0.8179861111111111,
+    "eer": 0.2633333333333333,
+    "fpr_at_val_threshold": 0.26666666666666666,
+    "fnr_at_val_threshold": 0.26
+   },
+   "effnet_ft": {
+    "roc_auc": 0.9062222222222223,
+    "eer": 0.18166666666666667,
+    "fpr_at_val_threshold": 0.17333333333333334,
+    "fnr_at_val_threshold": 0.19166666666666668
+   }
+  },
+  "crop_0.8": {
+   "effnet_probe": {
+    "roc_auc": 0.8335333333333333,
+    "eer": 0.255,
+    "fpr_at_val_threshold": 0.5033333333333333,
+    "fnr_at_val_threshold": 0.085
+   },
+   "effnet_ft": {
+    "roc_auc": 0.8901166666666667,
+    "eer": 0.19666666666666666,
+    "fpr_at_val_threshold": 0.2966666666666667,
+    "fnr_at_val_threshold": 0.13166666666666665
+   }
+  }
+ }
+}

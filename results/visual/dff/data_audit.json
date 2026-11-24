@@ -1,0 +1,372 @@
+{
+ "dataset": "DeepFakeFace (DFF)",
+ "source": "https://huggingface.co/datasets/OpenRL/DeepFakeFace",
+ "licence": "dataset card: openrail (README body also shows apache-2.0); real photos from IMDB-WIKI (academic research use)",
+ "selection": {
+  "train_groups": 5000,
+  "val_groups": 800,
+  "test_groups": 2500
+ },
+ "split_fractions": {
+  "val": 0.1,
+  "test": 0.15
+ },
+ "face": {
+  "detector": "haar",
+  "crop_size": 224,
+  "margin": 0.3,
+  "align": true
+ },
+ "crop_reencode": "JPEG q=95 for every crop (real and fake)",
+ "crop_seconds": 959.4,
+ "selected": {
+  "train": {
+   "n": 20000,
+   "n_real": 5000,
+   "n_fake": 15000,
+   "n_groups": 5000,
+   "per_subset": {
+    "wiki": {
+     "n": 5000,
+     "formats": {
+      "jpeg": 4823,
+      "png": 172,
+      "other": 5
+     },
+     "width": {
+      "p05": 240.0,
+      "median": 440.0,
+      "p95": 500.0
+     },
+     "height": {
+      "p05": 275.0,
+      "median": 534.0,
+      "p95": 729.0
+     },
+     "kb": {
+      "p05": 19.2,
+      "median": 46.0,
+      "p95": 134.6
+     },
+     "face_detected_rate": 0.7246
+    },
+    "inpainting": {
+     "n": 5000,
+     "formats": {
+      "jpeg": 5000
+     },
+     "width": {
+      "p05": 512.0,
+      "median": 512.0,
+      "p95": 512.0
+     },
+     "height": {
+      "p05": 512.0,
+      "median": 512.0,
+      "p95": 512.0
+     },
+     "kb": {
+      "p05": 22.5,
+      "median": 34.3,
+      "p95": 51.2
+     },
+     "face_detected_rate": 0.682
+    },
+    "insight": {
+     "n": 5000,
+     "formats": {
+      "jpeg": 5000
+     },
+     "width": {
+      "p05": 512.0,
+      "median": 512.0,
+      "p95": 512.0
+     },
+     "height": {
+      "p05": 512.0,
+      "median": 512.0,
+      "p95": 512.0
+     },
+     "kb": {
+      "p05": 21.2,
+      "median": 33.9,
+      "p95": 53.8
+     },
+     "face_detected_rate": 0.6818
+    },
+    "text2img": {
+     "n": 5000,
+     "formats": {
+      "jpeg": 5000
+     },
+     "width": {
+      "p05": 512.0,
+      "median": 512.0,
+      "p95": 512.0
+     },
+     "height": {
+      "p05": 512.0,
+      "median": 512.0,
+      "p95": 512.0
+     },
+     "kb": {
+      "p05": 24.7,
+      "median": 35.5,
+      "p95": 53.3
+     },
+     "face_detected_rate": 0.8312
+    }
+   }
+  },
+  "val": {
+   "n": 3200,
+   "n_real": 800,
+   "n_fake": 2400,
+   "n_groups": 800,
+   "per_subset": {
+    "wiki": {
+     "n": 800,
+     "formats": {
+      "jpeg": 781,
+      "png": 19
+     },
+     "width": {
+      "p05": 250.0,
+      "median": 440.0,
+      "p95": 500.0
+     },
+     "height": {
+      "p05": 274.9,
+      "median": 531.0,
+      "p95": 750.0
+     },
+     "kb": {
+      "p05": 18.2,
+      "median": 47.9,
+      "p95": 112.2
+     },
+     "face_detected_rate": 0.745
+    },
+    "inpainting": {
+     "n": 800,
+     "formats": {
+      "jpeg": 800
+     },
+     "width": {
+      "p05": 512.0,
+      "median": 512.0,
+      "p95": 512.0
+     },
+     "height": {
+      "p05": 512.0,
+      "median": 512.0,
+      "p95": 512.0
+     },
+     "kb": {
+      "p05": 22.2,
+      "median": 34.4,
+      "p95": 51.3
+     },
+     "face_detected_rate": 0.6488
+    },
+    "insight": {
+     "n": 800,
+     "formats": {
+      "jpeg": 800
+     },
+     "width": {
+      "p05": 512.0,
+      "median": 512.0,
+      "p95": 512.0
+     },
+     "height": {
+      "p05": 512.0,
+      "median": 512.0,
+      "p95": 512.0
+     },
+     "kb": {
+      "p05": 21.3,
+      "median": 33.5,
+      "p95": 51.7
+     },
+     "face_detected_rate": 0.6713
+    },
+    "text2img": {
+     "n": 800,
+     "formats": {
+      "jpeg": 800
+     },
+     "width": {
+      "p05": 512.0,
+      "median": 512.0,
+      "p95": 512.0
+     },
+     "height": {
+      "p05": 512.0,
+      "median": 512.0,
+      "p95": 512.0
+     },
+     "kb": {
+      "p05": 25.0,
+      "median": 34.9,
+      "p95": 52.3
+     },
+     "face_detected_rate": 0.825
+    }
+   }
+  },
+  "test": {
+   "n": 10000,
+   "n_real": 2500,
+   "n_fake": 7500,
+   "n_groups": 2500,
+   "per_subset": {
+    "wiki": {
+     "n": 2500,
+     "formats": {
+      "jpeg": 2404,
+      "png": 92,
+      "other": 4
+     },
+     "width": {
+      "p05": 233.9,
+      "median": 440.0,
+      "p95": 500.0
+     },
+     "height": {
+      "p05": 266.0,
+      "median": 532.0,
+      "p95": 725.0
+     },
+     "kb": {
+      "p05": 19.1,
+      "median": 47.4,
+      "p95": 135.6
+     },
+     "face_detected_rate": 0.722
+    },
+    "inpainting": {
+     "n": 2500,
+     "formats": {
+      "jpeg": 2500
+     },
+     "width": {
+      "p05": 512.0,
+      "median": 512.0,
+      "p95": 512.0
+     },
+     "height": {
+      "p05": 512.0,
+      "median": 512.0,
+      "p95": 512.0
+     },
+     "kb": {
+      "p05": 22.4,
+      "median": 34.5,
+      "p95": 52.0
+     },
+     "face_detected_rate": 0.674
+    },
+    "insight": {
+     "n": 2500,
+     "formats": {
+      "jpeg": 2500
+     },
+     "width": {
+      "p05": 512.0,
+      "median": 512.0,
+      "p95": 512.0
+     },
+     "height": {
+      "p05": 512.0,
+      "median": 512.0,
+      "p95": 512.0
+     },
+     "kb": {
+      "p05": 21.3,
+      "median": 34.0,
+      "p95": 53.5
+     },
+     "face_detected_rate": 0.6988
+    },
+    "text2img": {
+     "n": 2500,
+     "formats": {
+      "jpeg": 2500
+     },
+     "width": {
+      "p05": 512.0,
+      "median": 512.0,
+      "p95": 512.0
+     },
+     "height": {
+      "p05": 512.0,
+      "median": 512.0,
+      "p95": 512.0
+     },
+     "kb": {
+      "p05": 25.2,
+      "median": 35.7,
+      "p95": 53.4
+     },
+     "face_detected_rate": 0.8316
+    }
+   }
+  }
+ },
+ "group_overlap": {
+  "train&val": 0,
+  "train&test": 0,
+  "val&test": 0
+ },
+ "full_dataset": {
+  "n_per_subset": {
+   "wiki": 30000,
+   "inpainting": 30000,
+   "insight": 30000,
+   "text2img": 30000
+  },
+  "fake_keys_matching_a_real_key": {
+   "inpainting": 30000,
+   "insight": 30000,
+   "text2img": 30000
+  },
+  "with_parsed_person_id": 0.9999,
+  "n_groups": 30000,
+  "example_members": {
+   "wiki": [
+    "wiki/00/10049200_1891-09-16_1958.jpg",
+    "wiki/00/10110600_1985-09-17_2012.jpg",
+    "wiki/00/10126400_1964-07-07_2010.jpg"
+   ],
+   "inpainting": [
+    "inpainting/00/10049200_1891-09-16_1958.jpg",
+    "inpainting/00/10110600_1985-09-17_2012.jpg",
+    "inpainting/00/10126400_1964-07-07_2010.jpg"
+   ],
+   "insight": [
+    "insight/00/10049200_1891-09-16_1958.jpg",
+    "insight/00/10110600_1985-09-17_2012.jpg",
+    "insight/00/10126400_1964-07-07_2010.jpg"
+   ],
+   "text2img": [
+    "text2img/00/10049200_1891-09-16_1958.jpg",
+    "text2img/00/10110600_1985-09-17_2012.jpg",
+    "text2img/00/10126400_1964-07-07_2010.jpg"
+   ]
+  }
+ },
+ "meta": {
+  "date_utc": "2026-11-24T10:38:31+00:00",
+  "git_sha": "8724ec3f0a8752df1cc736e56cd0d70b23fd0442",
+  "run_id": "45373710322",
+  "runner": "Linux x86_64 cpus=4",
+  "python": "3.11.18",
+  "packages": {
+   "numpy": "2.4.6",
+   "tensorflow-cpu": "2.21.0",
+   "keras": "3.15.1",
+   "soundfile": "0.13.1"
+  }
+ }
+}
