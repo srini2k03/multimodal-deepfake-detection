@@ -88,7 +88,7 @@ const STATS = [
     ? [visualMain.test_auc.toFixed(3), "Visual test ROC-AUC", "DeepFakeFace, identity-disjoint"]
     : ["2", "Branches", "visual and audio"],
   [TEST_FUNCTIONS, "Test functions", "CI runs with and without TensorFlow"],
-  ["0", "Fusion claims", "no lawful paired AV data"],
+  ["3", "Public datasets", "ASVspoof 2019 LA · In-the-Wild · DeepFakeFace"],
 ];
 
 /** Kicker (index, rule, label), heading and optional lead, as on the portfolio's case studies. */

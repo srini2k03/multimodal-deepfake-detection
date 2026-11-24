@@ -1,3 +1,4 @@
+# ruff: noqa: E501  (long Markdown table rows are clearer unwrapped)
 """Build benchmark figures, Markdown tables and the site's data file from committed results.
 
     python scripts/make_report.py [--results ../results] [--figures ../docs/figures]
@@ -294,6 +295,107 @@ def visual_section(res: Path, figs: Path) -> tuple[str, dict]:
     return "\n".join(lines) + "\n", site
 
 
+def _inject(path: Path, marker: str, body: str) -> None:
+    if not path.exists():
+        return
+    text = path.read_text()
+    start, end = f"<!-- {marker}:start -->", f"<!-- {marker}:end -->"
+    if start not in text or end not in text:
+        return
+    head, _, rest = text.partition(start)
+    _, _, tail = rest.partition(end)
+    path.write_text(f"{head}{start}\n{body.rstrip()}\n{end}{tail}")
+
+
+def _run_link(meta: dict) -> str:
+    return f"[run {meta['run_id']}](https://github.com/srini2k03/multimodal-deepfake-detection/actions/runs/{meta['run_id']})"
+
+
+def summary_blocks(res: Path, site: dict) -> tuple[str, str]:
+    """README 'results at a glance' table and the model-card facts, from committed results only."""
+    a, v = site.get("audio"), site.get("visual")
+    wdf = _load(res / "visual/dff/cross_dataset_wilddeepfake.json")
+    inf = _load(res / "inference/latency.json")
+    rows = ["| Branch | Test set | System | Result | Source |", "|---|---|---|---|---|"]
+    card = []
+    if a:
+        S, link = a["systems"], _run_link(a["meta"])
+        main = "cnn_trim" if "cnn_trim" in S else "cnn"
+        for k in (main, "cnn" if main != "cnn" else None, "logmel_lr", "silence_lr"):
+            if k and k in S:
+                rows.append(f"| Audio | ASVspoof 2019 LA eval (unseen speakers, 11 of 13 attacks unseen) | {S[k]['label']} "
+                            f"| EER **{pct(S[k]['eval_eer'])}**, min t-DCF {num(S[k]['eval_min_tdcf'], 3)} | {link} |")  # fmt: skip
+        itw = (a.get("in_the_wild") or {}).get("systems", {})
+        for k in (main, "cnn"):
+            if k in itw:
+                rows.append(f"| Audio | In-the-Wild ({a['in_the_wild']['n']:,} clips, cross-dataset) | {S[k]['label']} "
+                            f"| EER **{pct(itw[k])}** | {link} |")  # fmt: skip
+        lat = (a.get("latency") or {}).get(main)
+        card += [
+            f"### Audio countermeasure (`{main}`)",
+            "",
+            f"- Architecture: 3-block log-mel CNN, {lat['params']:,} parameters"
+            if lat
+            else "- Architecture: log-mel CNN",
+            "- Training data: ASVspoof 2019 LA train (speaker-disjoint official protocol)"
+            + (", leading/trailing silence trimmed" if main == "cnn_trim" else ""),
+            f"- ASVspoof 2019 LA eval: EER {pct(S[main]['eval_eer'])}, min t-DCF {num(S[main]['eval_min_tdcf'], 3)}, "
+            f"ROC-AUC {num(S[main]['eval_auc'])}",
+        ]
+        if main in itw:
+            card.append(f"- In-the-Wild (cross-dataset): EER {pct(itw[main])}")
+        if lat:
+            card.append(f"- CPU latency per 4 s clip: Keras {lat['keras_batch1_ms']:.1f} ms, TFLite int8 "
+                        f"{lat['tflite_int8_ms']:.1f} ms ({lat['tflite_int8_bytes'] / 1024:.0f} KB)")  # fmt: skip
+        card += [f"- Provenance: {link}, commit `{a['meta']['git_sha'][:7]}`, release `audio-asvspoof2019-v1`", ""]
+    if v:
+        S, link = v["systems"], _run_link(v["meta"])
+        for k in ("effnet_ft", "effnet_ft_eq96", "effnet_probe", "meta_lr"):
+            if k in S:
+                fsm = S[k].get("face_size_matched_auc")
+                extra = f", face-size-matched AUC {num(fsm, 3)}" if fsm is not None else ""
+                rows.append(f"| Visual | DeepFakeFace test (identity-disjoint, images) | {S[k]['label']} "
+                            f"| ROC-AUC **{num(S[k]['test_auc'], 3)}**{extra} | {link} |")  # fmt: skip
+        if "effnet_ft_no_insight" in S:
+            rows.append(f"| Visual | DeepFakeFace test, face swaps never seen in training | {S['effnet_ft_no_insight']['label']} "
+                        f"| AUC on face swaps **{num(S['effnet_ft_no_insight']['per_type_auc']['insight'], 3)}** | {link} |")  # fmt: skip
+        if wdf:
+            wl = _run_link(wdf["meta"])
+            for k, e in wdf["systems"].items():
+                rows.append(f"| Visual | WildDeepfake test ({wdf['n_sequences']} sequences, cross-dataset) "
+                            f"| {VISUAL_NAMES.get(k, k)} | frame AUC **{num(e['frame_level']['roc_auc'], 3)}**, "
+                            f"sequence AUC (mean) {num(e['sequence_level']['mean']['roc_auc'], 3)} | {wl} |")  # fmt: skip
+        m = S.get("effnet_ft")
+        if m:
+            vl = v.get("latency") or {}
+            card += [
+                "### Visual classifier (`effnet_ft`)",
+                "",
+                "- Architecture: EfficientNetV2-B0 (ImageNet) + dropout + logit head, 224x224 face crops",
+                "- Training data: DeepFakeFace train split (identity-disjoint sample)",
+                f"- DeepFakeFace test: ROC-AUC {num(m['test_auc'], 3)}, EER {pct(m['test_eer'])}, face-size-matched AUC "
+                f"{num(m.get('face_size_matched_auc'), 3)}",
+            ]
+            if wdf and "effnet_ft" in wdf["systems"]:
+                e = wdf["systems"]["effnet_ft"]
+                card.append(f"- WildDeepfake (cross-dataset): frame AUC {num(e['frame_level']['roc_auc'], 3)}, "
+                            f"sequence AUC (mean) {num(e['sequence_level']['mean']['roc_auc'], 3)}")  # fmt: skip
+            if vl:
+                card.append(f"- CPU latency per face crop: Keras batch 1 {vl['keras_batch1_ms']:.0f} ms, batch 16 "
+                            f"{vl['keras_batch16_per_image_ms']:.0f} ms/image; face detection + alignment "
+                            f"{vl['face_detect_align_crop_ms']:.0f} ms")  # fmt: skip
+            card += [f"- Provenance: {link}, commit `{v['meta']['git_sha'][:7]}`, release `visual-dff-v1`", ""]
+    rows.append("| Fusion | none: no lawful paired audio-visual data | heuristic weighted average | **not evaluated** | [why](docs/DATASETS.md#consequence-for-fusion) |")  # fmt: skip
+    if inf:
+        c = inf["cases"]
+        il = _run_link(inf)
+        if "video_10s_16frames" in c:
+            rows.append(f"| Serving | 10 s 720p video, 16 frames, CPU (4 vCPU) | API detector end to end "
+                        f"| median **{c['video_10s_16frames']['median_ms'] / 1000:.2f} s** "
+                        f"({c['video_10s_16frames_gradcam']['median_ms'] / 1000:.2f} s with Grad-CAM) | {il} |")  # fmt: skip
+    return "\n".join(rows) + "\n", "\n".join(card)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--results", default=str(ROOT / "results"))
@@ -316,6 +418,9 @@ def main() -> None:
         _, _, tail = rest.partition("<!-- tables:end -->")
         doc.write_text(f"{head}<!-- tables:start -->\n{tables}<!-- tables:end -->{tail}")
     site = {"audio": a_site or None, "visual": v_site or None}
+    glance, card = summary_blocks(res, site)
+    _inject(ROOT / "README.md", "results", glance)
+    _inject(ROOT / "docs/MODEL_CARD.md", "card", card)
     Path(args.site).parent.mkdir(parents=True, exist_ok=True)
     Path(args.site).write_text(json.dumps(site, indent=1, default=float) + "\n")
     print(tables)
