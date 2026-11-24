@@ -1,4 +1,9 @@
-"""Xception / InceptionV3 frame classifiers with two-stage transfer learning support."""
+"""Xception / InceptionV3 / EfficientNet-B0 frame classifiers with two-stage transfer learning.
+
+Every classifier takes images scaled to ``[-1, 1]`` (one input pipeline for all backbones).
+EfficientNet's Keras implementation normalises ``[0, 255]`` input internally, so its
+classifier starts with a fixed rescaling layer.
+"""
 
 from __future__ import annotations
 
@@ -11,8 +16,10 @@ from keras import layers
 BACKBONES: dict[str, tuple[Callable[..., keras.Model], str]] = {
     "xception": (keras.applications.Xception, "block14_sepconv2_act"),
     "inception_v3": (keras.applications.InceptionV3, "mixed10"),
+    "efficientnet_b0": (keras.applications.EfficientNetB0, "top_activation"),
 }
-MIN_INPUT = {"xception": 71, "inception_v3": 75}
+MIN_INPUT = {"xception": 71, "inception_v3": 75, "efficientnet_b0": 32}
+EXPECTS_0_255 = {"efficientnet_b0"}
 
 
 def backbone_layer_name(name: str) -> str:
@@ -49,7 +56,10 @@ def build_frame_classifier(
     """
     inputs = keras.Input((input_size, input_size, 3), name="image")
     backbone = build_backbone(name, input_size, weights)
-    x = backbone(inputs, training=False)
+    x = inputs
+    if name in EXPECTS_0_255:
+        x = layers.Rescaling(127.5, offset=127.5, name="to_0_255")(x)
+    x = backbone(x, training=False)
     x = layers.Dropout(dropout, name="head_dropout")(x)
     x = layers.Dense(1, name="logit")(x)
     outputs = layers.Activation("sigmoid", dtype="float32", name="prob")(x)

@@ -15,7 +15,8 @@ from typing import Any, get_type_hints
 
 import yaml
 
-SUPPORTED_BACKBONES = ("xception", "inception_v3")
+SUPPORTED_BACKBONES = ("xception", "inception_v3", "efficientnet_b0")
+DEFAULT_BACKBONES = ("xception", "inception_v3")
 DEFAULT_CONFIG_PATH = Path(__file__).resolve().parent.parent / "configs" / "default.yaml"
 
 
@@ -59,7 +60,7 @@ class DataConfig:
 
 @dataclass
 class ModelConfig:
-    backbones: list[str] = field(default_factory=lambda: list(SUPPORTED_BACKBONES))
+    backbones: list[str] = field(default_factory=lambda: list(DEFAULT_BACKBONES))
     ensemble_weights: list[float] = field(default_factory=lambda: [0.5, 0.5])
     pretrained: bool = True
     dropout: float = 0.5

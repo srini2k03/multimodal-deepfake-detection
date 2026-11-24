@@ -131,7 +131,11 @@ class DeepfakeDetector:
                 if self._demo_backend() == "keras":
                     from ..models.audio import build_audio_cnn
 
-                    model = build_audio_cnn(self.cfg.audio.n_mels, frames_per_clip(self.cfg.audio))
+                    model = build_audio_cnn(
+                        self.cfg.audio.n_mels,
+                        frames_per_clip(self.cfg.audio),
+                        filters=tuple(self.cfg.audio.cnn_filters),
+                    )
                     self.audio = KerasAudioScorer(model, "random_weights")
                 else:
                     self.audio = PlaceholderAudioScorer()

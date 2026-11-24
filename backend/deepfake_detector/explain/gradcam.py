@@ -29,9 +29,13 @@ def compute_gradcam(model, image: np.ndarray, conv_layer: str | None = None) -> 
         key = backbone.name.removesuffix("_backbone")
         conv_layer = BACKBONES[key][1] if key in BACKBONES else _last_conv_layer(backbone)
     grad_model = keras.Model(backbone.inputs, [backbone.get_layer(conv_layer).output, backbone.output])
-    head = model.layers[model.layers.index(backbone) + 1 :]
+    pos = model.layers.index(backbone)
+    pre = [layer for layer in model.layers[1:pos] if not isinstance(layer, keras.layers.InputLayer)]
+    head = model.layers[pos + 1 :]
 
     x = tf.convert_to_tensor(image[None, ...], dtype=tf.float32)
+    for layer in pre:  # e.g. the fixed [-1, 1] -> [0, 255] rescaling in front of EfficientNet
+        x = layer(x)
     with tf.GradientTape() as tape:
         conv_out, features = grad_model(x, training=False)
         tape.watch(conv_out)
