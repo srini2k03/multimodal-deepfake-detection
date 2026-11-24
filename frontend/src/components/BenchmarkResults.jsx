@@ -275,7 +275,7 @@ function VisualBench({ v }) {
       <Stats
         items={[
           [fix(main.test_auc, 3), "Test ROC-AUC", main.label],
-          [pct(main.test_eer, 1), "Test EER", "threshold-free error rate"],
+          [fix(main.face_size_matched_auc, 3), "Face-size-matched AUC", "resolution cue held roughly constant"],
           [fix(logo?.per_type_auc?.insight, 3), "Unseen face-swap AUC", "model never saw InsightFace swaps"],
           [fix(s.meta_lr?.test_auc, 3), "Metadata-only AUC", "shortcut probe: no pixels"],
         ]}

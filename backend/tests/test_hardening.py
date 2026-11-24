@@ -107,3 +107,10 @@ def test_long_audio_is_truncated(cfg, tmp_path):
     write_wav(path, 0.3 * np.sin(2 * np.pi * 220 * t), 16000)
     audio = DeepfakeDetector(cfg).predict_file(path)["modalities"]["audio"]
     assert audio["truncated"] and audio["analysed_seconds"] == pytest.approx(2.0) and audio["duration"] == 5.0
+
+
+def test_stage_timings_are_reported(cfg, video_file):
+    res = DeepfakeDetector(cfg).predict_file(video_file)
+    t = res["timings_ms"]
+    assert {"decode_and_face_crop", "visual_inference", "audio_decode", "fusion"} <= set(t)
+    assert all(v >= 0 for v in t.values()) and res["processing_ms"] >= t["visual_inference"]

@@ -1440,3 +1440,8 @@ pre code,
 .result-card .audio-svg {
   max-height: 300px;
 }
+.stage-times {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--fg-soft);
+}
