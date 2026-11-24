@@ -172,7 +172,7 @@ def train(cfg: Config, model_kind: str, backbone: str = "xception", init_from: s
     run_dir.mkdir(parents=True, exist_ok=True)
     weights = "imagenet" if cfg.model.pretrained else None
 
-    if model_kind in ("xception", "inception_v3"):
+    if model_kind in ("xception", "inception_v3", "efficientnet_b0"):
         train_ds, val_ds = frame_dataset(cfg, "train"), frame_dataset(cfg, "val")
         model = build_frame_classifier(model_kind, cfg.data.image_size, weights=weights, dropout=cfg.model.dropout)
         export_name = model_kind
@@ -200,7 +200,7 @@ def train(cfg: Config, model_kind: str, backbone: str = "xception", init_from: s
         export_name = "temporal"
     elif model_kind == "audio":
         train_ds, val_ds = audio_dataset(cfg, "train"), audio_dataset(cfg, "val")
-        model = build_audio_cnn(cfg.audio.n_mels, frames_per_clip(cfg.audio))
+        model = build_audio_cnn(cfg.audio.n_mels, frames_per_clip(cfg.audio), filters=tuple(cfg.audio.cnn_filters))
         export_name = "audio_cnn"
     else:
         raise ValueError(f"Unknown model kind '{model_kind}'")
@@ -246,9 +246,14 @@ def train(cfg: Config, model_kind: str, backbone: str = "xception", init_from: s
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--config", default=None)
-    parser.add_argument("--model", required=True, choices=["xception", "inception_v3", "temporal", "audio"])
     parser.add_argument(
-        "--backbone", default="xception", choices=["xception", "inception_v3"], help="backbone for --model temporal"
+        "--model", required=True, choices=["xception", "inception_v3", "efficientnet_b0", "temporal", "audio"]
+    )
+    parser.add_argument(
+        "--backbone",
+        default="xception",
+        choices=["xception", "inception_v3", "efficientnet_b0"],
+        help="backbone for --model temporal",
     )
     parser.add_argument("--init-from", default=None, help="frame model .keras to initialise the temporal backbone")
     parser.add_argument("--epochs-head", type=int, default=None)
