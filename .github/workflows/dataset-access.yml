@@ -1,0 +1,38 @@
+name: Dataset access check
+
+# Records, from a clean GitHub-hosted runner, the licence and access conditions that each
+# candidate dataset host reports (gating flags, stated licence, file sizes, anonymous range
+# access). The JSON is committed to results/datasets/ and summarised in docs/DATASETS.md.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dataset-access
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Check dataset hosts
+        run: python backend/scripts/check_dataset_access.py --out results/datasets/access_check.json
+      - name: Commit evidence
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results/datasets/access_check.json
+          git commit -m "Record dataset access check (run ${{ github.run_id }})" || exit 0
+          for i in 1 2 3 4 5; do
+            git pull --rebase -q origin main && git push -q origin HEAD:main && exit 0
+            sleep $((i * 15))
+          done
+          exit 1
