@@ -5,3 +5,4 @@ PyYAML>=6.0,<7
 Flask>=3.0,<4
 flask-cors>=4.0,<7
 gunicorn>=22.0,<24
+soundfile==0.13.1  # FLAC decoding (ASVspoof) without ffmpeg

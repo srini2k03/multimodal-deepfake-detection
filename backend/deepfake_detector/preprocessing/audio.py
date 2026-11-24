@@ -134,8 +134,81 @@ def frames_per_clip(cfg: AudioConfig) -> int:
     return 1 + int(cfg.clip_seconds * cfg.sample_rate) // cfg.hop_length
 
 
+# --------------------------------------------------------------------------- silence and duration
+SILENCE_FRAME_S = 0.025
+SILENCE_HOP_S = 0.010
+
+
+def frame_energy_db(signal: np.ndarray, sample_rate: int) -> np.ndarray:
+    """Per-frame RMS energy in dB (25 ms frames, 10 ms hop); empty input gives an empty array."""
+    frame, hop = int(SILENCE_FRAME_S * sample_rate), int(SILENCE_HOP_S * sample_rate)
+    if signal.size < frame:
+        return np.zeros(0, dtype=np.float64) if signal.size == 0 else np.array([_rms_db(signal)])
+    n = 1 + (signal.size - frame) // hop
+    idx = np.arange(frame)[None, :] + hop * np.arange(n)[:, None]
+    rms = np.sqrt(np.mean(signal[idx].astype(np.float64) ** 2, axis=1))
+    return 20.0 * np.log10(np.maximum(rms, 1e-10))
+
+
+def _rms_db(x: np.ndarray) -> float:
+    return float(20.0 * np.log10(max(float(np.sqrt(np.mean(np.square(x, dtype=np.float64)))), 1e-10)))
+
+
+def silence_profile(signal: np.ndarray, sample_rate: int, top_db: float = 40.0) -> dict[str, float]:
+    """Leading/trailing non-speech duration: frames more than ``top_db`` below the loudest frame.
+
+    ASVspoof 2019 LA is known to leak the label through leading-silence length (Mueller et al.,
+    Interspeech 2021), so this is recorded for every utterance in the dataset audit.
+    """
+    energy = frame_energy_db(signal, sample_rate)
+    duration = signal.size / sample_rate
+    if energy.size == 0:
+        return {"duration_s": 0.0, "lead_silence_s": 0.0, "trail_silence_s": 0.0, "peak_db": -200.0}
+    active = np.where(energy > energy.max() - top_db)[0]
+    first, last = int(active[0]), int(active[-1])
+    lead = first * SILENCE_HOP_S
+    trail = max(0.0, duration - (last * SILENCE_HOP_S + SILENCE_FRAME_S))
+    return {
+        "duration_s": float(duration),
+        "lead_silence_s": float(lead),
+        "trail_silence_s": float(trail),
+        "peak_db": float(energy.max()),
+    }
+
+
+def trim_silence(signal: np.ndarray, sample_rate: int, top_db: float = 40.0) -> np.ndarray:
+    """Remove leading and trailing frames more than ``top_db`` below the loudest frame."""
+    prof = silence_profile(signal, sample_rate, top_db)
+    start = int(prof["lead_silence_s"] * sample_rate)
+    end = signal.size - int(prof["trail_silence_s"] * sample_rate)
+    trimmed = signal[start:end]
+    return trimmed if trimmed.size >= int(0.1 * sample_rate) else signal
+
+
+def fix_length(signal: np.ndarray, length: int, pad_mode: str = "repeat") -> np.ndarray:
+    """Crop to ``length`` samples from the start, or pad by tiling (``repeat``) or with zeros."""
+    if signal.size >= length:
+        return signal[:length]
+    if signal.size == 0:
+        return np.zeros(length, dtype=np.float32)
+    if pad_mode == "repeat":
+        reps = int(np.ceil(length / signal.size))
+        return np.tile(signal, reps)[:length]
+    if pad_mode == "zero":
+        return np.pad(signal, (0, length - signal.size))
+    raise ValueError("pad_mode must be 'repeat' or 'zero'")
+
+
+def prepare_waveform(signal: np.ndarray, cfg: AudioConfig) -> np.ndarray:
+    """Apply the configured silence trimming (shared by training, evaluation and the API)."""
+    if cfg.trim_silence:
+        return trim_silence(signal, cfg.sample_rate, cfg.trim_top_db)
+    return signal
+
+
 def segment_waveform(signal: np.ndarray, cfg: AudioConfig, min_fraction: float = 0.5) -> list[np.ndarray]:
-    """Split into fixed-length clips; the final partial clip is zero-padded if long enough."""
+    """Split into fixed-length clips. A partial final clip is kept only if it is at least
+    ``min_fraction`` of a clip (or is the only clip) and is padded with ``cfg.pad_mode``."""
     clip_len = int(cfg.clip_seconds * cfg.sample_rate)
     if signal.size == 0:
         return []
@@ -145,14 +218,20 @@ def segment_waveform(signal: np.ndarray, cfg: AudioConfig, min_fraction: float =
         if seg.size < clip_len:
             if seg.size < clip_len * min_fraction and segments:
                 break
-            seg = np.pad(seg, (0, clip_len - seg.size))
+            seg = fix_length(seg, clip_len, cfg.pad_mode)
         segments.append(seg)
     return segments
 
 
+def clip_features(signal: np.ndarray, cfg: AudioConfig) -> np.ndarray:
+    """One ``(n_mels, frames)`` log-mel for the first clip of an utterance (training/evaluation)."""
+    wav = fix_length(prepare_waveform(signal, cfg), int(cfg.clip_seconds * cfg.sample_rate), cfg.pad_mode)
+    return log_mel_spectrogram(wav, cfg)
+
+
 def audio_to_mel_clips(signal: np.ndarray, cfg: AudioConfig) -> np.ndarray:
     """Return ``(clips, n_mels, frames, 1)`` features ready for the audio CNN."""
-    clips = [log_mel_spectrogram(seg, cfg) for seg in segment_waveform(signal, cfg)]
+    clips = [log_mel_spectrogram(seg, cfg) for seg in segment_waveform(prepare_waveform(signal, cfg), cfg)]
     if not clips:
         return np.zeros((0, cfg.n_mels, frames_per_clip(cfg), 1), dtype=np.float32)
     return np.stack(clips)[..., None]
