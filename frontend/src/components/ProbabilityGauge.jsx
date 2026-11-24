@@ -2,10 +2,10 @@ const R = 80;
 const CX = 100;
 const CY = 100;
 
-function polar(fraction) {
+function polar(fraction, r = R) {
   // fraction 0 -> left (180deg), 1 -> right (0deg)
   const angle = Math.PI * (1 - fraction);
-  return [CX + R * Math.cos(angle), CY - R * Math.sin(angle)];
+  return [CX + r * Math.cos(angle), CY - r * Math.sin(angle)];
 }
 
 function arc(from, to) {
@@ -27,7 +27,9 @@ export function riskColor(p) {
 export default function ProbabilityGauge({ probability, threshold = 0.5, label, placeholder = false }) {
   const p = Math.min(1, Math.max(0, probability ?? 0));
   const [nx, ny] = polar(p);
-  const [tx1, ty1] = polar(threshold);
+  // Threshold drawn as a tick across the arc, so it never crosses the number in the middle.
+  const [tx0, ty0] = polar(threshold, R - 13);
+  const [tx1, ty1] = polar(threshold, R + 13);
   const color = placeholder ? "var(--neutral)" : riskColor(p);
   return (
     <figure className="gauge">
@@ -42,8 +44,8 @@ export default function ProbabilityGauge({ probability, threshold = 0.5, label, 
       >
         <path d={arc(0, 1)} className="gauge-track" />
         {p > 0.001 && <path d={arc(0, p)} stroke={color} className="gauge-value" />}
-        {!placeholder && <line x1={CX} y1={CY} x2={tx1} y2={ty1} className="gauge-threshold" />}
-        <circle cx={nx} cy={ny} r="6" fill={color} stroke="var(--surface)" strokeWidth="2" />
+        {!placeholder && <line x1={tx0} y1={ty0} x2={tx1} y2={ty1} className="gauge-threshold" />}
+        <circle cx={nx} cy={ny} r="6" fill={color} stroke="var(--bg-elev)" strokeWidth="2.5" />
         <text x={CX} y={CY - 18} textAnchor="middle" className="gauge-number">
           {(p * 100).toFixed(1)}%
         </text>

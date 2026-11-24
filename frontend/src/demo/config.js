@@ -5,6 +5,7 @@ export const BROWSER_DEMO = import.meta.env.VITE_DEMO === "browser";
 export const REPO_URL = "https://github.com/srini2k03/multimodal-deepfake-detection";
 export const SETUP_URL = `${REPO_URL}#quick-start`;
 export const TRAINING_URL = `${REPO_URL}#training`;
+export const PORTFOLIO_URL = "https://srini2k03.github.io/";
 
 // MediaPipe Tasks Vision, loaded at runtime from a CDN with an exact version pin.
 export const MEDIAPIPE_VERSION = "0.10.35";

@@ -1,14 +1,25 @@
 import { useEffect, useState } from "react";
 
-const KEY = "dfd-theme";
+// Same key as the portfolio (https://srini2k03.github.io/), so the choice carries across the sites.
+const KEY = "theme";
 
 function initialTheme() {
-  const set = document.documentElement.dataset.theme;
-  if (set === "light" || set === "dark") return set;
-  return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  return document.documentElement.dataset.theme === "light" ? "light" : "dark";
 }
 
-/** Light/dark switch; follows the OS setting until the viewer picks one. */
+const iconProps = {
+  width: 16,
+  height: 16,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 1.8,
+  strokeLinecap: "round",
+  strokeLinejoin: "round",
+  "aria-hidden": true,
+};
+
+/** Light/dark switch. Dark by default; the inline script in index.html applies a saved choice before paint. */
 export default function ThemeToggle() {
   const [theme, setTheme] = useState(initialTheme);
 
@@ -26,24 +37,24 @@ export default function ThemeToggle() {
     }
   };
 
+  const label = `Switch to ${theme === "dark" ? "light" : "dark"} theme`;
   return (
     <button
       type="button"
-      className="theme-toggle"
+      className="sb-icon-btn theme-toggle"
       onClick={toggle}
-      aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
-      title={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
+      aria-label={label}
+      aria-pressed={theme === "dark"}
+      title={label}
     >
       {theme === "dark" ? (
-        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-          <circle cx="12" cy="12" r="4.5" fill="currentColor" />
-          <g stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
-          </g>
+        <svg {...iconProps}>
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
         </svg>
       ) : (
-        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-          <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="currentColor" />
+        <svg {...iconProps}>
+          <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" />
         </svg>
       )}
     </button>
