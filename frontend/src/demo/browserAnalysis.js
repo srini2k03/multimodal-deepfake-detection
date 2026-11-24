@@ -275,6 +275,42 @@ export function getAudioModel() {
   return audioModelPromise;
 }
 
+// Viridis control points (perceptually uniform, readable in both themes).
+const VIRIDIS = [
+  [68, 1, 84],
+  [59, 82, 139],
+  [33, 145, 140],
+  [94, 201, 98],
+  [253, 231, 37],
+];
+
+/** Log-mel (n_mels x frames, row 0 = lowest band) -> PNG data URL, low frequencies at the bottom. */
+function melToDataUrl(mel) {
+  const { data, nMels, frames } = mel;
+  const sorted = Float32Array.from(data).sort();
+  const lo = sorted[Math.floor(0.01 * (sorted.length - 1))];
+  const hi = sorted[Math.floor(0.99 * (sorted.length - 1))];
+  const canvas = makeCanvas(frames, nMels);
+  const ctx = canvas.getContext("2d");
+  const img = ctx.createImageData(frames, nMels);
+  for (let m = 0; m < nMels; m++) {
+    for (let f = 0; f < frames; f++) {
+      const t = Math.min(1, Math.max(0, (data[m * frames + f] - lo) / Math.max(hi - lo, 1e-6))) * 4;
+      const k = Math.min(3, Math.floor(t));
+      const a = VIRIDIS[k];
+      const b = VIRIDIS[k + 1];
+      const w = t - k;
+      const o = ((nMels - 1 - m) * frames + f) * 4;
+      img.data[o] = a[0] + (b[0] - a[0]) * w;
+      img.data[o + 1] = a[1] + (b[1] - a[1]) * w;
+      img.data[o + 2] = a[2] + (b[2] - a[2]) * w;
+      img.data[o + 3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  return canvas.toDataURL("image/png");
+}
+
 async function scoreWithModel(model, mono, sr, onProgress, signal) {
   const limit = BROWSER_AUDIO_MAX_SECONDS * sr;
   const x = mono.length > limit ? mono.subarray(0, limit) : mono;
@@ -282,6 +318,7 @@ async function scoreWithModel(model, mono, sr, onProgress, signal) {
   if (!clips.length) return { available: false, reason: "audio too short to analyse" };
   const meanLogit = mean(clips.map((c) => c.logit));
   const b = model.manifest.benchmark || {};
+  const top = clips.reduce((best, c, i) => (c.logit > clips[best].logit ? i : best), 0);
   return {
     available: true,
     probability: round(calibrate(model, meanLogit), 5),
@@ -297,6 +334,13 @@ async function scoreWithModel(model, mono, sr, onProgress, signal) {
       probability: round(calibrate(model, c.logit), 5),
       raw_probability: round(sig(c.logit), 5),
     })),
+    explanation: {
+      clip_index: top,
+      start: round(clips[top].start, 2),
+      end: round(clips[top].end, 2),
+      spectrogram: melToDataUrl(clips[top].mel),
+      method: "log-mel spectrogram, computed in the browser (no saliency map here)",
+    },
     status: "trained",
     model: {
       name: "Audio CNN (ASVspoof 2019 LA)",

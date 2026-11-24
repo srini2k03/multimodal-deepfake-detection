@@ -170,3 +170,18 @@ def test_efficientnet_classifier_rescales_input_and_gradcam(keras):
     assert get_backbone(model).name == "efficientnetv2_b0_backbone"
     heat = compute_gradcam(model, x[0])
     assert heat.shape == (64, 64) and float(heat.min()) >= 0.0 and float(heat.max()) <= 1.0
+
+
+def test_audio_gradcam_explanation(keras, cfg, wav_file):
+    from deepfake_detector.explain.audio import audio_gradcam, spectrogram_image
+    from deepfake_detector.inference.predictor import DeepfakeDetector
+    from deepfake_detector.models.audio import build_audio_cnn
+
+    model = build_audio_cnn(64, 101, filters=(8, 16))
+    mel = np.random.default_rng(0).standard_normal((64, 101)).astype("float32")
+    heat = audio_gradcam(model, mel)
+    assert heat.shape == (64, 101) and heat.min() >= 0.0 and heat.max() <= 1.0
+    assert spectrogram_image(mel).shape == (64 * 3, 101 * 2, 3)
+    cfg.api.demo_backend = "keras"
+    audio = DeepfakeDetector(cfg).predict_file(wav_file)["modalities"]["audio"]
+    assert audio["explanation"]["overlay"].startswith("data:image/png;base64,")

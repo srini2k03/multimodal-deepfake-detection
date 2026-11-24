@@ -114,3 +114,10 @@ def test_stage_timings_are_reported(cfg, video_file):
     t = res["timings_ms"]
     assert {"decode_and_face_crop", "visual_inference", "audio_decode", "fusion"} <= set(t)
     assert all(v >= 0 for v in t.values()) and res["processing_ms"] >= t["visual_inference"]
+
+
+def test_audio_explanation_without_gradients_is_spectrogram_only(cfg, wav_file):
+    audio = DeepfakeDetector(cfg).predict_file(wav_file)["modalities"]["audio"]
+    exp = audio["explanation"]
+    assert exp["spectrogram"].startswith("data:image/png;base64,") and "overlay" not in exp
+    assert exp["method"].startswith("spectrogram only")

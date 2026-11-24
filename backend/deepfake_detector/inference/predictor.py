@@ -348,8 +348,13 @@ class DeepfakeDetector:
         mean_raw = float(1.0 / (1.0 + np.exp(-np.mean(np.log(raw / (1 - raw))))))
         probability = float(cal(mean_raw)) if cal else mean_raw
         clip_s = self.cfg.audio.clip_seconds
+        explanation = None
+        if self.cfg.api.gradcam and len(clips):
+            with self._stage("audio_explanation"):
+                explanation = self._audio_explanation(clips, raw, clip_s)
         return {
             "available": True,
+            "explanation": explanation,
             "probability": round(probability, 5),
             "raw_probability": round(mean_raw, 5),
             "calibrated": cal is not None,
@@ -368,6 +373,27 @@ class DeepfakeDetector:
                 for i, (s, r) in enumerate(zip(scores, raw, strict=True))
             ],
         }
+
+    def _audio_explanation(self, clips: np.ndarray, raw: np.ndarray, clip_s: float) -> dict[str, Any]:
+        """Spectrogram of the most suspicious clip, plus Grad-CAM when a Keras model is loaded."""
+        from ..explain.audio import spectrogram_image
+        from ..explain.gradcam import encode_png_base64, overlay_heatmap
+
+        idx = int(np.argmax(raw))
+        mel = clips[idx, :, :, 0]
+        spec = spectrogram_image(mel)
+        heat = self.audio.heatmap(mel)
+        out: dict[str, Any] = {
+            "clip_index": idx,
+            "start": round(idx * clip_s, 3),
+            "end": round((idx + 1) * clip_s, 3),
+            "spectrogram": encode_png_base64(spec),
+            "method": "spectrogram only (no gradient-based model)" if heat is None else "grad-cam (last conv, log-mel)",
+            "status": self.audio.kind,
+        }
+        if heat is not None:
+            out["overlay"] = encode_png_base64(overlay_heatmap(spec, heat[::-1]))
+        return out
 
     # ------------------------------------------------------------------ public API
     def predict_file(self, path: str | Path, media_type: str | None = None) -> dict[str, Any]:

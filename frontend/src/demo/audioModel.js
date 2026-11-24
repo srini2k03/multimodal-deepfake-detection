@@ -326,7 +326,7 @@ export async function scoreWaveformAsync(model, signal, { onClip, signal: abort 
     await new Promise((r) => setTimeout(r, 0));
     const mel = logMel(segs[i].samples, cfg, model.filterbank);
     const logit = forward(model, mel);
-    clips.push({ start: segs[i].start, end: segs[i].end, logit });
+    clips.push({ start: segs[i].start, end: segs[i].end, logit, mel });
     onClip?.(i + 1, segs.length);
   }
   return clips;
