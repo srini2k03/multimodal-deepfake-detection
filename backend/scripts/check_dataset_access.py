@@ -35,6 +35,7 @@ HF_CANDIDATES = [
     "elsaEU/ELSA_D3",
     "Hemg/deepfake-and-real-images",
 ]
+HF_TREES = ["xingjunm/WildDeepfake", "rshaojimmy/Seq-DeepFake"]
 HF_SEARCH_TERMS = ["deepfake", "face forgery", "fake face", "face swap", "synthetic faces", "audio deepfake"]
 
 # Zenodo records: OpenForensics, WaveFake, ASVspoof 2021 LA / DF evaluation parts.
@@ -142,6 +143,32 @@ def hf_dataset(repo: str) -> dict[str, Any]:
         out["readme_licence_lines"] = [
             ln.strip()[:300] for ln in text.splitlines() if re.search(r"licen[cs]e|terms|non-commercial", ln, re.I)
         ][:15]
+    return out
+
+
+def hf_tree(repo: str, path: str = "", depth: int = 2) -> list[dict[str, Any]]:
+    """List a dataset repo directory (and sub-directories up to ``depth``) with file sizes."""
+    status, tree = _json(f"https://huggingface.co/api/datasets/{repo}/tree/main/{urllib.parse.quote(path)}")
+    if status != 200 or not isinstance(tree, list):
+        return [{"path": path, "error": f"status {status}"}]
+    out: list[dict[str, Any]] = []
+    for e in tree:
+        size = (e.get("lfs") or {}).get("size", e.get("size"))
+        if e.get("type") == "directory" and depth > 0:
+            children = hf_tree(repo, e["path"], depth - 1)
+            files = [c for c in children if c.get("type") == "file"]
+            out.append(
+                {
+                    "path": e["path"],
+                    "type": "directory",
+                    "n_files": len(files),
+                    "bytes": sum(int(c.get("size") or 0) for c in files),
+                    "examples": [c["path"] for c in files[:5]],
+                    "subdirs": [c for c in children if c.get("type") == "directory"],
+                }
+            )
+        else:
+            out.append({"path": e.get("path"), "type": e.get("type"), "size": size})
     return out
 
 
@@ -273,6 +300,7 @@ def extra_pages() -> dict[str, Any]:
                 {m.strip()[:300] for m in re.findall(r"[^<>]{0,160}licen[cs]e[^<>]{0,160}", text, re.I)}
             )[:10],
             "download_links": sorted(set(re.findall(r'href="([^"]+\.(?:zip|tar\.gz|tgz))"', text)))[:10],
+            "all_links": sorted(set(re.findall(r'href="(https?://[^"]+)"', text)))[:40],
         }
     return out
 
@@ -285,6 +313,7 @@ def main() -> None:
     report["asvspoof2019_datashare"] = datashare()
     report["huggingface"] = [hf_dataset(r) for r in HF_CANDIDATES]
     report["huggingface_search"] = {t: hf_search(t) for t in HF_SEARCH_TERMS}
+    report["huggingface_trees"] = {r: hf_tree(r) for r in HF_TREES}
     report["zenodo"] = {name: zenodo_record(rid) for name, rid in ZENODO_RECORDS.items()}
     report["zenodo_search"] = {t: zenodo_search(t) for t in ZENODO_SEARCH}
     report["other"] = extra_pages()
