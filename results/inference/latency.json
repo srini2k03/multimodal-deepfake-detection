@@ -1,6 +1,6 @@
 {
  "date_utc": "2026-11-24T16:42:41+00:00",
- "git_sha": "84a10458108e2775a24b3e16ebb6e2b20d068512",
+ "git_sha": "2798ec6e363e7ce62604efc5d2434a82f5736691",
  "run_id": "45440058636",
  "runner": "Linux x86_64 cpus=4",
  "config": "configs/serve.yaml",

@@ -256,7 +256,7 @@
   },
   "prior_fake": 0.8974400257607471,
   "run_id": "45371433877",
-  "git_sha": "c9b2215583e4f81ae3d576a24c2aa1c30304e51a",
+  "git_sha": "e93f2a31fb732046519bbe598ed0cc29fe0d99d4",
   "release": "run-45371433877",
   "in_the_wild_eer": 0.4545720708056011
  }

@@ -2,7 +2,7 @@
  "system": "cnn_trim",
  "source_run_id": "45371433877",
  "export_run_id": "45439509135",
- "git_sha": "3658814a0202b6d433fe9438eb24af6bbe318e8a",
+ "git_sha": "2623ee9aaad50c81f04b95537a885c7f430f0780",
  "weights_sha256": "08f27bc85175ac8daa83d25006c4ff2e8ffd80dd33e07352e8d69319a1a6cc4c",
  "source_model_sha256": "0dac06d20daf7a33995e0ff7ff2a51af959ec7a79054c026e45ecc18b9aca91f",
  "fold_check_max_abs_logit_diff": 1.1485311190995162e-06,

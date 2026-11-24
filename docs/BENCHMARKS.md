@@ -56,7 +56,7 @@ against Python on a fixed signal (log-mel and per-clip logits) before every Page
 
 ## Results: audio (ASVspoof 2019 LA)
 
-_Run 45371433877 at commit `c9b2215` on 2026-11-24 (Linux x86_64 cpus=4); scores in `results/audio/asvspoof2019_la/eval_scores.csv.gz`._
+_Run 45371433877 at commit `e93f2a3` on 2026-11-24 (Linux x86_64 cpus=4); scores in `results/audio/asvspoof2019_la/eval_scores.csv.gz`._
 
 | System | Dev EER | Eval EER | Eval min t-DCF | Eval ROC-AUC | Eval PR-AUC (spoof) | FPR @ dev thr. | FNR @ dev thr. | ECE raw → Platt |
 |---|---|---|---|---|---|---|---|---|
@@ -113,7 +113,7 @@ Cross-dataset: In-the-Wild (31,779 clips, 54 speakers; no tuning on it):
 
 ## Results: visual (DeepFakeFace)
 
-_Run 45373710322 at commit `8724ec3` on 2026-11-24 (Linux x86_64 cpus=4); scores in `results/visual/dff/test_scores.csv.gz`._
+_Run 45373710322 at commit `33a8f42` on 2026-11-24 (Linux x86_64 cpus=4); scores in `results/visual/dff/test_scores.csv.gz`._
 
 | System | Val AUC | Test ROC-AUC | Face-size-matched AUC | Test EER | PR-AUC (fake) | FPR @ val thr. | FNR @ val thr. | AUC inpainting | AUC face swap | AUC text2img |
 |---|---|---|---|---|---|---|---|---|---|---|

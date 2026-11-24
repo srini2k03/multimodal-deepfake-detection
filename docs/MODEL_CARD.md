@@ -13,7 +13,7 @@ here come from the committed results; see [BENCHMARKS.md](BENCHMARKS.md) for the
 - ASVspoof 2019 LA eval: EER 19.01%, min t-DCF 0.449, ROC-AUC 0.8934
 - In-the-Wild (cross-dataset): EER 45.46%
 - CPU latency per 4 s clip: Keras 15.9 ms, TFLite int8 1.4 ms (164 KB)
-- Provenance: [run 45371433877](https://github.com/srini2k03/multimodal-deepfake-detection/actions/runs/45371433877), commit `c9b2215`, release `audio-asvspoof2019-v1`
+- Provenance: [run 45371433877](https://github.com/srini2k03/multimodal-deepfake-detection/actions/runs/45371433877), commit `e93f2a3`, release `audio-asvspoof2019-v1`
 
 ### Visual classifier (`effnet_ft`)
 
@@ -22,7 +22,7 @@ here come from the committed results; see [BENCHMARKS.md](BENCHMARKS.md) for the
 - DeepFakeFace test: ROC-AUC 0.914, EER 16.92%, face-size-matched AUC 0.910
 - WildDeepfake (cross-dataset): frame AUC 0.628, sequence AUC (mean) 0.653
 - CPU latency per face crop: Keras batch 1 181 ms, batch 16 25 ms/image; face detection + alignment 33 ms
-- Provenance: [run 45373710322](https://github.com/srini2k03/multimodal-deepfake-detection/actions/runs/45373710322), commit `8724ec3`, release `visual-dff-v1`
+- Provenance: [run 45373710322](https://github.com/srini2k03/multimodal-deepfake-detection/actions/runs/45373710322), commit `33a8f42`, release `visual-dff-v1`
 <!-- card:end -->
 
 ## Intended use

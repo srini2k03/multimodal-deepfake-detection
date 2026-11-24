@@ -2,7 +2,7 @@
  "audio": {
   "meta": {
    "date_utc": "2026-11-24T12:35:54+00:00",
-   "git_sha": "c9b2215583e4f81ae3d576a24c2aa1c30304e51a",
+   "git_sha": "e93f2a31fb732046519bbe598ed0cc29fe0d99d4",
    "run_id": "45371433877",
    "runner": "Linux x86_64 cpus=4",
    "python": "3.11.18",
@@ -264,7 +264,7 @@
  "visual": {
   "meta": {
    "date_utc": "2026-11-24T12:01:15+00:00",
-   "git_sha": "8724ec3f0a8752df1cc736e56cd0d70b23fd0442",
+   "git_sha": "33a8f42f4af4f200a12d8bc5cdc67b413bd85aa1",
    "run_id": "45373710322",
    "runner": "Linux x86_64 cpus=4",
    "python": "3.11.18",
@@ -434,7 +434,7 @@
   "wilddeepfake": {
    "meta": {
     "date_utc": "2026-11-24T16:58:27+00:00",
-    "git_sha": "5f07f2e257df24a9c8817335117224828e79e932",
+    "git_sha": "0e3f3e0d01a1b0f93c129a1f7fe008a2b9a05c07",
     "run_id": "45442329373",
     "runner": "Linux x86_64 cpus=4",
     "python": "3.11.18",
