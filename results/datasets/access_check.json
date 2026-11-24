@@ -1,5 +1,5 @@
 {
- "checked_at": "2026-11-24T09:20:36+00:00",
+ "checked_at": "2026-11-24T09:34:30+00:00",
  "asvspoof2019_datashare": {
   "handle": "https://datashare.ed.ac.uk/handle/10283/3336",
   "page_status": 200,
@@ -112,9 +112,9 @@
      "content_range": "bytes 0-33554431/7640952520",
      "content_type": "application/zip ;charset=UTF-8",
      "bytes": 33554432,
-     "seconds": 2.94,
+     "seconds": 5.935,
      "error": null,
-     "mb_per_s": 11.41,
+     "mb_per_s": 5.65,
      "magic": "504b0304"
     }
    }
@@ -481,6 +481,51 @@
     }
    ],
    "readme_status": 401
+  },
+  {
+   "repo": "mueller91/In-The-Wild",
+   "api_status": 200,
+   "gated": false,
+   "private": false,
+   "disabled": false,
+   "license": "cc-by-sa-4.0",
+   "license_tags": [
+    "license:cc-by-sa-4.0"
+   ],
+   "size_tags": [
+    "size_categories:10K<n<100K"
+   ],
+   "used_storage_bytes": 8161489023,
+   "n_files": 3,
+   "files_sample": [
+    ".gitattributes",
+    "README.md",
+    "release_in_the_wild.zip"
+   ],
+   "last_modified": "2025-10-27T11:49:45.000Z",
+   "downloads": 2922,
+   "top_level": [
+    {
+     "path": ".gitattributes",
+     "type": "file",
+     "size": 2521
+    },
+    {
+     "path": "README.md",
+     "type": "file",
+     "size": 1760
+    },
+    {
+     "path": "release_in_the_wild.zip",
+     "type": "file",
+     "size": 8161489023
+    }
+   ],
+   "readme_status": 200,
+   "readme_excerpt": "---\ndatasets: null\nlicense: cc-by-sa-4.0\ntask_categories:\n- audio-classification\nlanguage:\n- en\nmodalities:\n- audio\ntags:\n- audio\n- deepfake\n- detection\n- in-the-wild\n- deepfake-detection\n- audio-deepfake-detection\n- antispoofing\npretty_name: In The Wild\nsize_categories:\n- 10K<n<100K\n---\n\n# In-the-Wild: A Deepfake Detection Dataset\n\nWelcome to **In-the-Wild**, a dataset for evaluationg *audio deepfake detection*.  \nIt accompanies the paper: Does Audio Deepfake Detection Generalize?  [arXiv:2203.16263](https://arxiv.org/abs/2203.16263)\n\n---\n\n## Dataset Summary\n\nThe **In-the-Wild** dataset contains real and synthetic speech recordings of **58 celebrities and politicians**, collected from online videos.\n\nIt provides a realistic benchmark for testing how well *audio deepfake detection models generalize* beyond laboratory data such as ASVspoof.\n\n- **Task:** Audio Classification (Deepfake / Genuine)  \n- **Languages:** English  \n- **Modality:** Audio  \n- **Size:** 37.9 hours total  \n  - 17.2 hours fake  \n  - 20.7 hours real  \n\n---\n\n## Download\n\nYou can download the full dataset as a single ZIP file directly from this repository or via the Hugging Face `datasets` library.\n\n### Option 1: With the `datasets` library\n\n```python\nfrom datasets import load_dataset\n\nds = load_dataset(\"mueller91/In-The-Wild\")\n```\n### Option 2: wget\n```\nwget https://huggingface.co/datasets/mueller91/In-The-Wild/resolve/main/release_in_the_wild.zip\nunzip release_in_the_wild.zip\n```\n\n## Citation\n```\n@article{muller2022does,\n  title={Does audio deepfake detection generalize?},\n  author={M{\\\"u}ller, Nicolas M and Czempin, Pavel and Dieckmann, Franziska and Froghyar, Adam and B{\\\"o}ttinger, Konstantin},\n  journal={arXiv preprint arXiv:2203.16263},\n  year={2022}\n}\n```\n\n",
+   "readme_licence_lines": [
+    "license: cc-by-sa-4.0"
+   ]
   },
   {
    "repo": "elsaEU/ELSA_D3",
@@ -2359,43 +2404,103 @@
  "zenodo": {
   "OpenForensics": {
    "record": "5528418",
-   "api_status": null,
-   "error": "TimeoutError: The read operation timed out"
+   "api_status": 200,
+   "title": "OpenForensics: Multi-Face Forgery Detection And Segmentation In-The-Wild Dataset [V.1.0.0]",
+   "access_right": "open",
+   "license": "cc-by-4.0",
+   "publication_date": "2021-10-13",
+   "doi": "10.5281/zenodo.5528418",
+   "files": [
+    {
+     "key": "Train_part_5.zip",
+     "size": 1981870517
+    },
+    {
+     "key": "Val_poly.json",
+     "size": 121745120
+    },
+    {
+     "key": "Test-Dev_part_2.zip",
+     "size": 3818459756
+    },
+    {
+     "key": "Test-Dev_poly.json",
+     "size": 313352360
+    },
+    {
+     "key": "Train_part_1.zip",
+     "size": 4468028251
+    },
+    {
+     "key": "Train_part_2.zip",
+     "size": 4485069008
+    },
+    {
+     "key": "Train_part_3.zip",
+     "size": 4449860724
+    },
+    {
+     "key": "Val.zip",
+     "size": 3120227393
+    },
+    {
+     "key": "Train_part_4.zip",
+     "size": 4534688984
+    },
+    {
+     "key": "Train_poly.json",
+     "size": 531466500
+    },
+    {
+     "key": "Test-Challenge_part_3.zip",
+     "size": 5203383542
+    },
+    {
+     "key": "Test-Dev_part_1.zip",
+     "size": 4381060728
+    },
+    {
+     "key": "readme.txt",
+     "size": 854
+    },
+    {
+     "key": "Test-Challenge_part_2.zip",
+     "size": 5205900533
+    },
+    {
+     "key": "Test-Challenge_poly.json",
+     "size": 747838044
+    },
+    {
+     "key": "Test-Challenge_part_1.zip",
+     "size": 5198816664
+    },
+    {
+     "key": "Test-Challenge_part_4.zip",
+     "size": 5199204428
+    },
+    {
+     "key": "Test-Challenge_part_5.zip",
+     "size": 2600084795
+    }
+   ],
+   "total_bytes": 56361058201,
+   "range_probe_first_file": {
+    "status": 206,
+    "final_url": "https://zenodo.org/api/records/5528418/files/Train_part_5.zip/content",
+    "content_range": "bytes 0-4194303/1981870517",
+    "content_type": "application/octet-stream",
+    "bytes": 4194304,
+    "seconds": 10.779,
+    "error": null,
+    "mb_per_s": 0.39,
+    "magic": "504b0304"
+   }
   },
   "WaveFake": {
    "record": "5642694",
-   "api_status": 200,
-   "title": "WaveFake: A data set to facilitate audio DeepFake detection",
-   "access_right": "open",
-   "license": "cc-by-sa-4.0",
-   "publication_date": "2021-08-26",
-   "doi": "10.5281/zenodo.5642694",
-   "files": [
-    {
-     "key": "LICENSE",
-     "size": 13981
-    },
-    {
-     "key": "datasheet.pdf",
-     "size": 167526
-    },
-    {
-     "key": "generated_audio.zip",
-     "size": 28918626084
-    }
-   ],
-   "total_bytes": 28918807591,
-   "range_probe_first_file": {
-    "status": 206,
-    "final_url": "https://zenodo.org/api/records/5642694/files/LICENSE/content",
-    "content_range": "bytes 0-13980/13981",
-    "content_type": "application/octet-stream",
-    "bytes": 13981,
-    "seconds": 41.674,
-    "error": null,
-    "mb_per_s": 0.0,
-    "magic": "43726561"
-   }
+   "api_status": 500,
+   "error": "HTTP Error 500: INTERNAL SERVER ERROR"
   },
   "ASVspoof2021_LA_eval": {
    "record": "4837263",
@@ -2413,13 +2518,15 @@
    ],
    "total_bytes": 7763666128,
    "range_probe_first_file": {
-    "status": null,
+    "status": 206,
     "final_url": "https://zenodo.org/api/records/4837263/files/ASVspoof2021_LA_eval.tar.gz/content",
-    "content_range": null,
-    "content_type": null,
-    "bytes": 0,
-    "seconds": null,
-    "error": "TimeoutError: The read operation timed out"
+    "content_range": "bytes 0-4194303/7763666128",
+    "content_type": "application/octet-stream",
+    "bytes": 4194304,
+    "seconds": 12.487,
+    "error": null,
+    "mb_per_s": 0.34,
+    "magic": "1f8b0800"
    }
   },
   "ASVspoof2021_DF_eval_part00": {
@@ -2455,9 +2562,9 @@
     "content_range": "bytes 0-4194303/8637050238",
     "content_type": "application/octet-stream",
     "bytes": 4194304,
-    "seconds": 43.582,
+    "seconds": 20.89,
     "error": null,
-    "mb_per_s": 0.1,
+    "mb_per_s": 0.2,
     "magic": "1f8b0800"
    }
   }
@@ -2465,94 +2572,7 @@
  "zenodo_search": {
   "deepfake faces dataset": [
    {
-    "id": 14615263,
-    "title": "Coco Person Faceswap Dataset (COCO-PFS)",
-    "license": "cc-by-nc-4.0",
-    "total_bytes": 0
-   },
-   {
-    "id": 5769057,
-    "title": "DF-Mobio",
-    "license": null,
-    "total_bytes": 0
-   },
-   {
-    "id": 14532968,
-    "title": "Real vs Fake Faces Balanced Dataset with Multiple Dataset Splits",
-    "license": "cc-by-4.0",
-    "total_bytes": 1147959232
-   },
-   {
-    "id": 7603208,
-    "title": "DEepfake CROss-lingual evaluation dataset (DECRO)",
-    "license": "cc-by-4.0",
-    "total_bytes": 15503225651
-   },
-   {
-    "id": 23889016,
-    "title": "Does Content Matter? Introducing SWC-LibDeep for Cross-Lingual Audio Deepfake Detection in English and German",
-    "license": "cc-by-4.0",
-    "total_bytes": 0
-   },
-   {
-    "id": 16140829,
-    "title": "HiDF: A Human-Indistinguishable Deepfake Dataset",
-    "license": "cc-by-nc-4.0",
-    "total_bytes": 41961478606
-   },
-   {
-    "id": 13318702,
-    "title": "System Fingerprint Recognition for Deepfake Audio (SFR) - Clean Set",
-    "license": "cc-by-4.0",
-    "total_bytes": 40118397141
-   },
-   {
-    "id": 13340666,
-    "title": "System Fingerprint Recognition for Deepfake Audio (SFR) - Compressed Set",
-    "license": "cc-by-4.0",
-    "total_bytes": 36866405703
-   },
-   {
-    "id": 16744845,
-    "title": "SCDF: A Speaker Characteristics DeepFake Speech Dataset for Bias Analysis",
-    "license": "cc-zero",
-    "total_bytes": 48127460705
-   },
-   {
-    "id": 13838823,
-    "title": "Codecfake dataset - test set (part 1 of 2)",
-    "license": "cc-by-nc-nd-4.0",
-    "total_bytes": 37787855511
-   },
-   {
-    "id": 11125029,
-    "title": "Codecfake dataset - test set (part 2 of 2)",
-    "license": "cc-by-nc-nd-4.0",
-    "total_bytes": 32339057370
-   },
-   {
-    "id": 13853860,
-    "title": "Codecfake dataset - training set (part 3 of 3)",
-    "license": "cc-by-nc-nd-4.0",
-    "total_bytes": 32212254720
-   },
-   {
-    "id": 13841216,
-    "title": "Codecfake dataset - development set",
-    "license": "cc-by-nc-nd-4.0",
-    "total_bytes": 11444857242
-   },
-   {
-    "id": 11186584,
-    "title": "DeepFakeNews",
-    "license": "cc-by-4.0",
-    "total_bytes": 24700322792
-   },
-   {
-    "id": 13838106,
-    "title": "Codecfake dataset - training set (part 1 of 3)",
-    "license": "cc-by-nc-nd-4.0",
-    "total_bytes": 32065561685
+    "error": "status None"
    }
   ],
   "face forgery dataset": [
@@ -2649,7 +2669,94 @@
   ],
   "in-the-wild audio deepfake": [
    {
-    "error": "status None"
+    "id": 23849403,
+    "title": "Watermark shortcuts in speech deepfake detection: code and results",
+    "license": "cc-by-4.0",
+    "total_bytes": 0
+   },
+   {
+    "id": 12176904,
+    "title": "ADD 2023 Challenge Track 2 Evaluation Dataset",
+    "license": "cc-by-nc-nd-4.0",
+    "total_bytes": 5168187189
+   },
+   {
+    "id": 12179632,
+    "title": "ADD 2023 Challenge Track 3 Training/Development Dataset",
+    "license": "cc-by-nc-nd-4.0",
+    "total_bytes": 4825328307
+   },
+   {
+    "id": 12151404,
+    "title": "ADD 2023 Challenge Track 1.2 Training/Development Dataset",
+    "license": "cc-by-nc-nd-4.0",
+    "total_bytes": 4258654693
+   },
+   {
+    "id": 12145773,
+    "title": "ADD 2023 Challenge Track 1.1 Evaluation Dataset",
+    "license": "cc-by-nc-nd-4.0",
+    "total_bytes": 66590075
+   },
+   {
+    "id": 12176530,
+    "title": "ADD 2023 Challenge Track 2 Training/Development Dataset",
+    "license": "cc-by-nc-nd-4.0",
+    "total_bytes": 7041044253
+   },
+   {
+    "id": 12179884,
+    "title": "ADD 2023 Challenge Track 3 Evaluation Dataset",
+    "license": "cc-by-nc-nd-4.0",
+    "total_bytes": 12540868923
+   },
+   {
+    "id": 12176326,
+    "title": "ADD 2023 Challenge Track 1.2 Evaluation Dataset (Round 2)",
+    "license": "cc-by-nc-nd-4.0",
+    "total_bytes": 15959732149
+   },
+   {
+    "id": 12175884,
+    "title": "ADD 2023 Challenge Track 1.2 Evaluation Dataset (Round 1)",
+    "license": "cc-by-nc-nd-4.0",
+    "total_bytes": 15480539338
+   },
+   {
+    "id": 17295933,
+    "title": "Mel Spectrogram Voice Dataset",
+    "license": "cc-by-4.0",
+    "total_bytes": 238372814
+   },
+   {
+    "id": 13318702,
+    "title": "System Fingerprint Recognition for Deepfake Audio (SFR) - Clean Set",
+    "license": "cc-by-4.0",
+    "total_bytes": 40118397141
+   },
+   {
+    "id": 13340666,
+    "title": "System Fingerprint Recognition for Deepfake Audio (SFR) - Compressed Set",
+    "license": "cc-by-4.0",
+    "total_bytes": 36866405703
+   },
+   {
+    "id": 23889016,
+    "title": "Does Content Matter? Introducing SWC-LibDeep for Cross-Lingual Audio Deepfake Detection in English and German",
+    "license": "cc-by-4.0",
+    "total_bytes": 0
+   },
+   {
+    "id": 7603208,
+    "title": "DEepfake CROss-lingual evaluation dataset (DECRO)",
+    "license": "cc-by-4.0",
+    "total_bytes": 15503225651
+   },
+   {
+    "id": 13838823,
+    "title": "Codecfake dataset - test set (part 1 of 2)",
+    "license": "cc-by-nc-nd-4.0",
+    "total_bytes": 37787855511
    }
   ]
  },
