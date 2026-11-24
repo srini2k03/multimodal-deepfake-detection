@@ -94,6 +94,19 @@ def augment(img: np.ndarray, rng: np.random.Generator) -> np.ndarray:
     return np.ascontiguousarray(img)
 
 
+def equalize(img: np.ndarray, px: int) -> np.ndarray:
+    """Down-sample to ``px`` and back to the original size, for both classes alike.
+
+    DeepFakeFace's real photos are often low-resolution web images while the fakes are rendered at
+    a fixed, higher resolution; capping the effective resolution removes most of that sharpness cue.
+    """
+    h, w = img.shape[:2]
+    if px >= min(h, w):
+        return img
+    small = cv2.resize(img, (px, px), interpolation=cv2.INTER_AREA)
+    return cv2.resize(small, (w, h), interpolation=cv2.INTER_LINEAR)
+
+
 def to_model_input(batch_uint8: np.ndarray) -> np.ndarray:
     """uint8 RGB -> float32 in [-1, 1] (the repository-wide model input convention)."""
     return batch_uint8.astype(np.float32) / 127.5 - 1.0

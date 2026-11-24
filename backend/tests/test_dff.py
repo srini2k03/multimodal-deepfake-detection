@@ -57,6 +57,11 @@ def test_image_ops_shapes_and_conditions():
         out = apply_condition(img, cond, rng)
         assert out.shape == img.shape and out.dtype == np.uint8
     assert np.array_equal(apply_condition(img, "clean", rng), img)
+    from deepfake_detector.benchmarks.image_ops import equalize
+
+    eq = equalize(img, 16)
+    assert eq.shape == img.shape and np.abs(eq.astype(int) - img).mean() > 0
+    assert np.array_equal(equalize(img, 128), img)  # never up-samples
     assert augment(img, rng).shape == img.shape
     x = to_model_input(img[None])
     assert x.min() >= -1.0 and x.max() <= 1.0
@@ -81,9 +86,16 @@ def test_dff_cli_end_to_end(tmp_path, monkeypatch):
     assert audit["full_dataset"]["fake_keys_matching_a_real_key"] == {"inpainting": 30, "insight": 30, "text2img": 30}
     run_dff.main(["probe", "--work", str(work)])
     run_dff.main(["finetune", "--work", str(work), "--epochs", "1", "--batch-size", "8"])
+    run_dff.main(["finetune", "--work", str(work), "--epochs", "1", "--batch-size", "8", "--equalize-px", "32"])
     run_dff.main(["evaluate", "--work", str(work), "--out", str(out)])
     m = json.loads((out / "metrics.json").read_text())["systems"]
-    assert {"meta_lr", "effnet_probe", "effnet_ft", "effnet_probe_no_insight"} <= set(m)
+    assert {"meta_lr", "effnet_probe", "effnet_ft", "effnet_ft_eq32", "effnet_probe_no_insight"} <= set(m)
+    fsm = m["effnet_ft"]["test"]["face_size_matched"]
+    assert (
+        len(fsm["bins"]) == 5
+        and sum(b["n_real"] + b["n_fake"] for b in fsm["bins"])
+        == m["effnet_ft"]["test"]["n_real"] + m["effnet_ft"]["test"]["n_fake"]
+    )
     assert m["effnet_probe_no_insight"]["test"]["per_type"]["insight"]["seen_in_training"] is False
     assert (out / "test_scores.csv.gz").exists()
     run_dff.main(["robustness", "--work", str(work), "--out", str(out), "--n-per-class", "6"])

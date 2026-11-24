@@ -22,6 +22,10 @@ on:
         description: "Also fine-tune without InsightFace swaps (unseen-manipulation test)"
         type: boolean
         default: true
+      equalize:
+        description: "Also fine-tune with every crop down-sampled to 96 px (resolution-shortcut control)"
+        type: boolean
+        default: true
       publish:
         type: boolean
         default: true
@@ -81,7 +85,13 @@ jobs:
         run: |
           python -m deepfake_detector.benchmarks.run_dff prepare --zips "$RUNNER_TEMP/dff" --work "$RUNNER_TEMP/work" \
             --train-groups ${{ inputs.train_groups }} --val-groups ${{ inputs.val_groups }} --test-groups ${{ inputs.test_groups }}
-          python -c "import json,sys; a=json.load(open(sys.argv[1])); print(json.dumps({k: a[k] for k in ('group_overlap','full_dataset')}, indent=1)[:3000])" "$RUNNER_TEMP/work/audit.json"
+          python - "$RUNNER_TEMP/work/audit.json" <<'PY'
+          import json, sys
+          a = json.load(open(sys.argv[1]))
+          print(json.dumps({k: a[k] for k in ("group_overlap", "full_dataset")}, indent=1)[:2500])
+          for subset, v in a["selected"]["test"]["per_subset"].items():
+              print(subset, v["n"], v["formats"], "w", v["width"], "h", v["height"], "kb", v["kb"], "face", v["face_detected_rate"])
+          PY
           du -sh "$RUNNER_TEMP/work"
       - name: Baselines (metadata probe, frozen EfficientNetV2-B0 probe, leave-one-generator-out)
         working-directory: backend
@@ -93,6 +103,10 @@ jobs:
         if: inputs.logo
         working-directory: backend
         run: python -m deepfake_detector.benchmarks.run_dff finetune --work "$RUNNER_TEMP/work" --epochs ${{ inputs.epochs }} --exclude insight
+      - name: Fine-tune with resolution equalisation (96 px, both classes)
+        if: inputs.equalize
+        working-directory: backend
+        run: python -m deepfake_detector.benchmarks.run_dff finetune --work "$RUNNER_TEMP/work" --epochs ${{ inputs.epochs }} --equalize-px 96
       - name: Evaluate
         working-directory: backend
         run: python -m deepfake_detector.benchmarks.run_dff evaluate --work "$RUNNER_TEMP/work" --out "../$OUT"
@@ -116,7 +130,8 @@ jobs:
           for name, s in m["systems"].items():
               t = s["test"]
               types = " ".join(f"{k}={v['roc_auc']:.3f}" for k, v in t["per_type"].items())
-              print(f"{name:28s} val AUC {s['val']['roc_auc']:.4f}  test AUC {t['roc_auc']:.4f}  EER {t['eer']:.4f}  {types}")
+              fsm = t.get("face_size_matched", {}).get("pooled_roc_auc")
+              print(f"{name:28s} val AUC {s['val']['roc_auc']:.4f}  test AUC {t['roc_auc']:.4f}  EER {t['eer']:.4f}  face-size-matched AUC {fsm}  {types}")
           PY
       - name: Bundle model files
         run: |

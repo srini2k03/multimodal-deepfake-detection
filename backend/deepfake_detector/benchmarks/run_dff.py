@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import argparse
 import gzip
+import itertools
 import json
 import logging
 import os
@@ -41,7 +42,7 @@ from ..evaluation.metrics import (
 from ..utils.logging import configure_logging
 from . import dff
 from .audio_models import LogisticRegression
-from .image_ops import ROBUSTNESS_CONDITIONS, apply_condition, augment, to_model_input
+from .image_ops import ROBUSTNESS_CONDITIONS, apply_condition, augment, equalize, to_model_input
 from .run_asvspoof import _write_json, run_metadata
 
 logger = logging.getLogger(__name__)
@@ -108,10 +109,13 @@ def _feature_model():
     return keras.Model(inp, build_backbone(BACKBONE, IMAGE_SIZE, WEIGHTS)(x, training=False))
 
 
-def _batched(model, images_uint8: np.ndarray, batch: int = 64, fn=None) -> np.ndarray:
+def _batched(model, images_uint8: np.ndarray, batch: int = 64, fn=None, eq: int = 0) -> np.ndarray:
     out = []
     for s in range(0, len(images_uint8), batch):
-        x = to_model_input(images_uint8[s : s + batch])
+        chunk = images_uint8[s : s + batch]
+        if eq:
+            chunk = np.stack([equalize(img, eq) for img in chunk])
+        x = to_model_input(chunk)
         out.append(np.asarray(model(x, training=False) if fn is None else fn(x)))
     return np.concatenate(out)
 
@@ -156,7 +160,8 @@ def cmd_finetune(args, cfg) -> None:
     from ..models.backbones import set_trainable
 
     work = Path(args.work)
-    name = "effnet_ft" + (f"_no_{args.exclude}" if args.exclude else "")
+    eq = args.equalize_px
+    name = "effnet_ft" + (f"_no_{args.exclude}" if args.exclude else "") + (f"_eq{eq}" if eq else "")
     records = _records(work)
     images = dff.load_images(records, work / "crops", IMAGE_SIZE)
     tr, ytr, ttr = _split(records, "train")
@@ -181,7 +186,7 @@ def cmd_finetune(args, cfg) -> None:
         def __getitem__(self, b):
             sel = self.idx[b * args.batch_size : (b + 1) * args.batch_size]
             r = np.random.default_rng((self.seed, b))
-            x = np.stack([augment(images[i], r) for i in sel])
+            x = np.stack([augment(equalize(images[i], eq) if eq else images[i], r) for i in sel])
             y = np.array([records[i].label for i in sel], dtype=np.float32)
             return to_model_input(x), y
 
@@ -190,7 +195,7 @@ def cmd_finetune(args, cfg) -> None:
         return rng.permutation(picked)
 
     def val_auc() -> float:
-        z = _batched(model, images[va]).reshape(-1)
+        z = _batched(model, images[va], eq=eq).reshape(-1)
         return roc_auc(yva, z)
 
     history, best_auc, best_w, best_epoch, bad = [], -1.0, None, 0, 0
@@ -221,12 +226,13 @@ def cmd_finetune(args, cfg) -> None:
     model.save(out / "model.keras")
     from .audio_models import logit_model
 
-    z = _batched(logit_model(model), images).reshape(-1)
+    z = _batched(logit_model(model), images, eq=eq).reshape(-1)
     (work / "logits").mkdir(exist_ok=True)
     np.save(work / "logits" / f"{name}.npy", z)
     _write_json(out / "train.json", {"system": name, "history": history, "best_epoch": best_epoch,
                                      "best_val_auc": best_auc, "train_seconds": round(time.perf_counter() - t_start, 1),
                                      "params": int(model.count_params()), "excluded_type": args.exclude,
+                                     "equalize_px": eq,
                                      "n_train_real": len(real), "n_train_fake": len(fake)})  # fmt: skip
 
 
@@ -235,6 +241,7 @@ NOTES = {
     "meta_lr": "Logistic regression on file metadata only (format, resolution, bytes/pixel, face box): shortcut probe",
     "effnet_probe": "Frozen ImageNet EfficientNetV2-B0 features + logistic regression",
     "effnet_ft": "EfficientNetV2-B0 fine-tuned (top 30% of layers, BatchNorm frozen), augmentation, balanced epochs",
+    "effnet_ft_eq96": "As effnet_ft, but every crop (both classes, all splits) is down-sampled to 96 px and back first",
 }
 
 
@@ -282,7 +289,39 @@ def evaluate_system(z: np.ndarray, records, name: str) -> dict:
             "seen_in_training": t != held_out,
         }
     out["test"]["per_type"] = per_type
+    out["test"]["face_size_matched"] = face_size_matched(zte, yte, [records[i] for i in te])
     return out
+
+
+def face_px(r: dff.ImageRecord) -> float:
+    """Source face size in pixels (square root of the detected box area), or the shorter image side."""
+    if r.face_found and r.face_frac > 0:
+        return float(np.sqrt(r.face_frac * r.width * r.height))
+    return float(min(r.width, r.height))
+
+
+def face_size_matched(z: np.ndarray, y: np.ndarray, recs: list[dff.ImageRecord], n_bins: int = 5) -> dict:
+    """ROC-AUC within source-face-size strata (quantiles of the real images), then pooled.
+
+    Real and fake DFF images differ in resolution, so an overall AUC can reward a resolution
+    detector. Comparing only images whose faces have similar source size removes most of that cue.
+    """
+    px = np.array([face_px(r) for r in recs])
+    edges = np.quantile(px[y == 0], np.linspace(0, 1, n_bins + 1))
+    edges[0], edges[-1] = -np.inf, np.inf
+    bins, num, den = [], 0.0, 0.0
+    for lo, hi in itertools.pairwise(edges):
+        m = (px > lo) & (px <= hi)
+        n_r, n_f = int((y[m] == 0).sum()), int((y[m] == 1).sum())
+        auc = roc_auc(y[m], z[m]) if n_r >= 20 and n_f >= 20 else None
+        bins.append({"px_lo": None if np.isinf(lo) else round(float(lo), 1),
+                     "px_hi": None if np.isinf(hi) else round(float(hi), 1),
+                     "n_real": n_r, "n_fake": n_f, "roc_auc": auc})  # fmt: skip
+        if auc is not None:
+            num += auc * n_r * n_f
+            den += n_r * n_f
+    return {"pooled_roc_auc": num / den if den else None, "bins": bins,
+            "fake_share_by_bin": [b["n_fake"] / max(1, b["n_real"] + b["n_fake"]) for b in bins]}  # fmt: skip
 
 
 def cmd_evaluate(args, cfg) -> None:
@@ -301,10 +340,11 @@ def cmd_evaluate(args, cfg) -> None:
     te, _, _ = _split(records, "test")
     with gzip.open(out_dir / "test_scores.csv.gz", "wt", encoding="utf-8") as fh:
         names = list(logits)
-        fh.write("group,subset,label," + ",".join(names) + "\n")
+        fh.write("group,subset,label,file_format,width,height,face_found,face_px," + ",".join(names) + "\n")
         for i in te:
             r = records[i]
-            fh.write(f"{r.group},{r.subset},{r.label}," + ",".join(f"{logits[n][i]:.5f}" for n in names) + "\n")
+            meta = f"{r.file_format},{r.width},{r.height},{r.face_found},{face_px(r):.1f}"
+            fh.write(f"{r.group},{r.subset},{r.label},{meta}," + ",".join(f"{logits[n][i]:.5f}" for n in names) + "\n")
     _write_json(out_dir / "data_audit.json", json.loads((work / "audit.json").read_text()))
 
 
@@ -503,6 +543,7 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--epochs", type=int, default=5)
     p.add_argument("--patience", type=int, default=2)
     p.add_argument("--batch-size", type=int, default=32)
+    p.add_argument("--equalize-px", type=int, default=0, help="down-sample every crop to N px and back (both classes)")
     for name in ("evaluate", "robustness", "gradcam", "latency"):
         p = sub.add_parser(name)
         p.add_argument("--work", required=True)
