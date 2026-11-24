@@ -1,0 +1,2583 @@
+{
+ "checked_at": "2026-11-24T09:11:21+00:00",
+ "asvspoof2019_datashare": {
+  "handle": "https://datashare.ed.ac.uk/handle/10283/3336",
+  "page_status": 200,
+  "page_bytes": 546562,
+  "bitstream_links": [
+   "/bitstreams/60c7de6d-37d3-45c1-b52e-9f18b0338e47/download",
+   "/bitstreams/765597d6-633f-418a-96b0-39274a8d56c9/download",
+   "/bitstreams/852ec9ad-fe51-48e7-93bd-5259b94e25d6/download",
+   "/bitstreams/8dd50200-9778-4eae-863b-f6f3bfc21983/download",
+   "/bitstreams/a9f87c35-f055-4015-80e2-2fdff0d46269/download",
+   "/bitstreams/bed1c1fb-5430-41c6-944e-9e079e61f5af/download",
+   "https://datashare.ed.ac.uk/bitstreams/60c7de6d-37d3-45c1-b52e-9f18b0338e47/download",
+   "https://datashare.ed.ac.uk/bitstreams/765597d6-633f-418a-96b0-39274a8d56c9/download",
+   "https://datashare.ed.ac.uk/bitstreams/852ec9ad-fe51-48e7-93bd-5259b94e25d6/download",
+   "https://datashare.ed.ac.uk/bitstreams/8dd50200-9778-4eae-863b-f6f3bfc21983/download",
+   "https://datashare.ed.ac.uk/bitstreams/a9f87c35-f055-4015-80e2-2fdff0d46269/download",
+   "https://datashare.ed.ac.uk/bitstreams/bed1c1fb-5430-41c6-944e-9e079e61f5af/download"
+  ],
+  "licence_lines": [
+   "\",\"error.top-level-communities\":\"Error fetching top-level communities\",\"error.validation.license.notgranted\":\"You must grant this license to complete your submission. If you are unable to grant this license at this time you may save your work and return later or remove the submission.\",\"error.val",
+   ".page.bitstreams.collapse\":\"Collapse\",\"item.page.bitstreams.primary\":\"Primary\",\"item.page.filesection.original.bundle\":\"Original bundle\",\"item.page.filesection.license.bundle\":\"License bundle\",\"item.page.return\":\"Back\",\"item.page.version.create\":\"Create new version\",\"item.page.withdrawn\":\"Request a ",
+   "0a70e03-f33b-47e1-855a-0e9bb788550f\",\"language\":null,\"value\":\"Licence file\",\"place\":0,\"authority\":null,\"confidence\":-1}],\"dc.source\":[{\"uuid\":\"889cec69-3c7d-4565-bfdf-e82ba438313d\",\"language\":null,\"value\":\"LICENSE_text.txt\",\"plac",
+   "7d-6587bf34ac74/harvester\"},\"itemtemplate\":{\"href\":\"https://datashare.ed.ac.uk/server/api/core/collections/7ec05b33-4b3d-4b99-a47d-6587bf34ac74/itemtemplate\"},\"license\":{\"href\":\"https://datashare.ed.ac.uk/server/api/core/collections/7ec05b33-4b3d-4b99-a47d-6587bf34ac74/license\"},\"logo\":{\"href\":\"http",
+   "Description\",\"collection.form.description\":\"Introductory text (HTML)\",\"collection.form.errors.title.required\":\"Please enter a collection name\",\"collection.form.license\":\"License\",\"collection.form.provenance\":\"Provenance\",\"collection.form.rights\":\"Copyright text (HTML)\",\"collection.form.tableofconten",
+   "LICENSE_text.txt",
+   "Licences",
+   "a _ngcontent-dspace-angular-c2316214253=\"\" role=\"link\" tabindex=\"0\" class=\"dont-break-out\" aria-label=\"Download LICENSE_text.txt\" target=\"_self\" href=\"/bitstreams/60c7de6d-37d3-45c1-b52e-9f18b0338e47/download\"",
+   "a new name variant\",\"submission.sections.describe.relationship-lookup.name-variant.notification.decline\":\"Use only for this submission\",\"submission.sections.ccLicense.type\":\"License Type\",\"submission.sections.ccLicense.select\":\"Select a license type\u2026\",\"submission.sections.ccLicense.change\":\"Change y",
+   "bnail for each original)\",\"admin.reports.commons.filters.bundle.has_non_generated_thumb\":\"Has non-generated thumbnail\",\"admin.reports.commons.filters.bundle.no_license\":\"Doesn't have a license\",\"admin.reports.commons.filters.bundle.has_license_documentation\":\"Has documentation in the license bundle\"",
+   "ce\":\"End-user Licence\",\"item.page.filesection.depositor_agreement\":\"Depositor Agreement\",\"submission.sections.submit.progressbar.datashare.spatial_and_temporal\":\"Spatial and Tempora",
+   "d3-45c1-b52e-9f18b0338e47/accessStatus\"},\"self\":{\"href\":\"https://datashare.ed.ac.uk/server/api/core/bitstreams/60c7de6d-37d3-45c1-b52e-9f18b0338e47\"}},\"_name\":\"LICENSE_text.txt\",\"id\":\"60c7de6d-37d3-45c1-b52e-9f18b0338e47\",\"uuid\":\"60c7de6d-37d3-45c1-b52e-9f18b0338e47\",\"type\":\"bitstream\",\"metadata\":{\"",
+   "e\":0,\"authority\":null,\"confidence\":-1}],\"dc.title\":[{\"uuid\":\"550667c7-e3ad-4d65-afc8-f1e3cf68d072\",\"language\":null,\"value\":\"LICENSE_text.txt\",\"place\":0,\"authority\":null,\"confidence\":-1}]}},\"timeCompleted\":1795485887130,\"msToLive\":900000,\"requestUUIDs\":[\"client/9ded1606-dd1c-411e-b72c-f4f1cd",
+   "ease delete some files to proceed to the next step.\",\"datashare.submission.sections.upload.total_size\":\"Total Size of Uploaded Files:\",\"item.page.filesection.cclicense.bundle\":\"CC-License bundle\",\"item.page.filesection.licences\":\"Licences\",\"submit.progressbar.license\":\"End-user Agreement\",\"item.page",
+   "ed-4404-8a63-2a774fe1dc72/accessStatus\"},\"self\":{\"href\":\"https://datashare.ed.ac.uk/server/api/core/bitstreams/70ee1931-1eed-4404-8a63-2a774fe1dc72\"}},\"_name\":\"LICENSE_text.txt.txt\",\"id\":\"70ee1931-1eed-4404-8a63-2a774fe1dc72\",\"uuid\":\"70ee1931-1eed-4404-8a63-2a774fe1dc72\",\"type\":\"bitstream\",\"metadata",
+   "https://doi.org/10.7488/ds/298\",\"place\":0,\"authority\":null,\"confidence\":-1}],\"dc.rights\":[{\"uuid\":\"42ff4343-b864-4c0e-b67a-fb9bbd64c724\",\"language\":\"\",\"value\":\"Open Data Commons Attribution License\",\"place\":0,\"authority\":null,\"confidence\":-1}],\"dc.source\":[{\"uuid\":\"59ff0db4-fd75-48a2-9bcc-b764676ff3",
+   "iew.organization.address.addressLocality\":\"City\",\"item.preview.organization.alternateName\":\"Alternative name\",\"submission.sections.submit.progressbar.datashare.license\":\"End-user Licence\",\"submission.sections.submit.datashare.dropzone\":\"TBD: INSTRUCTIONS FOR DROPZONE.\",\"submission.sections.submit.pr",
+   "ifiers_label\":\"Other identifiers: \",\"submission.sections.submit.progressbar.accessCondition\":\"Item access conditions\",\"submission.sections.submit.progressbar.CClicense\":\"Creative commons license\",\"submission.sections.submit.progressbar.describe.recycle\":\"Recycle\",\"submission.sections.submit.progress",
+   "ify Endorsement\",\"form.date-picker.placeholder.year\":\"Year\",\"form.date-picker.placeholder.month\":\"Month\",\"form.date-picker.placeholder.day\":\"Day\",\"item.page.cc.license.title\":\"Creative Commons license\",\"item.page.cc.license.disclaimer\":\"Except where otherwised noted, this item's license is described",
+   "must accept the license\",\"submission.sections.sherpa.publication.information\":\"Publication information\",\"submission.sections.sherpa.publication.information.title\":\"Title\",\"submission."
+  ],
+  "rest_status": 200,
+  "rest_rights": {
+   "dc.rights": [
+    "Open Data Commons Attribution License"
+   ]
+  },
+  "rest_title": [
+   "ASVspoof 2019: The 3rd Automatic Speaker Verification Spoofing and Countermeasures Challenge database"
+  ],
+  "bundles_status": 200,
+  "rest_files": [
+   {
+    "bundle": "ORIGINAL",
+    "name": "asvspoof2019_evaluation_plan.pdf",
+    "size": 6096753,
+    "content": "https://datashare.ed.ac.uk/server/api/core/bitstreams/8dd50200-9778-4eae-863b-f6f3bfc21983/content"
+   },
+   {
+    "bundle": "ORIGINAL",
+    "name": "asvspoof2019_Interspeech2019_submission.pdf",
+    "size": 1005630,
+    "content": "https://datashare.ed.ac.uk/server/api/core/bitstreams/bed1c1fb-5430-41c6-944e-9e079e61f5af/content"
+   },
+   {
+    "bundle": "ORIGINAL",
+    "name": "LA.zip",
+    "size": 7640952520,
+    "content": "https://datashare.ed.ac.uk/server/api/core/bitstreams/a9f87c35-f055-4015-80e2-2fdff0d46269/content"
+   },
+   {
+    "bundle": "ORIGINAL",
+    "name": "PA.zip",
+    "size": 17662711934,
+    "content": "https://datashare.ed.ac.uk/server/api/core/bitstreams/852ec9ad-fe51-48e7-93bd-5259b94e25d6/content"
+   },
+   {
+    "bundle": "ORIGINAL",
+    "name": "README.txt",
+    "size": 13139,
+    "content": "https://datashare.ed.ac.uk/server/api/core/bitstreams/765597d6-633f-418a-96b0-39274a8d56c9/content"
+   },
+   {
+    "bundle": "ORIGINAL",
+    "name": "LICENSE_text.txt",
+    "size": 19941,
+    "content": "https://datashare.ed.ac.uk/server/api/core/bitstreams/60c7de6d-37d3-45c1-b52e-9f18b0338e47/content"
+   },
+   {
+    "bundle": "TEXT",
+    "name": "README.txt.txt",
+    "size": 12848,
+    "content": "https://datashare.ed.ac.uk/server/api/core/bitstreams/518947b4-7e7e-48a7-b3b6-66b45bdcd3bd/content"
+   },
+   {
+    "bundle": "TEXT",
+    "name": "LICENSE_text.txt.txt",
+    "size": 19611,
+    "content": "https://datashare.ed.ac.uk/server/api/core/bitstreams/70ee1931-1eed-4404-8a63-2a774fe1dc72/content"
+   }
+  ],
+  "la_zip_probes": [
+   {
+    "url": "https://datashare.ed.ac.uk/server/api/core/bitstreams/a9f87c35-f055-4015-80e2-2fdff0d46269/content",
+    "head_status": 200,
+    "content_length": "7640952520",
+    "head_final_url": "https://datashare.ed.ac.uk/server/api/core/bitstreams/a9f87c35-f055-4015-80e2-2fdff0d46269/content",
+    "range": {
+     "status": 206,
+     "final_url": "https://datashare.ed.ac.uk/server/api/core/bitstreams/a9f87c35-f055-4015-80e2-2fdff0d46269/content",
+     "content_range": "bytes 0-33554431/7640952520",
+     "content_type": "application/zip ;charset=UTF-8",
+     "bytes": 33554432,
+     "seconds": 14.631,
+     "error": null,
+     "mb_per_s": 2.29,
+     "magic": "504b0304"
+    }
+   }
+  ]
+ },
+ "huggingface": [
+  {
+   "repo": "OpenRL/DeepFakeFace",
+   "api_status": 200,
+   "gated": false,
+   "private": false,
+   "disabled": false,
+   "license": "openrail",
+   "license_tags": [
+    "license:openrail"
+   ],
+   "size_tags": [],
+   "used_storage_bytes": 5125305860,
+   "n_files": 10,
+   "files_sample": [
+    ".gitattributes",
+    "README.md",
+    "docs/images/compare.jpg",
+    "docs/images/deepfake_examples.jpg",
+    "docs/images/table1.jpg",
+    "docs/images/table2.jpg",
+    "inpainting.zip",
+    "insight.zip",
+    "text2img.zip",
+    "wiki.zip"
+   ],
+   "last_modified": "2023-09-08T03:36:40.000Z",
+   "downloads": 7171,
+   "top_level": [
+    {
+     "path": "docs",
+     "type": "directory",
+     "size": 0
+    },
+    {
+     "path": ".gitattributes",
+     "type": "file",
+     "size": 2307
+    },
+    {
+     "path": "README.md",
+     "type": "file",
+     "size": 2203
+    },
+    {
+     "path": "inpainting.zip",
+     "type": "file",
+     "size": 1082027665
+    },
+    {
+     "path": "insight.zip",
+     "type": "file",
+     "size": 1081375437
+    },
+    {
+     "path": "text2img.zip",
+     "type": "file",
+     "size": 1134392707
+    },
+    {
+     "path": "wiki.zip",
+     "type": "file",
+     "size": 1766572515
+    }
+   ],
+   "readme_status": 200,
+   "readme_excerpt": "---\nlicense: openrail\ntask_categories:\n- image-to-image\nlanguage:\n- en\ntags:\n- deepfake\n- diffusion model\npretty_name: DeepFakeFace'\n---\n```\n---\nlicense: apache-2.0\n---\n```\n\nThe dataset accompanying the paper\n\"Robustness and Generalizability of Deepfake Detection: A Study with Diffusion Models\". \n\n[[Website](https://sites.google.com/view/deepfakeface/home)] [[paper](https://arxiv.org/abs/2309.02218)] [[GitHub](https://github.com/OpenRL-Lab/DeepFakeFace)].\n\n\n### Introduction\n\nWelcome to the **DeepFakeFace (DFF)** dataset! Here we present a meticulously curated collection of artificial celebrity faces, crafted using cutting-edge diffusion models. \nOur aim is to tackle the rising challenge posed by deepfakes in today's digital landscape.\n\nHere are some example images in our dataset:\n![deepfake_examples](docs/images/deepfake_examples.jpg)\n\nOur proposed DeepFakeFace(DFF) dataset is generated by various diffusion models, aiming to protect the privacy of celebrities. \nThere are four zip files in our dataset and each file contains 30,000 images. \nWe maintain the same directory structure as the IMDB-WIKI dataset where real images are selected.\n\n-   inpainting.zip is generated by the Stable Diffusion Inpainting model.\n-   insight.zip is generated by the InsightFace toolbox.\n-   text2img.zip is generated by Stable Diffusion V1.5\n-   wiki.zip contains original real images selected from the IMDB-WIKI dataset.\n\n### DeepFake Dataset Compare\n\nWe compare our dataset with previous datasets here:\n![compare](docs/images/compare.jpg)\n\n### Experimental Results\n\nPerformance of RECCE across different generators, measured in terms of Acc (%), AUC  (%), and EER (%):\n![table1](docs/images/table1.jpg)\n\nRobustness evaluation in terms of ACC(%), AUC (%) and EER(%):\n![table1](docs/images/table2.jpg)\n\n### Cite\n\nPlease cite our paper if you use our codes or our dataset in your own work:\n\n\n```\n@misc{song2023robustness,\n      title={Robustness and Generalizability of Deepfake Detection: A Study with Diffusion Models}, \n      author={Haixu Song and Shiyu Huang and Yinpeng Dong and Wei-Wei Tu},\n      year={2023},\n      eprint={2309.02218},\n      archivePrefix={arXiv},\n      primaryClass={cs.CV}\n}\n```\n",
+   "readme_licence_lines": [
+    "license: openrail",
+    "license: apache-2.0",
+    "Performance of RECCE across different generators, measured in terms of Acc (%), AUC  (%), and EER (%):",
+    "Robustness evaluation in terms of ACC(%), AUC (%) and EER(%):"
+   ]
+  },
+  {
+   "repo": "xingjunm/WildDeepfake",
+   "api_status": 200,
+   "gated": false,
+   "private": false,
+   "disabled": false,
+   "license": "apache-2.0",
+   "license_tags": [
+    "license:apache-2.0"
+   ],
+   "size_tags": [
+    "size_categories:1M<n<10M"
+   ],
+   "used_storage_bytes": 82714875116,
+   "n_files": 1122,
+   "files_sample": [
+    ".gitattributes",
+    "README.md",
+    "deepfake_in_the_wild/fake_test/1.tar.gz",
+    "deepfake_in_the_wild/fake_test/10.tar.gz",
+    "deepfake_in_the_wild/fake_test/100.tar.gz",
+    "deepfake_in_the_wild/fake_test/101.tar.gz",
+    "deepfake_in_the_wild/fake_test/102.tar.gz",
+    "deepfake_in_the_wild/fake_test/103.tar.gz",
+    "deepfake_in_the_wild/fake_test/104.tar.gz",
+    "deepfake_in_the_wild/fake_test/105.tar.gz",
+    "deepfake_in_the_wild/fake_test/106.tar.gz",
+    "deepfake_in_the_wild/fake_test/107.tar.gz",
+    "deepfake_in_the_wild/fake_test/108.tar.gz",
+    "deepfake_in_the_wild/fake_test/109.tar.gz",
+    "deepfake_in_the_wild/fake_test/11.tar.gz",
+    "deepfake_in_the_wild/fake_test/110.tar.gz",
+    "deepfake_in_the_wild/fake_test/111.tar.gz",
+    "deepfake_in_the_wild/fake_test/112.tar.gz",
+    "deepfake_in_the_wild/fake_test/113.tar.gz",
+    "deepfake_in_the_wild/fake_test/114.tar.gz",
+    "deepfake_in_the_wild/fake_test/115.tar.gz",
+    "deepfake_in_the_wild/fake_test/12.tar.gz",
+    "deepfake_in_the_wild/fake_test/13.tar.gz",
+    "deepfake_in_the_wild/fake_test/14.tar.gz",
+    "deepfake_in_the_wild/fake_test/15.tar.gz"
+   ],
+   "last_modified": "2024-11-22T05:31:13.000Z",
+   "downloads": 2877,
+   "top_level": [
+    {
+     "path": "deepfake_in_the_wild",
+     "type": "directory",
+     "size": 0
+    },
+    {
+     "path": ".gitattributes",
+     "type": "file",
+     "size": 2419
+    },
+    {
+     "path": "README.md",
+     "type": "file",
+     "size": 31
+    }
+   ],
+   "readme_status": 200,
+   "readme_excerpt": "---\r\nlicense: apache-2.0\r\n---\r\n",
+   "readme_licence_lines": [
+    "license: apache-2.0"
+   ]
+  },
+  {
+   "repo": "ControlNet/LAV-DF",
+   "api_status": 200,
+   "gated": "auto",
+   "private": false,
+   "disabled": false,
+   "license": "cc",
+   "license_tags": [
+    "license:cc"
+   ],
+   "size_tags": [
+    "size_categories:100K<n<1M"
+   ],
+   "used_storage_bytes": 25607198720,
+   "n_files": 5,
+   "files_sample": [
+    ".gitattributes",
+    "CITATION.cff",
+    "LAV-DF.tar",
+    "README.md",
+    "TERMS_AND_CONDITIONS.md"
+   ],
+   "last_modified": "2024-10-16T11:12:33.000Z",
+   "downloads": 1280,
+   "top_level": [
+    {
+     "path": ".gitattributes",
+     "type": "file",
+     "size": 2307
+    },
+    {
+     "path": "CITATION.cff",
+     "type": "file",
+     "size": 726
+    },
+    {
+     "path": "LAV-DF.tar",
+     "type": "file",
+     "size": 25607198720
+    },
+    {
+     "path": "README.md",
+     "type": "file",
+     "size": 2569
+    },
+    {
+     "path": "TERMS_AND_CONDITIONS.md",
+     "type": "file",
+     "size": 925
+    }
+   ],
+   "readme_status": 401
+  },
+  {
+   "repo": "ComplexDataLab/OpenFake",
+   "api_status": 200,
+   "gated": false,
+   "private": false,
+   "disabled": false,
+   "license": "cc-by-nc-4.0",
+   "license_tags": [
+    "license:cc-by-nc-4.0"
+   ],
+   "size_tags": [
+    "size_categories:1M<n<10M"
+   ],
+   "used_storage_bytes": 5029141700842,
+   "n_files": 885,
+   "files_sample": [
+    ".gitattributes",
+    "README.md",
+    "core/test-00000-of-00013.parquet",
+    "core/test-00001-of-00013.parquet",
+    "core/test-00002-of-00013.parquet",
+    "core/test-00003-of-00013.parquet",
+    "core/test-00004-of-00013.parquet",
+    "core/test-00005-of-00013.parquet",
+    "core/test-00006-of-00013.parquet",
+    "core/test-00007-of-00013.parquet",
+    "core/test-00008-of-00013.parquet",
+    "core/test-00009-of-00013.parquet",
+    "core/test-00010-of-00013.parquet",
+    "core/test-00011-of-00013.parquet",
+    "core/test-00012-of-00013.parquet",
+    "core/train-00000-of-00032-00000.parquet",
+    "core/train-00000-of-00032-00001.parquet",
+    "core/train-00000-of-00032-00002.parquet",
+    "core/train-00000-of-00032-00003.parquet",
+    "core/train-00000-of-00032-00004.parquet",
+    "core/train-00000-of-00032-00005.parquet",
+    "core/train-00000-of-00032-00006.parquet",
+    "core/train-00000-of-00032-00007.parquet",
+    "core/train-00000-of-00032-00008.parquet",
+    "core/train-00000-of-00032-00009.parquet"
+   ],
+   "last_modified": "2026-11-05T23:15:01.000Z",
+   "downloads": 30446,
+   "top_level": [
+    {
+     "path": "core",
+     "type": "directory",
+     "size": 0
+    },
+    {
+     "path": "corrections",
+     "type": "directory",
+     "size": 0
+    },
+    {
+     "path": "reddit",
+     "type": "directory",
+     "size": 0
+    },
+    {
+     "path": "supplement",
+     "type": "directory",
+     "size": 0
+    },
+    {
+     "path": ".gitattributes",
+     "type": "file",
+     "size": 2630
+    },
+    {
+     "path": "README.md",
+     "type": "file",
+     "size": 27124
+    },
+    {
+     "path": "prompt-image_bank.csv",
+     "type": "file",
+     "size": 214165068
+    }
+   ],
+   "readme_status": 200,
+   "readme_excerpt": "---\nlicense: cc-by-nc-4.0\ntask_categories:\n- image-classification\nlanguage:\n- en\nsize_categories:\n- 1M<n<10M\nconfigs:\n- config_name: core\n  data_files:\n  - split: train\n    path: core/train-*\n  - split: validation\n    path: core/validation-*\n  - split: test\n    path: core/test-*\n- config_name: reddit\n  data_files:\n  - split: test\n    path: reddit/test-*\n- config_name: supplement_t2i\n  data_files:\n  - split: train\n    path: supplement/t2i/*/*.parquet\n- config_name: supplement_edit\n  data_files:\n  - split: train\n    path: supplement/edit/*/*.parquet\n- config_name: supplement_reddit\n  data_files:\n  - split: train\n    path: supplement/reddit/*/*.parquet\n- config_name: supplement_civitai\n  data_files:\n  - split: train\n    path: supplement/civitai/*/*.parquet\ntags:\n- deepfake\n- synthetic\n- fake\ndataset_info:\n- config_name: core\n  features:\n  - name: image\n    dtype: image\n  - name: prompt\n    dtype: string\n  - name: label\n    dtype: string\n  - name: model\n    dtype: string\n  - name: type\n    dtype: string\n  - name: release_date\n    dtype: string\n  - name: row_id\n    dtype: string\n  - name: image_sha256\n    dtype: string\n  - name: prompt_kind\n    dtype: string\n  - name: prompt_model\n    dtype: string\n  - name: prompt_revision\n    dtype: string\n  - name: prompt_version\n    dtype: string\n  splits:\n  - name: validation\n    num_examples: 58453\n  - name: test\n    num_examples: 91397\n  - name: train\n    num_examples: 2300034\n  download_size: 3420545249254\n- config_name: reddit\n  features:\n  - name: image\n    dtype: image\n  - name: prompt\n    dtype: string\n  - name: label\n    dtype: string\n  - name: model\n    dtype: string\n  - name: type\n    dtype: string\n  - name: release_date\n    dtype: string\n  - name: row_id\n    dtype: string\n  - name: image_sha256\n    dtype: string\n  - name: prompt_kind\n    dtype: string\n  - name: prompt_model\n    dtype: string\n  - name: prompt_revision\n    dtype: string\n  - name: prompt_version\n    dtype: string\n  splits:\n  - name: test\n    num_examples: 36087\n  download_size: 24572693678\n- config_name: supplement_t2i\n  features:\n  - {name: image, dtype: image}\n  - {name: label, dtype: string}\n  - {name: model, dtype: string}\n  - {name: type, dtype: string}\n  - {name: release_date, dtype: string}\n  - {name: row_id, dtype: string}\n  - {name: image_sha256, dtype: string}\n  - {name: added_at, dtype: string}\n  - {name: prompt, dtype: string}\n  - {name: conditioning_prompt, dtype: string}\n  - {name: model_revision, dtype: string}\n  - {name: pipeline_cl",
+   "readme_licence_lines": [
+    "license: cc-by-nc-4.0",
+    "- {name: license, dtype: string}",
+    "- {name: source_license_url, dtype: string}",
+    "- {name: source_license_name, dtype: string}"
+   ]
+  },
+  {
+   "repo": "mueller91/MLAAD",
+   "api_status": 200,
+   "gated": "auto",
+   "private": false,
+   "disabled": false,
+   "license": "cc-by-nc-4.0",
+   "license_tags": [
+    "license:cc-by-nc-4.0"
+   ],
+   "size_tags": [
+    "size_categories:100K<n<1M"
+   ],
+   "used_storage_bytes": 221946454398,
+   "n_files": 100000,
+   "files_sample": [
+    ".gitattributes",
+    ".gitignore",
+    "LICENSE",
+    "NOTICE_NO_COMMERCIAL_USE.txt",
+    "README.md",
+    "fake/am/Edge-TTS/dorothy_and_wizard_oz_01_f000004.wav",
+    "fake/am/Edge-TTS/dorothy_and_wizard_oz_02_f000115.wav",
+    "fake/am/Edge-TTS/dorothy_and_wizard_oz_02_f000154.wav",
+    "fake/am/Edge-TTS/dorothy_and_wizard_oz_03_f000032.wav",
+    "fake/am/Edge-TTS/dorothy_and_wizard_oz_04_f000035.wav",
+    "fake/am/Edge-TTS/dorothy_and_wizard_oz_04_f000066.wav",
+    "fake/am/Edge-TTS/dorothy_and_wizard_oz_05_f000058.wav",
+    "fake/am/Edge-TTS/dorothy_and_wizard_oz_05_f000063.wav",
+    "fake/am/Edge-TTS/dorothy_and_wizard_oz_05_f000080.wav",
+    "fake/am/Edge-TTS/dorothy_and_wizard_oz_05_f000094.wav",
+    "fake/am/Edge-TTS/dorothy_and_wizard_oz_05_f000101.wav",
+    "fake/am/Edge-TTS/dorothy_and_wizard_oz_07_f000025.wav",
+    "fake/am/Edge-TTS/dorothy_and_wizard_oz_07_f000048.wav",
+    "fake/am/Edge-TTS/dorothy_and_wizard_oz_08_f000024.wav",
+    "fake/am/Edge-TTS/dorothy_and_wizard_oz_08_f000053.wav",
+    "fake/am/Edge-TTS/dorothy_and_wizard_oz_09_f000032.wav",
+    "fake/am/Edge-TTS/dorothy_and_wizard_oz_09_f000109.wav",
+    "fake/am/Edge-TTS/dorothy_and_wizard_oz_10_f000006.wav",
+    "fake/am/Edge-TTS/dorothy_and_wizard_oz_10_f000040.wav",
+    "fake/am/Edge-TTS/dorothy_and_wizard_oz_11_f000002.wav"
+   ],
+   "last_modified": "2026-08-28T12:53:44.000Z",
+   "downloads": 33555,
+   "top_level": [
+    {
+     "path": "fake",
+     "type": "directory",
+     "size": 0
+    },
+    {
+     "path": ".gitattributes",
+     "type": "file",
+     "size": 2461
+    },
+    {
+     "path": ".gitignore",
+     "type": "file",
+     "size": 108
+    },
+    {
+     "path": "LICENSE",
+     "type": "file",
+     "size": 958
+    },
+    {
+     "path": "NOTICE_NO_COMMERCIAL_USE.txt",
+     "type": "file",
+     "size": 350
+    },
+    {
+     "path": "README.md",
+     "type": "file",
+     "size": 3455
+    }
+   ],
+   "readme_status": 401
+  },
+  {
+   "repo": "elsaEU/ELSA_D3",
+   "api_status": 200,
+   "gated": false,
+   "private": false,
+   "disabled": false,
+   "license": null,
+   "license_tags": [],
+   "size_tags": [
+    "size_categories:1M<n<10M"
+   ],
+   "used_storage_bytes": 2631650634984,
+   "n_files": 5267,
+   "files_sample": [
+    ".gitattributes",
+    "README.md",
+    "data/train-00000-of-05239-fbc2be2af18e9bcc.parquet",
+    "data/train-00001-of-05239-7c6f67e6b9ff169c.parquet",
+    "data/train-00002-of-05239-94582fcb77be932e.parquet",
+    "data/train-00003-of-05239-04f08f7a509c3b61.parquet",
+    "data/train-00004-of-05239-49426b3d2521c265.parquet",
+    "data/train-00005-of-05239-a1fbd2dbfb5e8c98.parquet",
+    "data/train-00006-of-05239-04ace1fdd018bbfc.parquet",
+    "data/train-00007-of-05239-ffeecb3bde8c1655.parquet",
+    "data/train-00008-of-05239-3a78ab68c1126707.parquet",
+    "data/train-00009-of-05239-10fbf97466471b61.parquet",
+    "data/train-00010-of-05239-fc372eebb1263e27.parquet",
+    "data/train-00011-of-05239-97f87293fc50d539.parquet",
+    "data/train-00012-of-05239-68b064ffd8c48ad6.parquet",
+    "data/train-00013-of-05239-ab7b168c506138c3.parquet",
+    "data/train-00014-of-05239-cccd0f6c25375f6d.parquet",
+    "data/train-00015-of-05239-444cdc6bb9b0568b.parquet",
+    "data/train-00016-of-05239-17d3e7caaeda0b19.parquet",
+    "data/train-00017-of-05239-fd172675a46009e0.parquet",
+    "data/train-00018-of-05239-1240eeef3cc01f62.parquet",
+    "data/train-00019-of-05239-48797f036bb885eb.parquet",
+    "data/train-00020-of-05239-9a24978fed345e9b.parquet",
+    "data/train-00021-of-05239-9ec990bada1ede55.parquet",
+    "data/train-00022-of-05239-1159853a16047074.parquet"
+   ],
+   "last_modified": "2025-03-27T13:02:55.000Z",
+   "downloads": 2908,
+   "top_level": [
+    {
+     "path": "data",
+     "type": "directory",
+     "size": 0
+    },
+    {
+     "path": ".gitattributes",
+     "type": "file",
+     "size": 2307
+    },
+    {
+     "path": "README.md",
+     "type": "file",
+     "size": 4379
+    }
+   ],
+   "readme_status": 200,
+   "readme_excerpt": "---\nconfigs:\n- config_name: default\n  data_files:\n  - split: train\n    path: \n        - data/train-*\n        - data/val-*\n  - split: validation\n    path: data/validation-*\ndataset_info:\n  features:\n  - name: id\n    dtype: string\n  - name: original_prompt\n    dtype: string\n  - name: positive_prompt\n    dtype: string\n  - name: negative_prompt\n    dtype: string\n  - name: url\n    dtype: string\n  - name: model_gen0\n    dtype: string\n  - name: model_gen1\n    dtype: string\n  - name: model_gen2\n    dtype: string\n  - name: model_gen3\n    dtype: string\n  - name: width_gen0\n    dtype: int64\n  - name: width_gen1\n    dtype: int64\n  - name: width_gen2\n    dtype: int64\n  - name: width_gen3\n    dtype: int64\n  - name: height_gen0\n    dtype: int64\n  - name: height_gen1\n    dtype: int64\n  - name: height_gen2\n    dtype: int64\n  - name: height_gen3\n    dtype: int64\n  - name: num_inference_steps_gen0\n    dtype: int64\n  - name: num_inference_steps_gen1\n    dtype: int64\n  - name: num_inference_steps_gen2\n    dtype: int64\n  - name: num_inference_steps_gen3\n    dtype: int64\n  - name: filepath_gen0\n    dtype: string\n  - name: filepath_gen1\n    dtype: string\n  - name: filepath_gen2\n    dtype: string\n  - name: filepath_gen3\n    dtype: string\n  - name: image_gen0\n    dtype: image\n  - name: image_gen1\n    dtype: image\n  - name: image_gen2\n    dtype: image\n  - name: image_gen3\n    dtype: image\n  splits:\n  - name: train\n    num_bytes: 2626848010531.5\n    num_examples: 2306629\n  - name: validation\n    num_bytes: 5318900038.0\n    num_examples: 4800\n  download_size: 2568003790242\n  dataset_size: 2632166910569.5\n---\n\n# ELSA - Multimedia use case\n\n![image/gif](https://cdn-uploads.huggingface.co/production/uploads/6380ccd084022715e0d49d4e/6eRNxY1AFfaksVu8oTk8v.gif)\n\n**ELSA Multimedia is a large collection of Deep Fake images, generated using diffusion models**\n\n### Dataset Summary\n\nThis dataset was developed as part of the EU project ELSA. Specifically for the Multimedia use-case.\nOfficial webpage: https://benchmarks.elsa-ai.eu/\nThis dataset aims to develop effective solutions for detecting and mitigating the spread of deep fake images in multimedia content. Deep fake images, which are highly realistic and deceptive manipulations, pose significant risks to privacy, security, and trust in digital media. This dataset can be used to train robust and accurate models that can identify and flag instances of deep fake images.\n\n### ELSA versions\n\n| Name  | Description | Link |\n| ------------- | -------",
+   "readme_licence_lines": []
+  },
+  {
+   "repo": "Hemg/deepfake-and-real-images",
+   "api_status": 200,
+   "gated": false,
+   "private": false,
+   "disabled": false,
+   "license": null,
+   "license_tags": [],
+   "size_tags": [
+    "size_categories:100K<n<1M"
+   ],
+   "used_storage_bytes": 1793526801,
+   "n_files": 7,
+   "files_sample": [
+    ".gitattributes",
+    "README.md",
+    "data/train-00000-of-00005.parquet",
+    "data/train-00001-of-00005.parquet",
+    "data/train-00002-of-00005.parquet",
+    "data/train-00003-of-00005.parquet",
+    "data/train-00004-of-00005.parquet"
+   ],
+   "last_modified": "2024-03-10T08:21:48.000Z",
+   "downloads": 288,
+   "top_level": [
+    {
+     "path": "data",
+     "type": "directory",
+     "size": 0
+    },
+    {
+     "path": ".gitattributes",
+     "type": "file",
+     "size": 2307
+    },
+    {
+     "path": "README.md",
+     "type": "file",
+     "size": 394
+    }
+   ],
+   "readme_status": 200,
+   "readme_excerpt": "---\ndataset_info:\n  features:\n  - name: image\n    dtype: image\n  - name: label\n    dtype:\n      class_label:\n        names:\n          '0': Fake\n          '1': Real\n  splits:\n  - name: train\n    num_bytes: 2075580719.135\n    num_examples: 190335\n  download_size: 1793526801\n  dataset_size: 2075580719.135\nconfigs:\n- config_name: default\n  data_files:\n  - split: train\n    path: data/train-*\n---\n",
+   "readme_licence_lines": []
+  }
+ ],
+ "huggingface_search": {
+  "deepfake": [
+   {
+    "id": "ControlNet/AV-Deepfake1M",
+    "gated": "manual",
+    "license": [
+     "license:cc"
+    ],
+    "size": [
+     "size_categories:1M<n<10M"
+    ],
+    "downloads": 4355
+   },
+   {
+    "id": "UniDataPro/deepfake-videos-dataset",
+    "gated": false,
+    "license": [
+     "license:cc-by-nc-nd-4.0"
+    ],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 485
+   },
+   {
+    "id": "AKCIT-Deepfake/BRSpeech-DF",
+    "gated": false,
+    "license": [
+     "license:cc-by-4.0"
+    ],
+    "size": [
+     "size_categories:100K<n<1M"
+    ],
+    "downloads": 1741
+   },
+   {
+    "id": "garystafford/deepfake-audio-detection",
+    "gated": false,
+    "license": [
+     "license:cc-by-4.0"
+    ],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 1440
+   },
+   {
+    "id": "Ahmed007/deep_fake",
+    "gated": false,
+    "license": [],
+    "size": [],
+    "downloads": 32
+   },
+   {
+    "id": "deepsynthbody/deepfake_ecg",
+    "gated": false,
+    "license": [
+     "license:cc-by-4.0"
+    ],
+    "size": [
+     "size_categories:10B<n<100B"
+    ],
+    "downloads": 65
+   },
+   {
+    "id": "deepsynthbody/deepfake-ecg-small",
+    "gated": false,
+    "license": [
+     "license:cc-by-4.0"
+    ],
+    "size": [
+     "size_categories:10K<n<100K"
+    ],
+    "downloads": 2359
+   },
+   {
+    "id": "deepsynthbody/deepfake_ecg_full_train_validation_test",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:100K<n<1M"
+    ],
+    "downloads": 68
+   },
+   {
+    "id": "ngocuong/Deepfake",
+    "gated": false,
+    "license": [],
+    "size": [],
+    "downloads": 13
+   },
+   {
+    "id": "Banananafish/Deepfake-Detection",
+    "gated": false,
+    "license": [],
+    "size": [],
+    "downloads": 57
+   },
+   {
+    "id": "bstungnguyen/Deepfake",
+    "gated": false,
+    "license": [],
+    "size": [],
+    "downloads": 23
+   },
+   {
+    "id": "Whab/deepfake",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:100K<n<1M"
+    ],
+    "downloads": 52
+   },
+   {
+    "id": "OpenRL/DeepFakeFace",
+    "gated": false,
+    "license": [
+     "license:openrail"
+    ],
+    "size": [],
+    "downloads": 7171
+   },
+   {
+    "id": "Mxa/DeepFake_Binary_Classifier",
+    "gated": false,
+    "license": [],
+    "size": [],
+    "downloads": 6
+   },
+   {
+    "id": "rshaojimmy/Seq-DeepFake",
+    "gated": false,
+    "license": [
+     "license:apache-2.0"
+    ],
+    "size": [],
+    "downloads": 84
+   },
+   {
+    "id": "Thien0103/DeepFake_Extracted_Face_Images",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 147
+   },
+   {
+    "id": "Hemg/deepfake-and-real-images",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:100K<n<1M"
+    ],
+    "downloads": 288
+   },
+   {
+    "id": "JamieWithofs/Deepfake-and-real-images",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:100K<n<1M"
+    ],
+    "downloads": 141
+   },
+   {
+    "id": "Hemg/Deepfake-Audio-Dataset",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 64
+   },
+   {
+    "id": "Hemg/Deepfakeaudio",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:10K<n<100K"
+    ],
+    "downloads": 72
+   },
+   {
+    "id": "TonyStark03/deepfake",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 2114
+   },
+   {
+    "id": "JamieWithofs/Deepfake-and-real-images-2",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 14
+   },
+   {
+    "id": "JamieWithofs/Deepfake-and-real-images-3",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:100K<n<1M"
+    ],
+    "downloads": 37
+   },
+   {
+    "id": "JamieWithofs/Deepfake-and-real-images-validation",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 22
+   },
+   {
+    "id": "JamieWithofs/Deepfake-and-real-images-4",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:100K<n<1M"
+    ],
+    "downloads": 64
+   },
+   {
+    "id": "liemvu009/deepfakedtt",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 9
+   },
+   {
+    "id": "DanielePancottini/DeepfakeDetection",
+    "gated": false,
+    "license": [],
+    "size": [],
+    "downloads": 3
+   },
+   {
+    "id": "kenjon/deep-fake-face-swap",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:10K<n<100K"
+    ],
+    "downloads": 76
+   },
+   {
+    "id": "glassona/Deepfake-20v-50f",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 49
+   },
+   {
+    "id": "glassona/Deepfake-allv-1f",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 28
+   },
+   {
+    "id": "glassona/Deepfake-1180v-1f",
+    "gated": false,
+    "license": [
+     "license:mit"
+    ],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 46
+   },
+   {
+    "id": "CSALT/deepfake_detection_dataset_urdu",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 3444
+   },
+   {
+    "id": "glassona/Deepfake-190kf",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:100K<n<1M"
+    ],
+    "downloads": 79
+   },
+   {
+    "id": "bitmind/popular-deepfakes",
+    "gated": false,
+    "license": [
+     "license:mit"
+    ],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 670
+   },
+   {
+    "id": "sarkarbkl/In_the_wild_audio_deepfake",
+    "gated": false,
+    "license": [],
+    "size": [],
+    "downloads": 8
+   },
+   {
+    "id": "Gopher-Lab/bankless_ROLLUP_Coinbase_Crashes_DC__Gary_Grilled_By_Congress__Vitalik_Deepfakes",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 22
+   },
+   {
+    "id": "Bisher/arabic_deepfake_dataset_models",
+    "gated": false,
+    "license": [
+     "license:odc-by"
+    ],
+    "size": [],
+    "downloads": 24
+   },
+   {
+    "id": "DynamicSuperb/DeepFakeVoiceRecognition_DEEP-VOICE",
+    "gated": false,
+    "license": [
+     "license:mit"
+    ],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 46
+   },
+   {
+    "id": "Bisher/Arabic_Deepfake_Audio",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 6
+   },
+   {
+    "id": "itsLeen/deepfake_vs_real_image_detection",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 86
+   },
+   {
+    "id": "DeepFake-Audio-Rangers/Arabic_Audio_Deepfake",
+    "gated": false,
+    "license": [
+     "license:odc-by"
+    ],
+    "size": [
+     "size_categories:10K<n<100K"
+    ],
+    "downloads": 135
+   },
+   {
+    "id": "paradoxfin/deepfakedetection",
+    "gated": false,
+    "license": [
+     "license:mit"
+    ],
+    "size": [],
+    "downloads": 6
+   },
+   {
+    "id": "itsLeen/deepfake_vs_real_image",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 17
+   },
+   {
+    "id": "jzousz/diffusion_model_deepfakes_lsun_bedroom",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:1M<n<10M"
+    ],
+    "downloads": 25
+   },
+   {
+    "id": "DeepFake-Audio-Rangers/real_audio",
+    "gated": "manual",
+    "license": [],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 11
+   },
+   {
+    "id": "anistaluqdar/DeepFake_Detection_Pretrained_Mode",
+    "gated": false,
+    "license": [],
+    "size": [],
+    "downloads": 5
+   },
+   {
+    "id": "iamjinchen/deepfake_vqa",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 37
+   },
+   {
+    "id": "sifat1221/bangla_deepfake_data",
+    "gated": false,
+    "license": [],
+    "size": [],
+    "downloads": 18
+   },
+   {
+    "id": "sifat1221/bangla_deepfake_news_data",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 38
+   },
+   {
+    "id": "sifat1221/bangla_deepfake_data_voice_conversion_mozilla",
+    "gated": false,
+    "license": [],
+    "size": [],
+    "downloads": 5
+   },
+   {
+    "id": "lorenzo-morelli/image-splicing-deepfake-mix",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:10K<n<100K"
+    ],
+    "downloads": 62
+   },
+   {
+    "id": "CocoLng/training-deepfakes-pfe",
+    "gated": false,
+    "license": [],
+    "size": [],
+    "downloads": 3
+   },
+   {
+    "id": "pujanpaudel/deepfake_face_classification",
+    "gated": false,
+    "license": [
+     "license:apache-2.0"
+    ],
+    "size": [],
+    "downloads": 261
+   },
+   {
+    "id": "sadanandkaji/deepfake-image-dataset",
+    "gated": false,
+    "license": [
+     "license:mit"
+    ],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 22
+   },
+   {
+    "id": "prithivMLmods/Deepfakes-QA-Patch1",
+    "gated": "auto",
+    "license": [
+     "license:apache-2.0"
+    ],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 531
+   },
+   {
+    "id": "prithivMLmods/Deepfakes-QA-Patch2",
+    "gated": "auto",
+    "license": [
+     "license:apache-2.0"
+    ],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 306
+   },
+   {
+    "id": "prithivMLmods/Deepfakes-QA-15K",
+    "gated": "auto",
+    "license": [
+     "license:apache-2.0"
+    ],
+    "size": [
+     "size_categories:10K<n<100K"
+    ],
+    "downloads": 212
+   },
+   {
+    "id": "prithivMLmods/Deepfakes-QA-Leaning",
+    "gated": "auto",
+    "license": [
+     "license:apache-2.0"
+    ],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 99
+   },
+   {
+    "id": "strangerguardhf/Deepfakes-QA-Patch1",
+    "gated": "auto",
+    "license": [
+     "license:apache-2.0"
+    ],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 81
+   },
+   {
+    "id": "strangerguardhf/Deepfakes-QA-Patch2",
+    "gated": "auto",
+    "license": [
+     "license:apache-2.0"
+    ],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 65
+   }
+  ],
+  "face forgery": [
+   {
+    "id": "KhangTruong/face-forgery-domain-eval",
+    "gated": false,
+    "license": [
+     "license:mit"
+    ],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 42
+   }
+  ],
+  "fake face": [
+   {
+    "id": "kenjon/deep-fake-face-swap",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:10K<n<100K"
+    ],
+    "downloads": 76
+   },
+   {
+    "id": "saakshigupta/gradcam-fake-real-faces-xception",
+    "gated": false,
+    "license": [],
+    "size": [],
+    "downloads": 3
+   },
+   {
+    "id": "saakshigupta/gradcam-fake-real-faces-xception-test",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 16
+   },
+   {
+    "id": "saakshigupta/gradcam-fake-real-faces-xception-chunked",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 39
+   },
+   {
+    "id": "Phuong2611/fake-face-5000",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 23
+   },
+   {
+    "id": "TheKernel01/140k-Real-and-Fake-Faces",
+    "gated": false,
+    "license": [
+     "license:cc"
+    ],
+    "size": [
+     "size_categories:100K<n<1M"
+    ],
+    "downloads": 1424
+   },
+   {
+    "id": "Ducs2005/fake-real-face",
+    "gated": false,
+    "license": [],
+    "size": [],
+    "downloads": 12
+   },
+   {
+    "id": "34data/140k-real-fake-faces-real",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 33
+   },
+   {
+    "id": "34data/140k-real-fake-faces-fake",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 66
+   },
+   {
+    "id": "desireemcv/face-real-vs-fake",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 50
+   },
+   {
+    "id": "ydv9315/deep-fake-face-swap",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:10K<n<100K"
+    ],
+    "downloads": 8
+   },
+   {
+    "id": "subhan1501/fake-face-detection-dataset",
+    "gated": false,
+    "license": [
+     "license:mit"
+    ],
+    "size": [
+     "size_categories:100K<n<1M"
+    ],
+    "downloads": 156623
+   },
+   {
+    "id": "juhi-neeved/140k-real-fake-faces-labeled",
+    "gated": "manual",
+    "license": [],
+    "size": [
+     "size_categories:100K<n<1M"
+    ],
+    "downloads": 66
+   },
+   {
+    "id": "juhi-neeved/1m-fake-faces-160k-labeled",
+    "gated": "manual",
+    "license": [],
+    "size": [
+     "size_categories:100K<n<1M"
+    ],
+    "downloads": 54
+   },
+   {
+    "id": "RajuFace/140k-Real-and-Fake-Faces",
+    "gated": false,
+    "license": [
+     "license:cc"
+    ],
+    "size": [
+     "size_categories:100K<n<1M"
+    ],
+    "downloads": 1388
+   },
+   {
+    "id": "apshampa/deep-fake-face-swap",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:10K<n<100K"
+    ],
+    "downloads": 46
+   },
+   {
+    "id": "Karthika234/140k-Real-and-Fake-Faces",
+    "gated": false,
+    "license": [
+     "license:cc"
+    ],
+    "size": [
+     "size_categories:100K<n<1M"
+    ],
+    "downloads": 0
+   }
+  ],
+  "face swap": [
+   {
+    "id": "paralleldynamix/autotrain-data-face-swap-video-generation",
+    "gated": false,
+    "license": [
+     "license:bsd"
+    ],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 46
+   },
+   {
+    "id": "BounharAbdelaziz/Face-Gender-Swap",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:10K<n<100K"
+    ],
+    "downloads": 701
+   },
+   {
+    "id": "bongoServer2112/important-models-faceswap",
+    "gated": false,
+    "license": [],
+    "size": [],
+    "downloads": 2
+   },
+   {
+    "id": "cce112/faceswap",
+    "gated": false,
+    "license": [
+     "license:unknown"
+    ],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 42
+   },
+   {
+    "id": "kenjon/face-swap",
+    "gated": false,
+    "license": [
+     "license:gpl-3.0"
+    ],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 26
+   },
+   {
+    "id": "bitmind/face-swap",
+    "gated": false,
+    "license": [
+     "license:apache-2.0"
+    ],
+    "size": [
+     "size_categories:10K<n<100K"
+    ],
+    "downloads": 122
+   },
+   {
+    "id": "kenjon/deep-fake-face-swap",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:10K<n<100K"
+    ],
+    "downloads": 76
+   },
+   {
+    "id": "elisejansson/Correct-face-swapped",
+    "gated": false,
+    "license": [],
+    "size": [],
+    "downloads": 1
+   },
+   {
+    "id": "myrrhaspace/faceswap-targets",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 2
+   },
+   {
+    "id": "raresense/faceswap",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 17
+   },
+   {
+    "id": "gaonprime/faceswap-ghost",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:100K<n<1M"
+    ],
+    "downloads": 6
+   },
+   {
+    "id": "thang101020/faceswapimg_data",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 47
+   },
+   {
+    "id": "thang101020/faceswapvideo_data",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 22
+   },
+   {
+    "id": "skyhawk000/semisynth-faceswap",
+    "gated": false,
+    "license": [
+     "license:apache-2.0"
+    ],
+    "size": [
+     "size_categories:10K<n<100K"
+    ],
+    "downloads": 14
+   },
+   {
+    "id": "demo16/face-swap-model",
+    "gated": false,
+    "license": [
+     "license:other"
+    ],
+    "size": [],
+    "downloads": 18
+   },
+   {
+    "id": "omkar334/face-swap",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 107
+   },
+   {
+    "id": "svjack/Peng_YangYang_qwen_image_2509_face_swap",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 28
+   },
+   {
+    "id": "Alexq512/FaceSwap",
+    "gated": false,
+    "license": [],
+    "size": [],
+    "downloads": 2
+   },
+   {
+    "id": "svjack/Xiang_qwen_image_2509_F2P_face_swap",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 7
+   },
+   {
+    "id": "ViaKai/swap_face_things",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 7
+   },
+   {
+    "id": "svjack/Xiang_tease_qwen_F2P_face_swap_chrono_edit_upscale",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 10
+   },
+   {
+    "id": "ixarchakos/face_swap",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 18
+   },
+   {
+    "id": "pengXxiang/Xiang_pov_noclothes_actor_Stand_In_faceswap_Videos",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 6
+   },
+   {
+    "id": "pengXxiang/Xiang_pov_white_brief_actor_Stand_In_faceswap_Videos",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 5
+   },
+   {
+    "id": "pengXxiang/Xiang_pov_actor_Stand_In_faceswap_loop_Videos",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 9
+   },
+   {
+    "id": "svjack/Xiang_Watermelon_Hair_Cut_Videos_DreamID_V_Face_Swap",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 23
+   },
+   {
+    "id": "svjack/Xiang_DreamID_V_Face_Swap_Images_zh_Captioned",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 18
+   },
+   {
+    "id": "pengXxiang/male_actor_pov_videos_DreamID_V_Xiang_Face_Swap",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 13
+   },
+   {
+    "id": "pengXxiang/eyepatch_male_actor_DreamID_V_Xiang_Face_Swap",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 3
+   },
+   {
+    "id": "pengXxiang/eyepatch_male_actor_DreamID_V_Xiang_Face_Swap_Captioned",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 7
+   },
+   {
+    "id": "pengXxiang/eyepatch_male_actor_DreamID_V_Image_Xiang_Face_Swap_Captioned",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 37
+   },
+   {
+    "id": "Jsensiba24/face-swap",
+    "gated": false,
+    "license": [
+     "license:apache-2.0"
+    ],
+    "size": [
+     "size_categories:10K<n<100K"
+    ],
+    "downloads": 14
+   },
+   {
+    "id": "vadim71/faceswap-models",
+    "gated": false,
+    "license": [],
+    "size": [],
+    "downloads": 35
+   },
+   {
+    "id": "svjack/Peng_YangYang_face_swap_images_captioned",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 25
+   },
+   {
+    "id": "vishal9359/faceswap-bundle",
+    "gated": false,
+    "license": [],
+    "size": [],
+    "downloads": 2
+   },
+   {
+    "id": "budong123/CASIA_FaceSwapping",
+    "gated": "manual",
+    "license": [
+     "license:cc-by-nc-4.0"
+    ],
+    "size": [
+     "size_categories:10K<n<100K"
+    ],
+    "downloads": 32
+   },
+   {
+    "id": "ydv9315/deep-fake-face-swap",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:10K<n<100K"
+    ],
+    "downloads": 8
+   },
+   {
+    "id": "gojay/face_swap",
+    "gated": false,
+    "license": [],
+    "size": [],
+    "downloads": 3
+   },
+   {
+    "id": "velvaDid/face-swap-colab",
+    "gated": false,
+    "license": [],
+    "size": [],
+    "downloads": 6
+   },
+   {
+    "id": "vinhx23/faceswapimg_data",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 22
+   },
+   {
+    "id": "vinhx23/faceswapvideo_data",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:10K<n<100K"
+    ],
+    "downloads": 64
+   },
+   {
+    "id": "LiveFaceSwapAI/live-face-swap-support-qa",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 16
+   },
+   {
+    "id": "ms13d/faceswap-test",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 20
+   },
+   {
+    "id": "apshampa/deep-fake-face-swap",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:10K<n<100K"
+    ],
+    "downloads": 46
+   },
+   {
+    "id": "NanoPocket/free-face-swap-tools-2026",
+    "gated": false,
+    "license": [
+     "license:cc-by-4.0"
+    ],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 29
+   }
+  ],
+  "synthetic faces": [
+   {
+    "id": "elischwartz/synthetic-watch-faces-dataset",
+    "gated": false,
+    "license": [
+     "license:mit"
+    ],
+    "size": [
+     "size_categories:10K<n<100K"
+    ],
+    "downloads": 82
+   },
+   {
+    "id": "Moai633/Unsupervised_Synthetic_Faces",
+    "gated": "auto",
+    "license": [
+     "license:apache-2.0"
+    ],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 27
+   },
+   {
+    "id": "AxonData/children-faces-synthetic-deepfake-detection",
+    "gated": false,
+    "license": [
+     "license:cc-by-nc-4.0"
+    ],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 332
+   },
+   {
+    "id": "bitmind/SyntheticFacesHighQuality-T2I",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:100K<n<1M"
+    ],
+    "downloads": 2030
+   },
+   {
+    "id": "bitmind/SyntheticFacesHQ",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:100K<n<1M"
+    ],
+    "downloads": 2065
+   },
+   {
+    "id": "Pampaj/Synthetic-Faces",
+    "gated": false,
+    "license": [],
+    "size": [],
+    "downloads": 105
+   },
+   {
+    "id": "adi-gulati/LookismBench-SyntheticFaces",
+    "gated": "manual",
+    "license": [
+     "license:cc-by-nc-4.0"
+    ],
+    "size": [
+     "size_categories:10K<n<100K"
+    ],
+    "downloads": 47
+   },
+   {
+    "id": "danb21/synthetic-face-sdxl-instantid-bench",
+    "gated": "manual",
+    "license": [
+     "license:cc-by-nc-4.0"
+    ],
+    "size": [
+     "size_categories:10K<n<100K"
+    ],
+    "downloads": 2229
+   },
+   {
+    "id": "takenusername32/synthetic-masked-faces-1k",
+    "gated": false,
+    "license": [
+     "license:apache-2.0"
+    ],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 44
+   },
+   {
+    "id": "aipracticecafe/anime-faces-256px-v2-synthetic",
+    "gated": false,
+    "license": [
+     "license:mit"
+    ],
+    "size": [],
+    "downloads": 35
+   }
+  ],
+  "audio deepfake": [
+   {
+    "id": "garystafford/deepfake-audio-detection",
+    "gated": false,
+    "license": [
+     "license:cc-by-4.0"
+    ],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 1440
+   },
+   {
+    "id": "Hemg/Deepfake-Audio-Dataset",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 64
+   },
+   {
+    "id": "DynamicSuperb/AudioDeepFakeDetection_LJSpeech_WaveFake_MUSDB18HQ",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 52
+   },
+   {
+    "id": "sarkarbkl/In_the_wild_audio_deepfake",
+    "gated": false,
+    "license": [],
+    "size": [],
+    "downloads": 8
+   },
+   {
+    "id": "Bisher/Arabic_Deepfake_Audio",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 6
+   },
+   {
+    "id": "DeepFake-Audio-Rangers/Arabic_Audio_Deepfake",
+    "gated": false,
+    "license": [
+     "license:odc-by"
+    ],
+    "size": [
+     "size_categories:10K<n<100K"
+    ],
+    "downloads": 135
+   },
+   {
+    "id": "DeepFake-Audio-Rangers/real_audio",
+    "gated": "manual",
+    "license": [],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 11
+   },
+   {
+    "id": "robhawk/Audio_DeepFake",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 13
+   },
+   {
+    "id": "3004lakshu/Deepfake-Audio",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 58
+   },
+   {
+    "id": "UniDataPro/real-vs-fake-human-voice-deepfake-audio",
+    "gated": false,
+    "license": [
+     "license:cc-by-nc-nd-4.0"
+    ],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 300
+   },
+   {
+    "id": "ud-nlp/real-vs-fake-human-voice-deepfake-audio",
+    "gated": false,
+    "license": [
+     "license:cc-by-nc-nd-4.0"
+    ],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 35
+   },
+   {
+    "id": "gemin6464646/Deepfake-Audio-Dataset",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:n<1K"
+    ],
+    "downloads": 13
+   },
+   {
+    "id": "AhmedAshrafMarzouk/arabic-deepfake-audio",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:10K<n<100K"
+    ],
+    "downloads": 23
+   },
+   {
+    "id": "AhmedAshrafMarzouk/arabic-deepfake-audio-bonafide",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:10K<n<100K"
+    ],
+    "downloads": 34
+   },
+   {
+    "id": "AhmedAshrafMarzouk/arabic-deepfake-audio-spoofed",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:10K<n<100K"
+    ],
+    "downloads": 39
+   },
+   {
+    "id": "AhmedAshrafMarzouk/arabic-deepfake-audio-shuffled",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:10K<n<100K"
+    ],
+    "downloads": 36
+   },
+   {
+    "id": "AhmedAshrafMarzouk/arabic-deepfake-audio-spoofed-test",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:10K<n<100K"
+    ],
+    "downloads": 50
+   },
+   {
+    "id": "AhmedAshrafMarzouk/arabic-deepfake-audio-bonafide-test",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 31
+   },
+   {
+    "id": "AhmedAshrafMarzouk/arabic-deepfake-audio-fake-by-country-test",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:10K<n<100K"
+    ],
+    "downloads": 31
+   },
+   {
+    "id": "AhmedAshrafMarzouk/arabic-deepfake-audio-real-by-country-test",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 25
+   },
+   {
+    "id": "AhmedAshrafMarzouk/arabic-deepfake-audio-fake-by-country-test-shuffled",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:10K<n<100K"
+    ],
+    "downloads": 77
+   },
+   {
+    "id": "AhmedAshrafMarzouk/arabic-deepfake-audio-real-by-country-test-shuffled",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 25
+   },
+   {
+    "id": "mueller91/human-perception-audio-deepfake-2026",
+    "gated": false,
+    "license": [
+     "license:cc-by-nc-4.0"
+    ],
+    "size": [
+     "size_categories:10K<n<100K"
+    ],
+    "downloads": 130
+   },
+   {
+    "id": "hakamdzakwan/Audio_DeepFake",
+    "gated": "manual",
+    "license": [
+     "license:cc-by-nc-4.0"
+    ],
+    "size": [],
+    "downloads": 15
+   },
+   {
+    "id": "DavidCombei/xAI_Audio_Deepfakes",
+    "gated": false,
+    "license": [],
+    "size": [],
+    "downloads": 9
+   },
+   {
+    "id": "bibekshrestha2070/nepali-audio-deepfake-dataset",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 219
+   },
+   {
+    "id": "pymlex/audio-deepfakes-airi",
+    "gated": false,
+    "license": [
+     "license:gpl-3.0"
+    ],
+    "size": [],
+    "downloads": 15
+   },
+   {
+    "id": "chintalaswathi/nepali-audio-deepfake-dataset",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 3840
+   },
+   {
+    "id": "kalyaninaganaboyina2006/arabic-deepfake-audio-bonafide",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:10K<n<100K"
+    ],
+    "downloads": 34
+   },
+   {
+    "id": "xxuan-speech/Deepfake-Eval-2024-audio",
+    "gated": false,
+    "license": [
+     "license:mit"
+    ],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 891
+   },
+   {
+    "id": "alexlicuriceanu/ro-dia-deepfake-audio",
+    "gated": false,
+    "license": [],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 177
+   },
+   {
+    "id": "koyyalamudiraghavendra/deepfake-audio-detection",
+    "gated": false,
+    "license": [
+     "license:cc-by-4.0"
+    ],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 346
+   },
+   {
+    "id": "Tanishq125/deepfake-audio-detection",
+    "gated": false,
+    "license": [
+     "license:cc-by-4.0"
+    ],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 143
+   },
+   {
+    "id": "sumathiselvan/audio-deepfake-datasets",
+    "gated": "manual",
+    "license": [],
+    "size": [],
+    "downloads": 13
+   },
+   {
+    "id": "Dhruv0100/deepfake-audio-detection",
+    "gated": false,
+    "license": [
+     "license:cc-by-4.0"
+    ],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 199
+   },
+   {
+    "id": "prachii18088/Audiodeepfakedataset",
+    "gated": false,
+    "license": [
+     "license:unknown"
+    ],
+    "size": [
+     "size_categories:100K<n<1M"
+    ],
+    "downloads": 50541
+   },
+   {
+    "id": "mumuhf1/deepfake_audio",
+    "gated": false,
+    "license": [],
+    "size": [],
+    "downloads": 5
+   },
+   {
+    "id": "prachii18088/Audiodeepfakedataset-bonafide",
+    "gated": false,
+    "license": [],
+    "size": [],
+    "downloads": 27
+   },
+   {
+    "id": "potterr/deepfake-audio-detection",
+    "gated": false,
+    "license": [
+     "license:cc-by-4.0"
+    ],
+    "size": [
+     "size_categories:1K<n<10K"
+    ],
+    "downloads": 79
+   }
+  ]
+ },
+ "zenodo": {
+  "OpenForensics": {
+   "record": "5528418",
+   "api_status": null,
+   "error": "TimeoutError: The read operation timed out"
+  },
+  "WaveFake": {
+   "record": "5642694",
+   "api_status": 200,
+   "title": "WaveFake: A data set to facilitate audio DeepFake detection",
+   "access_right": "open",
+   "license": "cc-by-sa-4.0",
+   "publication_date": "2021-08-26",
+   "doi": "10.5281/zenodo.5642694",
+   "files": [
+    {
+     "key": "LICENSE",
+     "size": 13981
+    },
+    {
+     "key": "datasheet.pdf",
+     "size": 167526
+    },
+    {
+     "key": "generated_audio.zip",
+     "size": 28918626084
+    }
+   ],
+   "total_bytes": 28918807591,
+   "range_probe_first_file": {
+    "status": 206,
+    "final_url": "https://zenodo.org/api/records/5642694/files/LICENSE/content",
+    "content_range": "bytes 0-13980/13981",
+    "content_type": "application/octet-stream",
+    "bytes": 13981,
+    "seconds": 10.414,
+    "error": null,
+    "mb_per_s": 0.0,
+    "magic": "43726561"
+   }
+  },
+  "ASVspoof2021_LA_eval": {
+   "record": "4837263",
+   "api_status": null,
+   "error": "TimeoutError: The read operation timed out"
+  },
+  "ASVspoof2021_DF_eval_part00": {
+   "record": "4835108",
+   "api_status": 200,
+   "title": "ASVspoof 2021 Challenge - Speech Deepfake Database",
+   "access_right": "open",
+   "license": "odc-odbl",
+   "publication_date": "2021-05-28",
+   "doi": "10.5281/zenodo.4835108",
+   "files": [
+    {
+     "key": "ASVspoof2021_DF_eval_part00.tar.gz",
+     "size": 8637050238
+    },
+    {
+     "key": "ASVspoof2021_DF_eval_part01.tar.gz",
+     "size": 8624944890
+    },
+    {
+     "key": "ASVspoof2021_DF_eval_part03.tar.gz",
+     "size": 8656151261
+    },
+    {
+     "key": "ASVspoof2021_DF_eval_part02.tar.gz",
+     "size": 8616337195
+    }
+   ],
+   "total_bytes": 34534483584,
+   "range_probe_first_file": {
+    "status": 500,
+    "final_url": "https://zenodo.org/api/records/4835108/files/ASVspoof2021_DF_eval_part00.tar.gz/content",
+    "content_range": null,
+    "content_type": "application/json",
+    "bytes": 0,
+    "seconds": null,
+    "error": "HTTP Error 500: INTERNAL SERVER ERROR"
+   }
+  }
+ },
+ "zenodo_search": {
+  "deepfake faces dataset": [
+   {
+    "id": 14615263,
+    "title": "Coco Person Faceswap Dataset (COCO-PFS)",
+    "license": "cc-by-nc-4.0",
+    "total_bytes": 0
+   },
+   {
+    "id": 5769057,
+    "title": "DF-Mobio",
+    "license": null,
+    "total_bytes": 0
+   },
+   {
+    "id": 14532968,
+    "title": "Real vs Fake Faces Balanced Dataset with Multiple Dataset Splits",
+    "license": "cc-by-4.0",
+    "total_bytes": 1147959232
+   },
+   {
+    "id": 7603208,
+    "title": "DEepfake CROss-lingual evaluation dataset (DECRO)",
+    "license": "cc-by-4.0",
+    "total_bytes": 15503225651
+   },
+   {
+    "id": 13318702,
+    "title": "System Fingerprint Recognition for Deepfake Audio (SFR) - Clean Set",
+    "license": "cc-by-4.0",
+    "total_bytes": 40118397141
+   },
+   {
+    "id": 16140829,
+    "title": "HiDF: A Human-Indistinguishable Deepfake Dataset",
+    "license": "cc-by-nc-4.0",
+    "total_bytes": 41961478606
+   },
+   {
+    "id": 23889016,
+    "title": "Does Content Matter? Introducing SWC-LibDeep for Cross-Lingual Audio Deepfake Detection in English and German",
+    "license": "cc-by-4.0",
+    "total_bytes": 0
+   },
+   {
+    "id": 13340666,
+    "title": "System Fingerprint Recognition for Deepfake Audio (SFR) - Compressed Set",
+    "license": "cc-by-4.0",
+    "total_bytes": 36866405703
+   },
+   {
+    "id": 16744845,
+    "title": "SCDF: A Speaker Characteristics DeepFake Speech Dataset for Bias Analysis",
+    "license": "cc-zero",
+    "total_bytes": 48127460705
+   },
+   {
+    "id": 13838823,
+    "title": "Codecfake dataset - test set (part 1 of 2)",
+    "license": "cc-by-nc-nd-4.0",
+    "total_bytes": 37787855511
+   },
+   {
+    "id": 11125029,
+    "title": "Codecfake dataset - test set (part 2 of 2)",
+    "license": "cc-by-nc-nd-4.0",
+    "total_bytes": 32339057370
+   },
+   {
+    "id": 13853860,
+    "title": "Codecfake dataset - training set (part 3 of 3)",
+    "license": "cc-by-nc-nd-4.0",
+    "total_bytes": 32212254720
+   },
+   {
+    "id": 13841216,
+    "title": "Codecfake dataset - development set",
+    "license": "cc-by-nc-nd-4.0",
+    "total_bytes": 11444857242
+   },
+   {
+    "id": 13841652,
+    "title": "Codecfake dataset - training set (part 2 of 3)",
+    "license": "cc-by-nc-nd-4.0",
+    "total_bytes": 26843545600
+   },
+   {
+    "id": 13838106,
+    "title": "Codecfake dataset - training set (part 1 of 3)",
+    "license": "cc-by-nc-nd-4.0",
+    "total_bytes": 32065561685
+   }
+  ],
+  "face forgery dataset": [
+   {
+    "id": 5528418,
+    "title": "OpenForensics: Multi-Face Forgery Detection And Segmentation In-The-Wild Dataset [V.1.0.0]",
+    "license": "cc-by-4.0",
+    "total_bytes": 56361058201
+   },
+   {
+    "id": 18177207,
+    "title": "StyleGAN3 Synthetic Face Image Dataset",
+    "license": null,
+    "total_bytes": 2976569967
+   },
+   {
+    "id": 15095089,
+    "title": "Recod.ai Scientific Image Integrity Dataset (RSIID)",
+    "license": "cc-by-4.0",
+    "total_bytes": 57301979853
+   },
+   {
+    "id": 7326540,
+    "title": "The Digital Forensics 2023 dataset - DF2023",
+    "license": "cc-by-4.0",
+    "total_bytes": 0
+   },
+   {
+    "id": 7332816,
+    "title": "Dataset literature review on cyberlaw and forgery",
+    "license": "cc-by-4.0",
+    "total_bytes": 7739363
+   },
+   {
+    "id": 7332939,
+    "title": "dataset literature review on cyberlaw and forgery",
+    "license": "cc-by-4.0",
+    "total_bytes": 7746856
+   },
+   {
+    "id": 7317589,
+    "title": "Dataset literature review on cyberlaw and forgery",
+    "license": "cc-by-4.0",
+    "total_bytes": 1921164
+   },
+   {
+    "id": 7984723,
+    "title": "Tampered Sentinel-2 images",
+    "license": "cc-by-4.0",
+    "total_bytes": 1107614181
+   },
+   {
+    "id": 17141780,
+    "title": "Survey on municipal services in Gori, Georgia, 2018",
+    "license": "odc-odbl",
+    "total_bytes": 978142
+   },
+   {
+    "id": 17182966,
+    "title": "Court Accessibility in Georgia, 2020",
+    "license": "odc-odbl",
+    "total_bytes": 1849646
+   },
+   {
+    "id": 20925144,
+    "title": "General Population Survey on Welfare Deservingness in Ukraine 2024",
+    "license": "odc-odbl",
+    "total_bytes": 1174467
+   },
+   {
+    "id": 17176728,
+    "title": "Countering violent extremism in Georgia: a needs assessment 2018",
+    "license": "odc-odbl",
+    "total_bytes": 3275032
+   },
+   {
+    "id": 18493485,
+    "title": "Public opinion in Tbilisi, Georgia about the Events of May 17th, 2013",
+    "license": "odc-odbl",
+    "total_bytes": 1032574
+   },
+   {
+    "id": 17160333,
+    "title": "Conflicts in Georgia: Perceptions, Attitudes and Expectations 2024",
+    "license": "odc-odbl",
+    "total_bytes": 1153839
+   },
+   {
+    "id": 17176732,
+    "title": "The Future of Georgia 2020",
+    "license": "odc-odbl",
+    "total_bytes": 1471865
+   }
+  ],
+  "in-the-wild audio deepfake": [
+   {
+    "id": 23849403,
+    "title": "Watermark shortcuts in speech deepfake detection: code and results",
+    "license": "cc-by-4.0",
+    "total_bytes": 0
+   },
+   {
+    "id": 12151404,
+    "title": "ADD 2023 Challenge Track 1.2 Training/Development Dataset",
+    "license": "cc-by-nc-nd-4.0",
+    "total_bytes": 4258654693
+   },
+   {
+    "id": 12176904,
+    "title": "ADD 2023 Challenge Track 2 Evaluation Dataset",
+    "license": "cc-by-nc-nd-4.0",
+    "total_bytes": 5168187189
+   },
+   {
+    "id": 12179632,
+    "title": "ADD 2023 Challenge Track 3 Training/Development Dataset",
+    "license": "cc-by-nc-nd-4.0",
+    "total_bytes": 4825328307
+   },
+   {
+    "id": 12176530,
+    "title": "ADD 2023 Challenge Track 2 Training/Development Dataset",
+    "license": "cc-by-nc-nd-4.0",
+    "total_bytes": 7041044253
+   },
+   {
+    "id": 12145773,
+    "title": "ADD 2023 Challenge Track 1.1 Evaluation Dataset",
+    "license": "cc-by-nc-nd-4.0",
+    "total_bytes": 66590075
+   },
+   {
+    "id": 12179884,
+    "title": "ADD 2023 Challenge Track 3 Evaluation Dataset",
+    "license": "cc-by-nc-nd-4.0",
+    "total_bytes": 12540868923
+   },
+   {
+    "id": 12176326,
+    "title": "ADD 2023 Challenge Track 1.2 Evaluation Dataset (Round 2)",
+    "license": "cc-by-nc-nd-4.0",
+    "total_bytes": 15959732149
+   },
+   {
+    "id": 12175884,
+    "title": "ADD 2023 Challenge Track 1.2 Evaluation Dataset (Round 1)",
+    "license": "cc-by-nc-nd-4.0",
+    "total_bytes": 15480539338
+   },
+   {
+    "id": 13318702,
+    "title": "System Fingerprint Recognition for Deepfake Audio (SFR) - Clean Set",
+    "license": "cc-by-4.0",
+    "total_bytes": 40118397141
+   },
+   {
+    "id": 17295933,
+    "title": "Mel Spectrogram Voice Dataset",
+    "license": "cc-by-4.0",
+    "total_bytes": 238372814
+   },
+   {
+    "id": 13340666,
+    "title": "System Fingerprint Recognition for Deepfake Audio (SFR) - Compressed Set",
+    "license": "cc-by-4.0",
+    "total_bytes": 36866405703
+   },
+   {
+    "id": 23889016,
+    "title": "Does Content Matter? Introducing SWC-LibDeep for Cross-Lingual Audio Deepfake Detection in English and German",
+    "license": "cc-by-4.0",
+    "total_bytes": 0
+   },
+   {
+    "id": 7603208,
+    "title": "DEepfake CROss-lingual evaluation dataset (DECRO)",
+    "license": "cc-by-4.0",
+    "total_bytes": 15503225651
+   },
+   {
+    "id": 13838823,
+    "title": "Codecfake dataset - test set (part 1 of 2)",
+    "license": "cc-by-nc-nd-4.0",
+    "total_bytes": 37787855511
+   }
+  ]
+ },
+ "other": {
+  "in_the_wild_audio": {
+   "url": "https://deepfake-total.com/in_the_wild",
+   "status": 200,
+   "final_url": "https://deepfake-total.com/in_the_wild",
+   "content_length": "9061",
+   "content_type": "text/html; charset=utf-8",
+   "licence_lines": [
+    "This dataset and the associated documentation are\n          licensed under",
+    "a href=\"https://creativecommons.org/licenses/by-nc/4.0/\""
+   ],
+   "download_links": []
+  },
+  "asvspoof2021_keys": {
+   "url": "https://www.asvspoof.org/asvspoof2021/LA-keys-full.tar.gz",
+   "status": 200,
+   "final_url": "https://www.asvspoof.org/asvspoof2021/LA-keys-full.tar.gz",
+   "content_length": "21235082",
+   "content_type": "application/x-gzip",
+   "licence_lines": [],
+   "download_links": []
+  }
+ }
+}
