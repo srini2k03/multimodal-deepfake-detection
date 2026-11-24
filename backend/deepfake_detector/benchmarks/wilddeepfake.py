@@ -52,7 +52,7 @@ def read_tar(path: Path, label: int, frames_per_sequence: int, face_cfg: dict) -
     extractor = FaceExtractor(FaceConfig(**face_cfg))
     seqs: dict[str, list[tarfile.TarInfo]] = defaultdict(list)
     out: list[dict] = []
-    with tarfile.open(path, "r:gz") as tar:
+    with tarfile.open(path, "r:*") as tar:  # the WildDeepfake ".tar.gz" files are plain tar archives
         members = [m for m in tar.getmembers() if m.isfile() and PurePosixPath(m.name).suffix.lower() in IMAGE_EXTS]
         for m in members:
             seqs[str(PurePosixPath(m.name).parent)].append(m)

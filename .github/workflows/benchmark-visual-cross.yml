@@ -66,7 +66,7 @@ jobs:
           PY
           aria2c -q -j 8 -x 4 --max-tries=10 --retry-wait=15 --file-allocation=none -i "$RUNNER_TEMP/wdf/urls.txt"
           du -sh "$RUNNER_TEMP/wdf"/*; ls "$RUNNER_TEMP/wdf/real_test" | wc -l; ls "$RUNNER_TEMP/wdf/fake_test" | wc -l
-          tar -tzf "$(ls "$RUNNER_TEMP"/wdf/real_test/*.tar.gz | head -1)" | head -5
+          tar -tf "$(ls "$RUNNER_TEMP"/wdf/real_test/*.tar.gz | head -1)" | head -5
       - name: Score (frame and sequence level)
         working-directory: backend
         run: |
