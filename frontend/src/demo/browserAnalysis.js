@@ -142,7 +142,7 @@ function heuristicScores(crop) {
   };
 }
 
-/** Downscaled copy of the frame with every detected face box, eye keypoints and crop region drawn on. */
+/** Downscaled copy of the frame with every detected face box, eye keypoints and crop region drawn on (kit accent colours). */
 function annotate(src, faces, crop, maxSide) {
   const c = toCanvas(src, src.width, src.height, maxSide);
   const s = c.width / src.width;
@@ -151,7 +151,7 @@ function annotate(src, faces, crop, maxSide) {
   ctx.font = `600 ${Math.max(10, Math.round(c.width / 32))}px system-ui, sans-serif`;
   faces.forEach((f, i) => {
     const primary = i === 0;
-    ctx.strokeStyle = primary ? "#38bdf8" : "#f59e0b";
+    ctx.strokeStyle = primary ? "#5eeaa8" : "#ffb547";
     ctx.lineWidth = primary ? lw * 1.4 : lw;
     ctx.setLineDash([]);
     ctx.strokeRect(f.x * s, f.y * s, f.w * s, f.h * s);
@@ -161,10 +161,10 @@ function annotate(src, faces, crop, maxSide) {
     const ty = f.y * s - th >= 0 ? f.y * s - th : f.y * s;
     ctx.fillStyle = ctx.strokeStyle;
     ctx.fillRect(f.x * s - lw / 2, ty, tw, th);
-    ctx.fillStyle = "#0b1220";
+    ctx.fillStyle = "#04140c";
     ctx.fillText(label, f.x * s + 4, ty + th - 5);
     if (primary && f.eyes) {
-      ctx.fillStyle = "#38bdf8";
+      ctx.fillStyle = "#5eeaa8";
       f.eyes.forEach((e) => {
         ctx.beginPath();
         ctx.arc(e.x * s, e.y * s, lw * 1.6, 0, Math.PI * 2);
@@ -173,7 +173,7 @@ function annotate(src, faces, crop, maxSide) {
     }
   });
   if (crop.box) {
-    ctx.strokeStyle = "#e2e8f0";
+    ctx.strokeStyle = "#eef1f5";
     ctx.lineWidth = lw;
     ctx.setLineDash([lw * 3, lw * 2]);
     const { x1, y1, x2, y2 } = crop.box;

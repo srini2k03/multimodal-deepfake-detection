@@ -1,20 +1,40 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark" class="no-js">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Multi-modal deepfake detection: upload an image, video or audio file and get manipulation probability scores." />
+    <meta name="theme-color" content="#07090c" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <title>Deepfake Detector</title>
     <script>
-      try {
-        var t = localStorage.getItem("dfd-theme");
-        if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
-      } catch (e) {}
+      // Theme before first paint (same localStorage key as https://srini2k03.github.io/), dark by default.
+      (function () {
+        var d = document.documentElement;
+        try {
+          var t = localStorage.getItem("theme");
+          d.dataset.theme = t === "light" || t === "dark" ? t : "dark";
+        } catch (e) {
+          d.dataset.theme = "dark";
+        }
+        d.classList.remove("no-js");
+      })();
     </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400..600&family=Instrument+Serif:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <p style="max-width: 40rem; margin: 4rem auto; padding: 0 1rem; font: 15px/1.6 system-ui, sans-serif">
+        This dashboard needs JavaScript. The source code, architecture and published reference results are on
+        <a href="https://github.com/srini2k03/multimodal-deepfake-detection">GitHub</a>.
+      </p>
+    </noscript>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

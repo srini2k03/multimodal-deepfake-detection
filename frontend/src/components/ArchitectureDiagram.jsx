@@ -15,7 +15,7 @@ const WIDE = {
     V: [185, 90, 140, 62, ["Validation", "type · size · decode"]],
     J: [185, 190, 140, 50, ["sync / async job"], "decision"],
     S: [365, 45, 115, 50, ["Frame sampler", "OpenCV"]],
-    FD: [495, 45, 115, 50, ["Face detector", "DNN SSD / Haar"]],
+    FD: [495, 45, 115, 50, ["Face detector", "Haar / DNN SSD"]],
     AL: [625, 45, 125, 50, ["Align + crop", "eye roll · 299²"]],
     X: [765, 34, 110, 36, ["Xception"], "model"],
     I: [765, 82, 110, 36, ["InceptionV3"], "model"],
@@ -59,7 +59,7 @@ const NARROW = {
     V: [100, 96, 160, 50, ["Flask API: validation", "type · size · decode"]],
     J: [100, 170, 160, 40, ["sync / async job"], "decision"],
     S: [20, 260, 150, 46, ["Frame sampler", "OpenCV"]],
-    FD: [20, 326, 150, 46, ["Face detector", "DNN SSD / Haar"]],
+    FD: [20, 326, 150, 46, ["Face detector", "Haar / DNN SSD"]],
     AL: [20, 392, 150, 46, ["Align + crop", "eye roll · 299²"]],
     I: [20, 458, 70, 40, ["Inception"], "model"],
     X: [100, 458, 70, 40, ["Xception"], "model"],
@@ -107,11 +107,22 @@ function Diagram({ spec, className, id }) {
         <marker id={`${id}-arrow`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
           <path d="M0 0 L10 5 L0 10 z" className="arch-arrowhead" />
         </marker>
+        <marker
+          id={`${id}-arrow-cam`}
+          viewBox="0 0 10 10"
+          refX="9"
+          refY="5"
+          markerWidth="7"
+          markerHeight="7"
+          orient="auto"
+        >
+          <path d="M0 0 L10 5 L0 10 z" className="arch-arrowhead cam" />
+        </marker>
       </defs>
       {spec.groups.map((g) => (
         <g key={g.label}>
           <rect x={g.x} y={g.y} width={g.w} height={g.h} rx="12" className="arch-group" />
-          <text x={g.x + 10} y={g.bottom ? g.y + g.h - 8 : g.y + 16} className="arch-group-label">
+          <text x={g.x + 12} y={g.bottom ? g.y + g.h - 10 : g.y + 18} className="arch-group-label">
             {g.label}
           </text>
         </g>
@@ -121,7 +132,7 @@ function Diagram({ spec, className, id }) {
           key={i}
           points={pts.join(" ")}
           className={`arch-edge ${dashed ? "dashed" : ""}`}
-          markerEnd={`url(#${id}-arrow)`}
+          markerEnd={`url(#${id}-arrow${dashed ? "-cam" : ""})`}
         />
       ))}
       {Object.entries(spec.nodes).map(([key, [x, y, w, h, lines, kind]]) => {

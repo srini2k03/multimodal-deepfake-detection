@@ -13,6 +13,7 @@ export default function GradCamViewer({ gradcam }) {
       <label className="slider">
         Heatmap opacity
         <input
+          className="sb-range"
           type="range"
           min="0"
           max="1"

@@ -4,6 +4,7 @@ import GradCamViewer from "./GradCamViewer.jsx";
 import ModelBreakdown from "./ModelBreakdown.jsx";
 import AudioSegments from "./AudioSegments.jsx";
 import BrowserPreview, { CropGallery } from "./BrowserPreview.jsx";
+import { AlertIcon } from "./Icons.jsx";
 import { SETUP_URL } from "../demo/config.js";
 
 function formatBytes(n) {
@@ -19,6 +20,22 @@ function PlaceholderNote({ children }) {
     <p className="placeholder-note">
       <span className="tag-placeholder">Placeholder</span> {children}
     </p>
+  );
+}
+
+/** Card with a mono label above the title, matching the portfolio's result panels. */
+function ResultCard({ label, title, aside, className = "", children }) {
+  return (
+    <div className={`sb-card result-card ${className}`}>
+      <div className="result-card__head">
+        <div>
+          {label && <p className="sb-label">{label}</p>}
+          <h3 className="sb-card__title">{title}</h3>
+        </div>
+        {aside}
+      </div>
+      {children}
+    </div>
   );
 }
 
@@ -40,37 +57,49 @@ export default function ResultDashboard({ result }) {
   const browser = result.mode === "browser-demo";
 
   return (
-    <section className="dashboard">
+    <section className="dashboard" aria-label="Analysis results">
       {browser ? (
-        <div className="banner banner-warn" role="status">
-          <strong>Browser demo: placeholder scores, not a deepfake verdict.</strong> {result.warning}{" "}
-          <a href={SETUP_URL} target="_blank" rel="noreferrer">
-            Set up the backend
-          </a>
-          .
+        <div className="sb-callout sb-callout--warn banner banner-warn" role="status">
+          <span className="callout-icon" aria-hidden="true">
+            <AlertIcon size={18} />
+          </span>
+          <p className="callout-body">
+            <strong>Browser demo: placeholder scores, not a deepfake verdict.</strong> {result.warning}{" "}
+            <a href={SETUP_URL} target="_blank" rel="noreferrer">
+              Set up the backend
+            </a>
+            .
+          </p>
         </div>
       ) : (
         result.warning && (
-          <div className="banner banner-warn" role="status">
-            <strong>Untrained / demo weights.</strong> {result.warning}
+          <div className="sb-callout sb-callout--warn banner banner-warn" role="status">
+            <span className="callout-icon" aria-hidden="true">
+              <AlertIcon size={18} />
+            </span>
+            <p className="callout-body">
+              <strong>Untrained / demo weights.</strong> {result.warning}
+            </p>
           </div>
         )
       )}
 
       {browser && visual && (
-        <div className="card">
-          <h3>Preprocessing pipeline (real, in your browser)</h3>
+        <ResultCard
+          label="Real pipeline output"
+          title="Preprocessing pipeline (real, in your browser)"
+          aside={<span className="sb-pill pill-real">runs on your device</span>}
+        >
           <BrowserPreview result={result} />
-          <p className="muted small">
+          <p className="sb-small result-foot">
             Detector: {result.browser.detector}. Faces found in {visual.faces_detected} of {visual.frames_analyzed}{" "}
             sampled frame{visual.frames_analyzed === 1 ? "" : "s"}.
           </p>
-        </div>
+        </ResultCard>
       )}
 
       <div className="grid-2">
-        <div className="card">
-          <h3>{browser ? "Overall placeholder score" : "Verdict"}</h3>
+        <ResultCard label="Score" title={browser ? "Overall placeholder score" : "Verdict"}>
           {browser && (
             <PlaceholderNote>Mean of pixel and loudness heuristics. Not a probability of manipulation.</PlaceholderNote>
           )}
@@ -83,7 +112,7 @@ export default function ResultDashboard({ result }) {
           <dl className="facts">
             <dt>File</dt>
             <dd>
-              {result.file?.name} <span className="muted">{formatBytes(result.file?.size_bytes)}</span>
+              {result.file?.name} <span className="sb-muted">{formatBytes(result.file?.size_bytes)}</span>
             </dd>
             <dt>Media</dt>
             <dd>{result.media_type}</dd>
@@ -98,58 +127,65 @@ export default function ResultDashboard({ result }) {
             <dt>Processing</dt>
             <dd>{(result.processing_ms / 1000).toFixed(2)}s</dd>
           </dl>
-        </div>
+        </ResultCard>
 
-        <div className="card">
-          <h3>{browser ? "Per-model breakdown (placeholders)" : "Per-model breakdown"}</h3>
+        <ResultCard label="Models" title={browser ? "Per-model breakdown (placeholders)" : "Per-model breakdown"}>
           {browser && <PlaceholderNote>Heuristic values standing in for model outputs.</PlaceholderNote>}
           <ModelBreakdown result={result} />
-        </div>
+        </ResultCard>
       </div>
 
       {frames.length > 1 && (
-        <div className="card">
-          <h3>{browser ? "Per-frame timeline (placeholder scores)" : "Per-frame timeline"}</h3>
+        <ResultCard
+          label="Timeline"
+          title={browser ? "Per-frame timeline (placeholder scores)" : "Per-frame timeline"}
+          className="sb-card--chart"
+        >
           {browser && (
             <PlaceholderNote>
               Frame sampling and face/no-face flags are real; the plotted values are heuristics, not detections.
             </PlaceholderNote>
           )}
           <FrameTimeline frames={frames} threshold={result.threshold} showThreshold={!browser} />
-        </div>
+        </ResultCard>
       )}
 
       <div className="grid-2">
         {visual && browser && (
-          <div className="card">
-            <h3>Face crops fed to the models</h3>
+          <ResultCard
+            label="Model input"
+            title="Face crops fed to the models"
+            aside={<span className="sb-pill sb-pill--pending">Grad-CAM needs trained weights</span>}
+          >
             <PlaceholderNote>
               These crops are what Xception and InceptionV3 would score. Grad-CAM needs the trained models, so it is
               only available from the Python backend.
             </PlaceholderNote>
             <CropGallery samples={result.browser.samples} />
-          </div>
+          </ResultCard>
         )}
         {visual && !browser && (
-          <div className="card">
-            <h3>Explainability (Grad-CAM)</h3>
+          <ResultCard label="Explainability" title="Explainability (Grad-CAM)">
             <GradCamViewer gradcam={result.gradcam} />
-          </div>
+          </ResultCard>
         )}
         {audio?.available && (
-          <div className="card">
-            <h3>{browser ? "Audio segments (placeholder scores)" : "Audio segments"}</h3>
+          <ResultCard
+            label="Audio"
+            title={browser ? "Audio segments (placeholder scores)" : "Audio segments"}
+            className="sb-card--chart"
+          >
             {browser && (
               <PlaceholderNote>Decoding and 4 s segmentation are real; bar heights are loudness only.</PlaceholderNote>
             )}
             <AudioSegments segments={audio.segments} threshold={result.threshold} placeholder={browser} />
-          </div>
+          </ResultCard>
         )}
       </div>
 
-      <details className="card raw">
+      <details className="sb-card raw">
         <summary>{browser ? "Raw result object (generated in the browser)" : "Raw JSON response"}</summary>
-        <pre>{JSON.stringify(stripImages(result), null, 2)}</pre>
+        <pre className="sb-code">{JSON.stringify(stripImages(result), null, 2)}</pre>
       </details>
     </section>
   );
