@@ -9,8 +9,8 @@
     python -m deepfake_detector.benchmarks.run_dff latency  --work work/ --out results/
 
 Systems: ``meta_lr`` (file metadata only: format, resolution, size, face-detector output - a
-shortcut probe), ``effb0_probe`` (frozen ImageNet EfficientNet-B0 + logistic regression),
-``effb0_ft`` (EfficientNet-B0 fine-tuned end to end on the top 30% of layers) and
+shortcut probe), ``effnet_probe`` (frozen ImageNet EfficientNetV2-B0 + logistic regression),
+``effnet_ft`` (EfficientNetV2-B0 fine-tuned end to end on the top 30% of layers) and
 leave-one-generator-out variants that never see one manipulation type in training.
 Thresholds and calibration are fitted on the identity-disjoint validation split.
 """
@@ -46,7 +46,7 @@ from .run_asvspoof import _write_json, run_metadata
 
 logger = logging.getLogger(__name__)
 IMAGE_SIZE = 224
-BACKBONE = "efficientnet_b0"
+BACKBONE = "efficientnetv2_b0"
 WEIGHTS: str | None = "imagenet"  # tests set None (no download)
 
 
@@ -133,16 +133,16 @@ def cmd_probe(args, cfg) -> None:
     t0 = time.perf_counter()
     feats = _batched(_feature_model(), images)
     logger.info("probe features", extra={"n": len(feats), "seconds": round(time.perf_counter() - t0, 1)})
-    np.save(work / "effb0_features.npy", feats.astype(np.float32))
+    np.save(work / "effnet_features.npy", feats.astype(np.float32))
     tr, ytr, ttr = _split(records, "train")
     logits = {}
     meta = meta_features(records)
     logits["meta_lr"] = LogisticRegression().fit(meta[tr], ytr).decision_function(meta)
-    logits["effb0_probe"] = LogisticRegression(l2=1e-2).fit(feats[tr], ytr).decision_function(feats)
+    logits["effnet_probe"] = LogisticRegression(l2=1e-2).fit(feats[tr], ytr).decision_function(feats)
     for held_out in dff.FAKE_TYPES:  # leave-one-generator-out: that fake type never seen in training
         keep = [i for i, t in zip(tr, ttr, strict=True) if t != held_out]
         y = np.array([records[i].label for i in keep])
-        logits[f"effb0_probe_no_{held_out}"] = LogisticRegression(l2=1e-2).fit(feats[keep], y).decision_function(feats)
+        logits[f"effnet_probe_no_{held_out}"] = LogisticRegression(l2=1e-2).fit(feats[keep], y).decision_function(feats)
     (work / "logits").mkdir(exist_ok=True)
     for name, z in logits.items():
         np.save(work / "logits" / f"{name}.npy", z)
@@ -156,7 +156,7 @@ def cmd_finetune(args, cfg) -> None:
     from ..models.backbones import set_trainable
 
     work = Path(args.work)
-    name = "effb0_ft" + (f"_no_{args.exclude}" if args.exclude else "")
+    name = "effnet_ft" + (f"_no_{args.exclude}" if args.exclude else "")
     records = _records(work)
     images = dff.load_images(records, work / "crops", IMAGE_SIZE)
     tr, ytr, ttr = _split(records, "train")
@@ -233,8 +233,8 @@ def cmd_finetune(args, cfg) -> None:
 # --------------------------------------------------------------------------- evaluation
 NOTES = {
     "meta_lr": "Logistic regression on file metadata only (format, resolution, bytes/pixel, face box): shortcut probe",
-    "effb0_probe": "Frozen ImageNet EfficientNet-B0 features + logistic regression",
-    "effb0_ft": "EfficientNet-B0 fine-tuned (top 30% of layers, BatchNorm frozen), augmentation, balanced epochs",
+    "effnet_probe": "Frozen ImageNet EfficientNetV2-B0 features + logistic regression",
+    "effnet_ft": "EfficientNetV2-B0 fine-tuned (top 30% of layers, BatchNorm frozen), augmentation, balanced epochs",
 }
 
 
@@ -321,7 +321,7 @@ def _subset(records, n_per_class: int, seed: int) -> list[int]:
     return sorted(int(i) for i in pick)
 
 
-def _load_ft(work: Path, name: str = "effb0_ft"):
+def _load_ft(work: Path, name: str = "effnet_ft"):
     from ..inference.scorers import load_keras_model
 
     path = work / "models" / name / "model.keras"
@@ -337,15 +337,15 @@ def cmd_robustness(args, cfg) -> None:
     pick = _subset(records, args.n_per_class, cfg.data.seed)
     images = dff.load_images([records[i] for i in pick], work / "crops", IMAGE_SIZE)
     y = np.array([records[i].label for i in pick])
-    feats_all = np.load(work / "effb0_features.npy")
+    feats_all = np.load(work / "effnet_features.npy")
     tr, ytr, _ = _split(records, "train")
     probe = LogisticRegression(l2=1e-2).fit(feats_all[tr], ytr)
     fm = _feature_model()
     ft = _load_ft(work)
-    systems = {"effb0_probe": lambda x: probe.decision_function(_batched(fm, x))}
+    systems = {"effnet_probe": lambda x: probe.decision_function(_batched(fm, x))}
     if ft is not None:
         lm = logit_model(ft)
-        systems["effb0_ft"] = lambda x: _batched(lm, x).reshape(-1)
+        systems["effnet_ft"] = lambda x: _batched(lm, x).reshape(-1)
     report = {"meta": run_metadata(), "subset": {"n": len(pick), "n_real": int((y == 0).sum())}, "conditions": {}}
     for cond in ROBUSTNESS_CONDITIONS:
         rng = np.random.default_rng(cfg.data.seed)
@@ -377,7 +377,7 @@ def cmd_gradcam(args, cfg) -> None:
     records = _records(work)
     ft = _load_ft(work)
     if ft is None:
-        raise SystemExit("effb0_ft model missing")
+        raise SystemExit("effnet_ft model missing")
     pick = _subset(records, args.n_per_class, cfg.data.seed + 7)
     images = dff.load_images([records[i] for i in pick], work / "crops", IMAGE_SIZE)
     groups: dict[str, list[np.ndarray]] = {}
@@ -458,7 +458,7 @@ def cmd_latency(args, cfg) -> None:
         if quant:
             conv.optimizations = [tf.lite.Optimize.DEFAULT]
         blob = conv.convert()
-        (work / "models" / "effb0_ft" / f"{name}.tflite").write_bytes(blob)
+        (work / "models" / "effnet_ft" / f"{name}.tflite").write_bytes(blob)
         interp = tf.lite.Interpreter(model_content=blob, num_threads=os.cpu_count())
         d = interp.get_input_details()[0]
         interp.resize_tensor_input(d["index"], [1, IMAGE_SIZE, IMAGE_SIZE, 3])
@@ -477,7 +477,7 @@ def cmd_latency(args, cfg) -> None:
             "max_abs_prob_diff_vs_keras": float(np.max(np.abs(_sigmoid(z) - _sigmoid(keras_z)))),
         }
     report["exports"] = exports
-    report["keras_file_bytes"] = (work / "models" / "effb0_ft" / "model.keras").stat().st_size
+    report["keras_file_bytes"] = (work / "models" / "effnet_ft" / "model.keras").stat().st_size
     report["peak_rss_mb"] = round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024, 1)
     _write_json(out_dir / "latency.json", report)
 
