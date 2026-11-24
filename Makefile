@@ -6,7 +6,8 @@ CONFIG ?= configs/default.yaml
 .DEFAULT_GOAL := help
 .PHONY: help install install-dev lint format test test-fast api frontend-install frontend-dev frontend-build \
         extract extract-audio train-xception train-inception train-temporal train-audio train-all evaluate \
-        predict smoke docker-build docker-up docker-down clean
+        predict smoke docker-build docker-up docker-down clean fetch-weights serve report bench-asvspoof bench-dff \
+        frontend-smoke
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
@@ -76,6 +77,31 @@ smoke: ## End-to-end CPU smoke run on synthetic data (pipeline check only, not a
 	  && $(PY) -m deepfake_detector.training.train --config configs/smoke.yaml --model temporal \
 	  && $(PY) -m deepfake_detector.training.train --config configs/smoke.yaml --model audio \
 	  && $(PY) -m deepfake_detector.evaluation.evaluate --config configs/smoke.yaml --output data/smoke/reports
+
+fetch-weights: ## Download the released benchmark models (checksum-verified) + model card into backend/weights
+	cd $(BACKEND) && $(PY) scripts/fetch_weights.py
+
+serve: ## Run the API with the released models (run fetch-weights first)
+	cd $(BACKEND) && DFD_CONFIG=configs/serve.yaml $(PY) -m deepfake_detector.api
+
+report: ## Rebuild docs/BENCHMARKS.md tables, docs/figures and the site data from results/
+	cd $(BACKEND) && $(PY) scripts/make_report.py
+
+LA_ZIP ?= data/LA.zip
+WORK ?= data/work
+bench-asvspoof: ## ASVspoof 2019 LA benchmark locally: make bench-asvspoof LA_ZIP=/path/to/LA.zip
+	cd $(BACKEND) && for step in "features --archive $(LA_ZIP) --work $(WORK)" "train --work $(WORK) --system cnn" \
+	  "train --work $(WORK) --system cnn_trim" "evaluate --archive $(LA_ZIP) --work $(WORK) --out ../results/audio/asvspoof2019_la"; do \
+	  $(PY) -m deepfake_detector.benchmarks.run_asvspoof $$step || exit 1; done
+
+DFF_DIR ?= data/dff
+bench-dff: ## DeepFakeFace benchmark locally: make bench-dff DFF_DIR=/dir/with/the/four/zips
+	cd $(BACKEND) && for step in "prepare --zips $(DFF_DIR) --work $(WORK)/dff" "probe --work $(WORK)/dff" \
+	  "finetune --work $(WORK)/dff" "evaluate --work $(WORK)/dff --out ../results/visual/dff"; do \
+	  $(PY) -m deepfake_detector.benchmarks.run_dff $$step || exit 1; done
+
+frontend-smoke: ## Build the Pages demo and run the Playwright smoke test
+	cd frontend && npm run build:pages && node scripts/smoke.mjs
 
 docker-build: ## Build API and web images
 	docker compose build
