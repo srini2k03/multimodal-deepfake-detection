@@ -34,7 +34,7 @@ def compute_gradcam(model, image: np.ndarray, conv_layer: str | None = None) -> 
     head = model.layers[pos + 1 :]
 
     x = tf.convert_to_tensor(image[None, ...], dtype=tf.float32)
-    for layer in pre:  # e.g. the fixed [-1, 1] -> [0, 255] rescaling in front of EfficientNet
+    for layer in pre:  # e.g. the fixed [-1, 1] -> [0, 255] rescaling in front of EfficientNetV2
         x = layer(x)
     with tf.GradientTape() as tape:
         conv_out, features = grad_model(x, training=False)

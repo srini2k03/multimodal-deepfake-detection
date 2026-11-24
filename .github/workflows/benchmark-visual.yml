@@ -60,6 +60,8 @@ jobs:
           sudo apt-get update -q && sudo apt-get install -y -q aria2 > /dev/null
           pip install -q -r backend/requirements-bench.txt
           pip install -q --no-deps -e backend
+      - name: Check ImageNet weights are downloadable (fail fast)
+        run: python -c "import keras; keras.applications.EfficientNetV2B0(include_top=False, weights='imagenet'); print('ok')"
       - name: Download DeepFakeFace (4 zips, 5.1 GB)
         run: |
           mkdir -p "$RUNNER_TEMP/dff"
@@ -81,10 +83,10 @@ jobs:
             --train-groups ${{ inputs.train_groups }} --val-groups ${{ inputs.val_groups }} --test-groups ${{ inputs.test_groups }}
           python -c "import json,sys; a=json.load(open(sys.argv[1])); print(json.dumps({k: a[k] for k in ('group_overlap','full_dataset')}, indent=1)[:3000])" "$RUNNER_TEMP/work/audit.json"
           du -sh "$RUNNER_TEMP/work"
-      - name: Baselines (metadata probe, frozen EfficientNet-B0 probe, leave-one-generator-out)
+      - name: Baselines (metadata probe, frozen EfficientNetV2-B0 probe, leave-one-generator-out)
         working-directory: backend
         run: python -m deepfake_detector.benchmarks.run_dff probe --work "$RUNNER_TEMP/work"
-      - name: Fine-tune EfficientNet-B0
+      - name: Fine-tune EfficientNetV2-B0
         working-directory: backend
         run: python -m deepfake_detector.benchmarks.run_dff finetune --work "$RUNNER_TEMP/work" --epochs ${{ inputs.epochs }}
       - name: Fine-tune without InsightFace swaps
@@ -134,7 +136,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           tag="${{ inputs.release_tag }}"
-          notes="EfficientNet-B0 face-manipulation classifiers trained on DeepFakeFace (identity-grouped split) by workflow run ${GITHUB_RUN_ID} at ${GITHUB_SHA}. Metrics: ${OUT}/metrics.json."
+          notes="EfficientNetV2-B0 face-manipulation classifiers trained on DeepFakeFace (identity-grouped split) by workflow run ${GITHUB_RUN_ID} at ${GITHUB_SHA}. Metrics: ${OUT}/metrics.json."
           if gh release view "$tag" > /dev/null 2>&1; then
             gh release upload "$tag" "$RUNNER_TEMP"/release/* --clobber
           else

@@ -157,16 +157,16 @@ def test_trained_weights_are_loaded(keras, cfg, image_file, xception_clf):
 
 
 def test_efficientnet_classifier_rescales_input_and_gradcam(keras):
-    """EfficientNet expects [0, 255]; the classifier must map the shared [-1, 1] input itself."""
+    """EfficientNetV2 expects [0, 255]; the classifier must map the shared [-1, 1] input itself."""
     from deepfake_detector.explain.gradcam import compute_gradcam
     from deepfake_detector.models import build_frame_classifier
     from deepfake_detector.models.backbones import get_backbone
 
-    model = build_frame_classifier("efficientnet_b0", 64, weights=None, dropout=0.1)
+    model = build_frame_classifier("efficientnetv2_b0", 64, weights=None, dropout=0.1)
     assert model.get_layer("to_0_255") is not None
     x = np.random.default_rng(1).uniform(-1, 1, (1, 64, 64, 3)).astype("float32")
     rescaled = model.get_layer("to_0_255")(x)
     assert float(np.min(rescaled)) >= 0.0 and float(np.max(rescaled)) <= 255.0
-    assert get_backbone(model).name == "efficientnet_b0_backbone"
+    assert get_backbone(model).name == "efficientnetv2_b0_backbone"
     heat = compute_gradcam(model, x[0])
     assert heat.shape == (64, 64) and float(heat.min()) >= 0.0 and float(heat.max()) <= 1.0

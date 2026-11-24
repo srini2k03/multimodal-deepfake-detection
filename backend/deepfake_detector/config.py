@@ -15,7 +15,7 @@ from typing import Any, get_type_hints
 
 import yaml
 
-SUPPORTED_BACKBONES = ("xception", "inception_v3", "efficientnet_b0")
+SUPPORTED_BACKBONES = ("xception", "inception_v3", "efficientnetv2_b0")
 DEFAULT_BACKBONES = ("xception", "inception_v3")
 DEFAULT_CONFIG_PATH = Path(__file__).resolve().parent.parent / "configs" / "default.yaml"
 

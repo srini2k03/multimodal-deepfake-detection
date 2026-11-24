@@ -83,8 +83,8 @@ def test_dff_cli_end_to_end(tmp_path, monkeypatch):
     run_dff.main(["finetune", "--work", str(work), "--epochs", "1", "--batch-size", "8"])
     run_dff.main(["evaluate", "--work", str(work), "--out", str(out)])
     m = json.loads((out / "metrics.json").read_text())["systems"]
-    assert {"meta_lr", "effb0_probe", "effb0_ft", "effb0_probe_no_insight"} <= set(m)
-    assert m["effb0_probe_no_insight"]["test"]["per_type"]["insight"]["seen_in_training"] is False
+    assert {"meta_lr", "effnet_probe", "effnet_ft", "effnet_probe_no_insight"} <= set(m)
+    assert m["effnet_probe_no_insight"]["test"]["per_type"]["insight"]["seen_in_training"] is False
     assert (out / "test_scores.csv.gz").exists()
     run_dff.main(["robustness", "--work", str(work), "--out", str(out), "--n-per-class", "6"])
     assert set(json.loads((out / "robustness.json").read_text())["conditions"]) == {"clean", "jpeg_q50"}

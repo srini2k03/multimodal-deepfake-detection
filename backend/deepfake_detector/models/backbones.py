@@ -1,8 +1,9 @@
-"""Xception / InceptionV3 / EfficientNet-B0 frame classifiers with two-stage transfer learning.
+"""Xception / InceptionV3 / EfficientNetV2-B0 frame classifiers with two-stage transfer learning.
 
 Every classifier takes images scaled to ``[-1, 1]`` (one input pipeline for all backbones).
-EfficientNet's Keras implementation normalises ``[0, 255]`` input internally, so its
-classifier starts with a fixed rescaling layer.
+EfficientNetV2's Keras implementation normalises ``[0, 255]`` input internally, so its
+classifier starts with a fixed rescaling layer. (The EfficientNet-B0 V1 ImageNet weights URL
+used by Keras returned HTTP 403 in November 2026, so V2-B0 is the supported lightweight backbone.)
 """
 
 from __future__ import annotations
@@ -16,10 +17,10 @@ from keras import layers
 BACKBONES: dict[str, tuple[Callable[..., keras.Model], str]] = {
     "xception": (keras.applications.Xception, "block14_sepconv2_act"),
     "inception_v3": (keras.applications.InceptionV3, "mixed10"),
-    "efficientnet_b0": (keras.applications.EfficientNetB0, "top_activation"),
+    "efficientnetv2_b0": (keras.applications.EfficientNetV2B0, "top_activation"),
 }
-MIN_INPUT = {"xception": 71, "inception_v3": 75, "efficientnet_b0": 32}
-EXPECTS_0_255 = {"efficientnet_b0"}
+MIN_INPUT = {"xception": 71, "inception_v3": 75, "efficientnetv2_b0": 32}
+EXPECTS_0_255 = {"efficientnetv2_b0"}
 
 
 def backbone_layer_name(name: str) -> str:
@@ -33,13 +34,14 @@ def build_backbone(name: str, input_size: int = 299, weights: str | None = "imag
     if input_size < MIN_INPUT[name]:
         raise ValueError(f"{name} requires input_size >= {MIN_INPUT[name]}")
     ctor, _ = BACKBONES[name]
-    return ctor(
-        include_top=False,
-        weights=weights,
-        input_shape=(input_size, input_size, 3),
-        pooling="avg",
-        name=backbone_layer_name(name),
-    )
+    kwargs = {"include_top": False, "weights": weights, "input_shape": (input_size, input_size, 3), "pooling": "avg"}
+    if name in EXPECTS_0_255:
+        # EfficientNetV2 uses its ``name`` argument to look up the block configuration,
+        # so the model is built with the default name and renamed afterwards.
+        model = ctor(**kwargs)
+        model.name = backbone_layer_name(name)
+        return model
+    return ctor(**kwargs, name=backbone_layer_name(name))
 
 
 def build_frame_classifier(
