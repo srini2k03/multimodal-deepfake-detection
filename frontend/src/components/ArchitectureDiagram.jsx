@@ -16,17 +16,17 @@ const WIDE = {
     J: [185, 190, 140, 50, ["sync / async job"], "decision"],
     S: [365, 45, 115, 50, ["Frame sampler", "OpenCV"]],
     FD: [495, 45, 115, 50, ["Face detector", "Haar / DNN SSD"]],
-    AL: [625, 45, 125, 50, ["Align + crop", "eye roll · 299²"]],
-    X: [765, 34, 110, 36, ["Xception"], "model"],
-    I: [765, 82, 110, 36, ["InceptionV3"], "model"],
+    AL: [625, 45, 125, 50, ["Align + crop", "eye roll · 224²"]],
+    X: [765, 34, 110, 36, ["EffNetV2-B0"], "model"],
+    I: [765, 82, 110, 36, ["Xception · IncV3"], "model"],
     GC: [765, 150, 110, 36, ["Grad-CAM"]],
-    E: [885, 35, 135, 80, ["Weighted ensemble", "per-frame P(fake)"]],
+    E: [885, 35, 135, 80, ["Frame scores", "Platt-calibrated"]],
     AG: [885, 135, 135, 55, ["Temporal aggregation", "mean / top-k / attention"]],
     A: [365, 245, 115, 50, ["Audio track", "ffmpeg / wav"]],
     M: [495, 245, 115, 50, ["Log-mel", "spectrogram"]],
-    AC: [625, 245, 125, 50, ["Audio CNN", "per 4 s segment"], "model"],
-    F: [885, 240, 135, 50, ["Late fusion", "weighted / logit"]],
-    R: [480, 352, 400, 40, ["JSON: label · probability · per-model · per-frame · heatmap"], "output"],
+    AC: [625, 245, 125, 50, ["Audio CNN", "ASVspoof-trained"], "model"],
+    F: [885, 240, 135, 50, ["Late fusion", "heuristic, unvalidated"]],
+    R: [480, 352, 400, 40, ["JSON: per-modality scores · per-frame · timings · heatmaps"], "output"],
   },
   edges: [
     [[150, 170, 167, 170, 167, 121, 185, 121]],
@@ -60,17 +60,17 @@ const NARROW = {
     J: [100, 170, 160, 40, ["sync / async job"], "decision"],
     S: [20, 260, 150, 46, ["Frame sampler", "OpenCV"]],
     FD: [20, 326, 150, 46, ["Face detector", "Haar / DNN SSD"]],
-    AL: [20, 392, 150, 46, ["Align + crop", "eye roll · 299²"]],
-    I: [20, 458, 70, 40, ["Inception"], "model"],
-    X: [100, 458, 70, 40, ["Xception"], "model"],
-    E: [20, 518, 150, 46, ["Weighted ensemble", "per-frame P(fake)"]],
+    AL: [20, 392, 150, 46, ["Align + crop", "eye roll · 224²"]],
+    I: [20, 458, 70, 40, ["Xcep/Inc"], "model"],
+    X: [100, 458, 70, 40, ["EffNetV2"], "model"],
+    E: [20, 518, 150, 46, ["Frame scores", "Platt-calibrated"]],
     AG: [20, 584, 150, 46, ["Temporal aggregation", "mean / top-k / attention"]],
     A: [190, 260, 150, 46, ["Audio track", "ffmpeg / wav"]],
     M: [190, 326, 150, 46, ["Log-mel", "spectrogram"]],
-    AC: [190, 392, 150, 46, ["Audio CNN", "per 4 s segment"], "model"],
+    AC: [190, 392, 150, 46, ["Audio CNN", "ASVspoof-trained"], "model"],
     GC: [190, 458, 150, 40, ["Grad-CAM"]],
-    F: [100, 660, 160, 46, ["Late fusion", "weighted / logit"]],
-    R: [60, 780, 240, 56, ["JSON response", "label · probability · per-frame · heatmap"], "output"],
+    F: [100, 660, 160, 46, ["Late fusion", "heuristic, unvalidated"]],
+    R: [60, 780, 240, 56, ["JSON response", "per-modality · per-frame · timings"], "output"],
   },
   edges: [
     [[180, 66, 180, 96]],
@@ -100,8 +100,9 @@ function Diagram({ spec, className, id }) {
     <svg viewBox={spec.viewBox} className={`arch ${className}`} role="img" aria-labelledby={`${id}-title`}>
       <title id={`${id}-title`}>
         System architecture: the React dashboard uploads to the Flask API, which runs frame sampling, face detection,
-        alignment, the Xception and InceptionV3 ensemble, temporal aggregation and an audio CNN, combined by late
-        fusion into a JSON response.
+        alignment, an EfficientNetV2-B0 frame classifier (Xception and InceptionV3 are implemented alternatives),
+        calibration, temporal aggregation and an audio CNN; per-modality scores and an unvalidated heuristic fusion
+        are returned as JSON.
       </title>
       <defs>
         <marker id={`${id}-arrow`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
@@ -159,8 +160,8 @@ export default function ArchitectureDiagram() {
       <Diagram spec={WIDE} className="arch-wide" id="arch-wide" />
       <Diagram spec={NARROW} className="arch-narrow" id="arch-narrow" />
       <figcaption className="muted small">
-        Dashed arrows: Grad-CAM explanation path. Missing modalities are dropped from fusion and the remaining weights
-        renormalised.
+        Dashed arrows: Grad-CAM explanation path. Missing modalities are dropped from fusion (missing audio is never
+        evidence) and the remaining weights renormalised; the fused score has not been evaluated on paired data.
       </figcaption>
     </figure>
   );
