@@ -510,7 +510,7 @@ def main(argv: list[str] | None = None) -> None:
         p.add_argument("--n-per-class", type=int, default=600)
         p.add_argument("--zips", default=None)
     args = parser.parse_args(argv)
-    configure_logging(json_logs=False)
+    configure_logging(json_logs=True)
     cfg = load_config(args.config)
     {"prepare": cmd_prepare, "probe": cmd_probe, "finetune": cmd_finetune, "evaluate": cmd_evaluate,
      "robustness": cmd_robustness, "gradcam": cmd_gradcam, "latency": cmd_latency}[args.cmd](args, cfg)  # fmt: skip

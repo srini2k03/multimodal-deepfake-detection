@@ -89,6 +89,9 @@ api:
   weights_dir: weights
   max_upload_mb: 100
   max_video_seconds: 300
+  max_audio_seconds: 600
+  rate_limit_per_minute: 20 # POST /api/predict per client IP (in-process); 0 disables
+  model_card: model_card.json
   frames_per_video: 16
   frame_aggregation: mean   # mean | median | max | topk_mean | confidence_weighted
   gradcam: true

@@ -28,6 +28,7 @@ from ..config import Config, load_config
 from ..inference.predictor import media_type_for
 from ..utils.logging import configure_logging, request_id_var
 from .jobs import JobManager
+from .ratelimit import RateLimiter
 from .validation import ValidationError, check_content, check_extension
 
 logger = logging.getLogger("deepfake_detector.api")
@@ -103,9 +104,20 @@ def _truthy(value: str | None) -> bool:
     return (value or "").lower() in ("1", "true", "yes", "on")
 
 
+def _client_key() -> str:
+    # request.remote_addr is the socket peer. Put the API behind a proxy that sets it correctly
+    # (e.g. werkzeug ProxyFix) instead of trusting a client-supplied X-Forwarded-For here.
+    return request.remote_addr or "unknown"
+
+
 @bp.post("/predict")
 def predict():
     cfg = _cfg()
+    allowed, retry_after = current_app.extensions["dfd_ratelimit"].check(_client_key())
+    if not allowed:
+        resp, status = error_response(429, "Too many uploads; try again shortly.", retry_after_s=round(retry_after))
+        resp.headers["Retry-After"] = str(max(1, round(retry_after)))
+        return resp, status
     upload = request.files.get("file")
     if upload is None or not upload.filename:
         raise ValidationError("No file uploaded. Send multipart/form-data with a 'file' field.")
@@ -113,7 +125,6 @@ def predict():
     media_type = media_type_for(f"x{ext}")
 
     upload_dir = Path(cfg.api.upload_dir)
-    upload_dir.mkdir(parents=True, exist_ok=True)
     fd, tmp_name = tempfile.mkstemp(suffix=ext, prefix="upload_", dir=upload_dir)
     os.close(fd)
     tmp = Path(tmp_name)
@@ -123,7 +134,7 @@ def predict():
         tmp.unlink(missing_ok=True)
 
     try:
-        meta = check_content(tmp, media_type, cfg.api.max_video_seconds)
+        meta = check_content(tmp, media_type, cfg.api.max_video_seconds, cfg.api.max_audio_seconds)
         detector = _holder().get()
     except Exception:
         cleanup()
@@ -167,6 +178,28 @@ def job_status(job_id: str):
 
 
 # --------------------------------------------------------------------------- factory
+def prepare_upload_dir(path: Path, max_age_s: float) -> int:
+    """Create the private upload directory and delete uploads left behind by a crash.
+
+    Uploads are written by ``tempfile.mkstemp`` with a random name and a whitelisted suffix
+    (the client's file name never becomes a path) and deleted after each request or job.
+    """
+    path.mkdir(parents=True, exist_ok=True)
+    path.chmod(0o700)
+    cutoff = time.time() - max_age_s
+    removed = 0
+    for stale in path.glob("upload_*"):
+        try:
+            if stale.is_file() and stale.stat().st_mtime < cutoff:
+                stale.unlink()
+                removed += 1
+        except OSError:
+            continue
+    if removed:
+        logger.info("removed stale uploads", extra={"n": removed})
+    return removed
+
+
 def create_app(cfg: Config | None = None, detector=None, *, eager: bool = False) -> Flask:
     """Application factory. Pass ``detector`` to inject a (mock) model in tests."""
     cfg = cfg or load_config()
@@ -178,6 +211,8 @@ def create_app(cfg: Config | None = None, detector=None, *, eager: bool = False)
     app.extensions["dfd_config"] = cfg
     app.extensions["dfd_detector"] = DetectorHolder(cfg, detector)
     app.extensions["dfd_jobs"] = JobManager(cfg.api.async_workers, cfg.api.job_ttl_seconds)
+    app.extensions["dfd_ratelimit"] = RateLimiter(cfg.api.rate_limit_per_minute)
+    prepare_upload_dir(Path(cfg.api.upload_dir), cfg.api.job_ttl_seconds)
     app.register_blueprint(bp)
 
     @app.before_request

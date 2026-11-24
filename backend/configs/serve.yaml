@@ -1,0 +1,16 @@
+# Serve the released benchmark models (see docs/BENCHMARKS.md):
+#   python scripts/fetch_weights.py
+#   DFD_CONFIG=configs/serve.yaml gunicorn -c gunicorn.conf.py wsgi:app
+# weights/model_card.json (written by fetch_weights.py) sets audio.trim_silence and the
+# calibration to match the released models.
+face:
+  detector: haar
+  crop_size: 224
+data:
+  image_size: 224
+model:
+  backbones: [efficientnetv2_b0]
+  ensemble_weights: [1.0]
+api:
+  demo_mode: "off"          # fail loudly instead of serving untrained networks
+  frame_aggregation: mean
