@@ -32,8 +32,8 @@ export default function AudioExplanation({ explanation }) {
       )}
       <figcaption className="muted small">
         Clip {explanation.start}–{explanation.end}s (highest score) · {explanation.method}. Time runs left to right,
-        frequency bottom to top. Warm regions raised the spoof score; this shows what the model reacts to (often
-        silence or high-frequency bands), not proof that a region is synthetic.
+        frequency bottom to top. Warm regions raised the spoof score; this shows what the model reacts to (often silence
+        or high-frequency bands), not proof that a region is synthetic.
       </figcaption>
     </figure>
   );

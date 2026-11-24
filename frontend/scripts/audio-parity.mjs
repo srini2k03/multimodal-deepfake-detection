@@ -30,9 +30,7 @@ const result = {
 console.log(JSON.stringify(result));
 if (process.argv[3]) writeFileSync(process.argv[3], JSON.stringify(result, null, 1) + "\n");
 const ok =
-  clips.length === fixture.n_clips &&
-  melDiff <= fixture.tolerance.log_mel &&
-  logitDiff <= fixture.tolerance.logit;
+  clips.length === fixture.n_clips && melDiff <= fixture.tolerance.log_mel && logitDiff <= fixture.tolerance.logit;
 if (!ok) {
   console.error("audio parity FAILED");
   process.exit(1);

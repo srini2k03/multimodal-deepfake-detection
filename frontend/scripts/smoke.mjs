@@ -41,7 +41,10 @@ function wav(seconds = 3, sr = 16000) {
 
 const failures = [];
 const browser = await chromium.launch();
-for (const [theme, width] of [["dark", 1280], ["light", 390]]) {
+for (const [theme, width] of [
+  ["dark", 1280],
+  ["light", 390],
+]) {
   const ctx = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion: "reduce" });
   await ctx.addInitScript((t) => localStorage.setItem("theme", t), theme);
   const page = await ctx.newPage();

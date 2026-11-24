@@ -29,7 +29,8 @@ function Mark({ shape, x, y, color }) {
   if (shape === "square") return <rect x={x - r} y={y - r} width={2 * r} height={2 * r} rx={1.5} fill={color} />;
   if (shape === "diamond")
     return <path d={`M${x} ${y - r - 1}L${x + r + 1} ${y}L${x} ${y + r + 1}L${x - r - 1} ${y}Z`} fill={color} />;
-  if (shape === "triangle") return <path d={`M${x} ${y - r - 1}L${x + r + 1} ${y + r}L${x - r - 1} ${y + r}Z`} fill={color} />;
+  if (shape === "triangle")
+    return <path d={`M${x} ${y - r - 1}L${x + r + 1} ${y + r}L${x - r - 1} ${y + r}Z`} fill={color} />;
   return <circle cx={x} cy={y} r={r} fill={color} />;
 }
 
@@ -120,7 +121,10 @@ export function DotPlot({ title, rows, series, value, domain, format, axisLabel,
           })}
         </svg>
         {tip && (
-          <div className="chart-tip" style={{ left: Math.min(width - 150, Math.max(0, tip.cx - 75)), top: tip.cy + 12 }}>
+          <div
+            className="chart-tip"
+            style={{ left: Math.min(width - 150, Math.max(0, tip.cx - 75)), top: tip.cy + 12 }}
+          >
             {tip.label}
           </div>
         )}
@@ -224,8 +228,12 @@ function AudioBench({ a }) {
       </h3>
       <Stats
         items={[
-          [pct(main.eval_eer, 2), "Eval EER", `${main.label}; lower is better`],
-          [fix(main.eval_min_tdcf, 3), "Eval min t-DCF", "ASVspoof 2019 cost model"],
+          [
+            pct(main.eval_eer, 2),
+            "Served model: eval EER",
+            `silence-trimmed CNN · min t-DCF ${fix(main.eval_min_tdcf, 3)}`,
+          ],
+          [pct(s.cnn?.eval_eer, 2), "Untrimmed CNN: eval EER", "better here, but relies on silence"],
           [pct(s.silence_lr?.eval_eer, 1), "Silence-only baseline EER", "no speech features at all"],
           [pct(itw[AUDIO_MAIN] ?? itw.cnn, 1), "In-the-Wild EER", "cross-dataset, no tuning"],
         ]}
@@ -248,7 +256,7 @@ function AudioBench({ a }) {
             .filter((k) => k in Object.values(a.robustness)[0])
             .map((k) => ({ key: k, label: s[k].label }))}
           value={(row, sys) => a.robustness[row][sys]}
-          domain={[0, 0.6]}
+          domain={[0, 0.8]}
           format={(v) => pct(v, 1)}
           axisLabel="Stratified eval subset; same models, perturbed input."
           refLine={{ value: 0.5, label: "chance" }}
@@ -259,7 +267,13 @@ function AudioBench({ a }) {
   );
 }
 
-const AGG_LABEL = { mean: "mean", median: "median", max: "max", topk_mean: "top-25% mean", confidence_weighted: "confidence-weighted" };
+const AGG_LABEL = {
+  mean: "mean",
+  median: "median",
+  max: "max",
+  topk_mean: "top-25% mean",
+  confidence_weighted: "confidence-weighted",
+};
 
 /** Cross-dataset, video-level table: frame AUC vs sequence AUC under each aggregation. */
 function WildDeepfake({ w }) {
@@ -309,7 +323,11 @@ function WildDeepfake({ w }) {
   );
 }
 
-const TYPE_LABEL = { inpainting: "inpainting (SD)", insight: "face swap (InsightFace)", text2img: "text-to-image (SD)" };
+const TYPE_LABEL = {
+  inpainting: "inpainting (SD)",
+  insight: "face swap (InsightFace)",
+  text2img: "text-to-image (SD)",
+};
 
 function VisualBench({ v }) {
   const s = v.systems;

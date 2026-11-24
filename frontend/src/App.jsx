@@ -259,8 +259,9 @@ export default function App() {
                 Multi-Modal Deepfake <span className="sb-serif">Detector</span>
               </h1>
               <p className="sb-lead subtitle">
-                Face-crop classifier (EfficientNetV2-B0, or the Xception + InceptionV3 ensemble), frame aggregation and an
-                audio CNN. Each modality is scored and calibrated separately; the fused value is an unvalidated heuristic.
+                Face-crop classifier (EfficientNetV2-B0, or the Xception + InceptionV3 ensemble), frame aggregation and
+                an audio CNN. Each modality is scored and calibrated separately; the fused value is an unvalidated
+                heuristic.
               </p>
             </div>
             <div className="header-actions">

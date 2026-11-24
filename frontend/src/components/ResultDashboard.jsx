@@ -53,7 +53,9 @@ function audioNote(audio) {
   if (m?.eval_eer != null) {
     parts.push(
       `ASVspoof 2019 LA eval EER ${(100 * m.eval_eer).toFixed(1)}%` +
-        (m.in_the_wild_eer != null ? `; In-the-Wild EER ${(100 * m.in_the_wild_eer).toFixed(1)}% (out of domain).` : "."),
+        (m.in_the_wild_eer != null
+          ? `; In-the-Wild EER ${(100 * m.in_the_wild_eer).toFixed(1)}% (out of domain).`
+          : "."),
     );
   }
   return parts.join(" ");
@@ -193,7 +195,9 @@ export default function ResultDashboard({ result }) {
           label="Models"
           title={browser && !audioOnlyReal ? "Per-model breakdown (placeholders)" : "Per-model breakdown"}
         >
-          {browser && !audioOnlyReal && <PlaceholderNote>Heuristic values standing in for model outputs.</PlaceholderNote>}
+          {browser && !audioOnlyReal && (
+            <PlaceholderNote>Heuristic values standing in for model outputs.</PlaceholderNote>
+          )}
           <ModelBreakdown result={result} />
         </ResultCard>
       </div>
@@ -221,8 +225,8 @@ export default function ResultDashboard({ result }) {
             aside={<span className="sb-pill sb-pill--pending">Grad-CAM needs trained weights</span>}
           >
             <PlaceholderNote>
-              These crops are what Xception and InceptionV3 would score. Grad-CAM needs the trained models, so it is
-              only available from the Python backend.
+              These are the crops the face classifier scores in the Python backend (EfficientNetV2-B0, resized to
+              224×224). No face classifier runs in the browser, so Grad-CAM is only available from the backend.
             </PlaceholderNote>
             <CropGallery samples={result.browser.samples} />
           </ResultCard>
@@ -246,14 +250,8 @@ export default function ResultDashboard({ result }) {
             {browser && !audioReal && (
               <PlaceholderNote>Decoding and 4 s segmentation are real; bar heights are loudness only.</PlaceholderNote>
             )}
-            {audioReal && (
-              <p className="sb-small model-note">{audioNote(audio)}</p>
-            )}
-            <AudioSegments
-              segments={audio.segments}
-              threshold={result.threshold}
-              placeholder={browser && !audioReal}
-            />
+            {audioReal && <p className="sb-small model-note">{audioNote(audio)}</p>}
+            <AudioSegments segments={audio.segments} threshold={result.threshold} placeholder={browser && !audioReal} />
             {audio.explanation && <AudioExplanation explanation={audio.explanation} />}
           </ResultCard>
         )}

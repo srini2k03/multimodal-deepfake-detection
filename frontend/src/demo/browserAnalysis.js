@@ -109,12 +109,9 @@ function centreCrop(src) {
 
 /** Placeholder scores from simple pixel statistics of the crop. Not a classifier. */
 function heuristicScores(crop) {
-  const { data, width, height } = crop.getContext("2d", { willReadFrequently: true }).getImageData(
-    0,
-    0,
-    crop.width,
-    crop.height,
-  );
+  const { data, width, height } = crop
+    .getContext("2d", { willReadFrequently: true })
+    .getImageData(0, 0, crop.width, crop.height);
   const gray = new Float32Array(width * height);
   let sat = 0;
   for (let i = 0, p = 0; i < data.length; i += 4, p++) {
@@ -244,7 +241,11 @@ async function sampleVideo(file, n, onProgress, signal) {
       abortable(signal);
       const t = ((i + 0.5) * duration) / n;
       await seek(video, Math.min(t, Math.max(0, duration - 0.001)));
-      frames.push({ index: i, timestamp: round(t, 3), canvas: toCanvas(video, video.videoWidth, video.videoHeight, 960) });
+      frames.push({
+        index: i,
+        timestamp: round(t, 3),
+        canvas: toCanvas(video, video.videoWidth, video.videoHeight, 960),
+      });
       onProgress?.((i + 1) / n);
     }
     return { frames, duration: round(duration, 2), width: video.videoWidth, height: video.videoHeight };

@@ -101,8 +101,8 @@ function Diagram({ spec, className, id }) {
       <title id={`${id}-title`}>
         System architecture: the React dashboard uploads to the Flask API, which runs frame sampling, face detection,
         alignment, an EfficientNetV2-B0 frame classifier (Xception and InceptionV3 are implemented alternatives),
-        calibration, temporal aggregation and an audio CNN; per-modality scores and an unvalidated heuristic fusion
-        are returned as JSON.
+        calibration, temporal aggregation and an audio CNN; per-modality scores and an unvalidated heuristic fusion are
+        returned as JSON.
       </title>
       <defs>
         <marker id={`${id}-arrow`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">

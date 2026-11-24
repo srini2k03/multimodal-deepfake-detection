@@ -76,7 +76,7 @@ const ENDPOINTS = [
 // Facts from the repository: the test count is the number of `def test_` functions in backend/tests
 // (pytest collects a few more cases through parametrisation); benchmark numbers come from
 // src/data/benchmarks.json (built from committed results by backend/scripts/make_report.py).
-const TEST_FUNCTIONS = "100";
+const TEST_FUNCTIONS = "96";
 const fmtPct = (v) => `${(100 * v).toFixed(1)}%`;
 const audioMain = benchmarkData.audio?.systems?.cnn_trim || benchmarkData.audio?.systems?.cnn;
 const visualMain = benchmarkData.visual?.systems?.effnet_ft || benchmarkData.visual?.systems?.effnet_probe;
@@ -141,9 +141,9 @@ export function Hero() {
           Multi-Modal Deepfake <span className="sb-serif">Detection</span>
         </h1>
         <p className="sb-lead hero-lead">
-          Face and voice manipulation detectors trained and evaluated on lawfully available public data, with
-          speaker- and identity-disjoint splits, unseen-attack tests, robustness and calibration measurements, a Flask API
-          and this dashboard. Every score is a probabilistic model assessment, not a verdict.
+          Face and voice manipulation detectors trained and evaluated on lawfully available public data, with speaker-
+          and identity-disjoint splits, unseen-attack tests, robustness and calibration measurements, a Flask API and
+          this dashboard. Every score is a probabilistic model assessment, not a verdict.
         </p>
         <div className="sb-hero__meta">
           <span className={`sb-pill${TRAINED_AUDIO ? "" : " sb-pill--pending"}`}>
@@ -277,7 +277,12 @@ export default function Overview() {
                 <i>FaceForensics++: Learning to Detect Manipulated Facial Images</i>, ICCV 2019. These come from the
                 paper; this repository did not produce them, because FaceForensics++ requires an access request.
               </p>
-              <div className="sb-table-wrap table-wrap" tabIndex={0} role="region" aria-label="Published benchmark table">
+              <div
+                className="sb-table-wrap table-wrap"
+                tabIndex={0}
+                role="region"
+                aria-label="Published benchmark table"
+              >
                 <table className="sb-table stack-sm">
                   <thead>
                     <tr>

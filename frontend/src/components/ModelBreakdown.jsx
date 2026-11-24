@@ -8,7 +8,13 @@ function Bar({ name, probability, meta, threshold, placeholder }) {
         <span className="bar-value">{(probability * 100).toFixed(1)}%</span>
       </div>
       <div className="bar-track">
-        <div className="bar-fill" style={{ width: `${probability * 100}%`, background: placeholder ? "var(--neutral)" : riskColor(probability) }} />
+        <div
+          className="bar-fill"
+          style={{
+            width: `${probability * 100}%`,
+            background: placeholder ? "var(--neutral)" : riskColor(probability),
+          }}
+        />
         {!placeholder && <div className="bar-threshold" style={{ left: `${threshold * 100}%` }} />}
       </div>
       {meta && <div className="bar-meta">{meta}</div>}
@@ -48,14 +54,21 @@ export default function ModelBreakdown({ result }) {
             />
           ))}
           {visual.temporal_probability != null && (
-            <Bar name="temporal head" probability={visual.temporal_probability} threshold={t} meta="attention pooling" />
+            <Bar
+              name="temporal head"
+              probability={visual.temporal_probability}
+              threshold={t}
+              meta="attention pooling"
+            />
           )}
           <Bar
             name={placeholder ? "visual (mean of placeholders)" : "visual (ensemble)"}
             probability={visual.probability}
             threshold={t}
             placeholder={placeholder}
-            meta={`aggregation: ${visual.aggregation} over ${visual.faces_detected}/${visual.frames_analyzed} face frames`}
+            meta={`aggregation: ${visual.aggregation} over ${visual.faces_detected}/${visual.frames_analyzed} face frames${
+              visual.calibrated ? " · calibrated (per-model bars are raw)" : ""
+            }`}
           />
         </>
       )}
