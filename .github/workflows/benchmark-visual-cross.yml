@@ -7,13 +7,15 @@ name: Benchmark visual cross-dataset (WildDeepfake)
 on:
   workflow_dispatch:
     inputs:
-      release_tag:
-        default: "visual-dff-v1"
+      weights_run:
+        description: "publish-results run ID with the released-weights-visual artifact"
+        required: true
       frames_per_sequence:
         default: "16"
 
 permissions:
   contents: write
+  actions: read
 
 concurrency:
   group: benchmark-visual-cross
@@ -47,7 +49,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p "$RUNNER_TEMP/models" "$RUNNER_TEMP/wdf"
-          gh release download "${{ inputs.release_tag }}" -p "effnet_ft_model.keras" -p "effnet_ft_eq96_model.keras" -D "$RUNNER_TEMP/models"
+          gh run download "${{ inputs.weights_run }}" -n released-weights-visual -D "$RUNNER_TEMP/models"
+          ls -la "$RUNNER_TEMP/models"
           python - "$RUNNER_TEMP/wdf" <<'PY'
           import json, sys, urllib.request
           base = "https://huggingface.co/api/datasets/xingjunm/WildDeepfake/tree/main/deepfake_in_the_wild/"

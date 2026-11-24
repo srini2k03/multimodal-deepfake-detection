@@ -147,9 +147,10 @@ jobs:
           path: |
             ${{ env.OUT }}
             ${{ runner.temp }}/release
-          retention-days: 14
-      - name: Publish release assets
+          retention-days: 90
+      - name: Publish release assets (best effort, the workflow token may not create releases here)
         if: inputs.publish
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

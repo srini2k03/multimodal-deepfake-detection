@@ -1,0 +1,109 @@
+name: Publish benchmark results
+
+# Commits the results of a finished benchmark run from its workflow artifact. Creating GitHub
+# releases with the workflow token is refused in this repository (HTTP 403), so the benchmark
+# jobs could not attach their models to a release or commit afterwards. This workflow:
+#   1. downloads the run's artifact (results JSON + model files),
+#   2. commits the results under results/,
+#   3. for audio: exports the browser model of `audio_system`, checks JS/Python parity and
+#      commits it to frontend/public/models/audio (0.6 MB, next to the BlazeFace model),
+#   4. re-uploads the model files as a 90-day artifact named released-weights-<kind>,
+#   5. tries to create/update the release (best effort).
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "Benchmark workflow run ID"
+        required: true
+      kind:
+        description: "audio or visual"
+        required: true
+      audio_system:
+        default: "cnn_trim"
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: publish-results
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TF_CPP_MIN_LOG_LEVEL: "3"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download the run's artifact
+        run: |
+          kind="${{ inputs.kind }}"
+          name=$([ "$kind" = "audio" ] && echo asvspoof-results || echo dff-results)
+          gh run download "${{ inputs.run_id }}" -n "$name" -D "$RUNNER_TEMP/art"
+          find "$RUNNER_TEMP/art" -maxdepth 6 -type d | head -20
+          res=$(dirname "$(find "$RUNNER_TEMP/art" -name metrics.json | head -1)")
+          rel=$(find "$RUNNER_TEMP/art" -type d -name release | head -1)
+          echo "RES=$res" >> "$GITHUB_ENV"; echo "REL=$rel" >> "$GITHUB_ENV"
+          ls -la "$res" "$rel"
+      - name: Copy results into the repository
+        run: |
+          dest=$([ "${{ inputs.kind }}" = "audio" ] && echo results/audio/asvspoof2019_la || echo results/visual/dff)
+          mkdir -p "$dest" && cp -r "$RES"/. "$dest"/
+          echo "DEST=$dest" >> "$GITHUB_ENV"
+          ls -la "$dest"
+      - uses: actions/setup-python@v5
+        if: inputs.kind == 'audio'
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/requirements-bench.txt
+      - uses: actions/setup-node@v4
+        if: inputs.kind == 'audio'
+        with:
+          node-version: "20"
+      - name: Export the browser audio model and check parity
+        if: inputs.kind == 'audio'
+        run: |
+          pip install -q -r backend/requirements-bench.txt && pip install -q --no-deps -e backend
+          sys="${{ inputs.audio_system }}"; trim=false; [ "$sys" = "cnn_trim" ] && trim=true
+          out=frontend/public/models/audio
+          python backend/scripts/export_audio_web.py --model "$REL/$sys.keras" --out "$out" --trim-silence "$trim" \
+            --meta "$DEST/metrics.json" --system "$sys" --release "run-${{ inputs.run_id }}"
+          node frontend/scripts/audio-parity.mjs "$out" "$RUNNER_TEMP/parity.json"
+          python - "$out" "$RUNNER_TEMP/parity.json" <<'PY'
+          import json, os, sys
+          from pathlib import Path
+          m = json.loads((Path(sys.argv[1]) / "audio_cnn.json").read_text())
+          out = {"system": "${{ inputs.audio_system }}", "source_run_id": "${{ inputs.run_id }}",
+                 "export_run_id": os.environ["GITHUB_RUN_ID"], "git_sha": os.environ["GITHUB_SHA"],
+                 "weights_sha256": m["weights_sha256"], "source_model_sha256": m["source_model_sha256"],
+                 "fold_check_max_abs_logit_diff": m["fold_check_max_abs_logit_diff"],
+                 "node_parity": json.loads(Path(sys.argv[2]).read_text())}
+          Path(os.environ["DEST"], "browser_parity.json").write_text(json.dumps(out, indent=1) + "\n")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: released-weights-${{ inputs.kind }}
+          path: ${{ env.REL }}
+          retention-days: 90
+      - name: Try to publish a release (best effort)
+        continue-on-error: true
+        run: |
+          tag=$([ "${{ inputs.kind }}" = "audio" ] && echo audio-asvspoof2019-v1 || echo visual-dff-v1)
+          gh release view "$tag" > /dev/null 2>&1 && gh release upload "$tag" "$REL"/* --clobber \
+            || gh release create "$tag" "$REL"/* --title "$tag" --notes "Models from benchmark run ${{ inputs.run_id }}" --target "$GITHUB_SHA"
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$DEST" frontend/public/models/audio 2>/dev/null || git add "$DEST"
+          git commit -q -m "Publish ${{ inputs.kind }} benchmark results (run ${{ inputs.run_id }})" || exit 0
+          for i in 1 2 3 4 5; do
+            git pull --rebase -q origin main && git push -q origin HEAD:main && exit 0
+            sleep $((i * 15))
+          done
+          exit 1
