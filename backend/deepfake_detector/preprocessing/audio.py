@@ -177,7 +177,11 @@ def silence_profile(signal: np.ndarray, sample_rate: int, top_db: float = 40.0) 
 
 
 def trim_silence(signal: np.ndarray, sample_rate: int, top_db: float = 40.0) -> np.ndarray:
-    """Remove leading and trailing frames more than ``top_db`` below the loudest frame."""
+    """Remove leading and trailing frames more than ``top_db`` below the loudest frame.
+
+    Resolution is the 10 ms hop: samples after the last full 25 ms frame (under 25 ms) are dropped
+    even when that frame is loud. The trained models and the browser port use exactly this rule.
+    """
     prof = silence_profile(signal, sample_rate, top_db)
     start = int(prof["lead_silence_s"] * sample_rate)
     end = signal.size - int(prof["trail_silence_s"] * sample_rate)

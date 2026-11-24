@@ -58,3 +58,34 @@ def test_wav_roundtrip(wav_file):
     assert sig.size == pytest.approx(2.5 * 16000, abs=1)
     assert 0.35 < np.abs(sig).max() <= 0.41
     assert load_audio(wav_file, 8000).size == pytest.approx(2.5 * 8000, abs=1)
+
+
+def test_silence_profile_trim_and_padding():
+    from deepfake_detector.preprocessing.audio import fix_length, silence_profile, trim_silence
+
+    sr = 16000
+    tone = (0.3 * np.sin(2 * np.pi * 300 * np.arange(sr) / sr)).astype(np.float32)
+    x = np.r_[np.zeros(sr // 2, np.float32), tone, np.zeros(sr // 4, np.float32)]
+    prof = silence_profile(x, sr)
+    assert prof["lead_silence_s"] == pytest.approx(0.5, abs=0.03)
+    assert prof["trail_silence_s"] == pytest.approx(0.25, abs=0.03)
+    assert trim_silence(x, sr).size == pytest.approx(sr, abs=0.05 * sr)
+    silent = np.zeros(sr, np.float32)
+    # nothing is 40 dB below the peak, so at most the partial last frame (< 25 ms) is dropped
+    assert sr - 400 <= trim_silence(silent, sr).size <= sr
+    short = np.array([1, 2, 3], np.float32)
+    assert fix_length(short, 7).tolist() == [1, 2, 3, 1, 2, 3, 1]
+    assert fix_length(short, 5, "zero").tolist() == [1, 2, 3, 0, 0]
+    assert fix_length(np.arange(10, dtype=np.float32), 4).tolist() == [0, 1, 2, 3]
+    with pytest.raises(ValueError):
+        fix_length(short, 5, "mirror")
+
+
+def test_trim_setting_changes_features():
+    from deepfake_detector.preprocessing.audio import clip_features
+
+    sr = 16000
+    x = np.r_[np.zeros(sr, np.float32), (0.3 * np.sin(2 * np.pi * 300 * np.arange(sr) / sr)).astype(np.float32)]
+    raw = clip_features(x, AudioConfig(clip_seconds=1.0))
+    trimmed = clip_features(x, AudioConfig(clip_seconds=1.0, trim_silence=True))
+    assert raw.shape == trimmed.shape and not np.allclose(raw, trimmed)
