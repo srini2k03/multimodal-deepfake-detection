@@ -90,17 +90,20 @@ def dot_plot(
                    edgecolors="#ffffff", linewidths=1.2)  # fmt: skip
     if ref is not None:
         ax.axvline(ref, color=MUTED, linewidth=1, linestyle=(0, (3, 3)), zorder=2)
-        ax.text(ref, len(rows) - 0.4, f" {ref_label}", color=MUTED, fontsize=8, va="bottom")
+        ax.text(ref, -0.75, f" {ref_label}", color=MUTED, fontsize=8, va="bottom")
     ax.set_yticks(range(len(rows)), rows)
-    ax.invert_yaxis()
     ax.grid(axis="y", visible=False)
     ax.tick_params(axis="y", length=0)
     if xlim:
         ax.set_xlim(*xlim)
     ax.set_xlabel(xlabel)
     ax.set_title(title, loc="left")
-    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.18 - 0.6 / height), ncol=min(n, 3), fontsize=8.5)
-    fig.tight_layout()
+    ax.set_ylim(len(rows) - 0.5, -1.0)
+    legend_rows = 0
+    if n > 1:  # a single series is named by the title
+        legend_rows = (n + 1) // 2
+        fig.legend(loc="lower center", ncol=2, fontsize=8.5, bbox_to_anchor=(0.5, 0.0))
+    fig.tight_layout(rect=(0, 0.28 * legend_rows / height, 1, 1))
     path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=160)
     plt.close(fig)
