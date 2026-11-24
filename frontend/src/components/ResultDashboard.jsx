@@ -39,6 +39,25 @@ function ResultCard({ label, title, aside, className = "", children }) {
   );
 }
 
+function audioNote(audio) {
+  const seg = audio.segments[0];
+  const clip = seg ? Math.round((seg.end - seg.start) * 10) / 10 : null;
+  const parts = [
+    `Probability per ${clip ?? "fixed-length"} s clip from the audio CNN` +
+      (audio.silence_trimmed ? ", after trimming leading and trailing silence" : "") +
+      (audio.truncated ? `; only the first ${audio.analysed_seconds} s were analysed` : "") +
+      ".",
+  ];
+  const m = audio.model;
+  if (m?.eval_eer != null) {
+    parts.push(
+      `ASVspoof 2019 LA eval EER ${(100 * m.eval_eer).toFixed(1)}%` +
+        (m.in_the_wild_eer != null ? `; In-the-Wild EER ${(100 * m.in_the_wild_eer).toFixed(1)}% (out of domain).` : "."),
+    );
+  }
+  return parts.join(" ");
+}
+
 function stripImages(result) {
   const out = { ...result, gradcam: result.gradcam ? "[base64 images omitted]" : null };
   if (result.browser) {
@@ -55,6 +74,8 @@ export default function ResultDashboard({ result }) {
   const audio = result.modalities.audio;
   const frames = visual?.frames || [];
   const browser = result.mode === "browser-demo";
+  const audioReal = audio?.status === "trained";
+  const audioOnlyReal = browser && audioReal && !visual;
 
   return (
     <section className="dashboard" aria-label="Analysis results">
@@ -64,7 +85,12 @@ export default function ResultDashboard({ result }) {
             <AlertIcon size={18} />
           </span>
           <p className="callout-body">
-            <strong>Browser demo: placeholder scores, not a deepfake verdict.</strong> {result.warning}{" "}
+            <strong>
+              {audioOnlyReal
+                ? "Browser demo: the audio score below is real model output; no face model runs here."
+                : "Browser demo: placeholder visual scores, not a deepfake verdict."}
+            </strong>{" "}
+            {audioOnlyReal ? audio.note : result.warning}{" "}
             <a href={SETUP_URL} target="_blank" rel="noreferrer">
               Set up the backend
             </a>
@@ -99,15 +125,28 @@ export default function ResultDashboard({ result }) {
       )}
 
       <div className="grid-2">
-        <ResultCard label="Score" title={browser ? "Overall placeholder score" : "Verdict"}>
-          {browser && (
-            <PlaceholderNote>Mean of pixel and loudness heuristics. Not a probability of manipulation.</PlaceholderNote>
+        <ResultCard
+          label="Score"
+          title={audioOnlyReal ? "Audio model assessment" : browser ? "Overall placeholder score" : "Model assessment"}
+        >
+          {browser && !audioOnlyReal && (
+            <PlaceholderNote>
+              {audioReal
+                ? "Mean of the pixel heuristics only; the real audio score is reported separately below."
+                : "Mean of pixel and loudness heuristics. Not a probability of manipulation."}
+            </PlaceholderNote>
+          )}
+          {audioOnlyReal && (
+            <p className="sb-small model-note">
+              Calibrated probability from the audio CNN trained on ASVspoof 2019 LA, computed in your browser. A
+              probabilistic assessment, not proof.
+            </p>
           )}
           <ProbabilityGauge
             probability={result.probability_fake}
             threshold={result.threshold}
             label={result.label}
-            placeholder={browser}
+            placeholder={browser && !audioOnlyReal}
           />
           <dl className="facts">
             <dt>File</dt>
@@ -123,14 +162,23 @@ export default function ResultDashboard({ result }) {
               </>
             )}
             <dt>Model mode</dt>
-            <dd>{browser ? "browser demo (no models run)" : result.mode}</dd>
+            <dd>
+              {browser
+                ? audioReal
+                  ? "browser demo (audio CNN runs here; visual placeholders)"
+                  : "browser demo (no models run)"
+                : result.mode}
+            </dd>
             <dt>Processing</dt>
             <dd>{(result.processing_ms / 1000).toFixed(2)}s</dd>
           </dl>
         </ResultCard>
 
-        <ResultCard label="Models" title={browser ? "Per-model breakdown (placeholders)" : "Per-model breakdown"}>
-          {browser && <PlaceholderNote>Heuristic values standing in for model outputs.</PlaceholderNote>}
+        <ResultCard
+          label="Models"
+          title={browser && !audioOnlyReal ? "Per-model breakdown (placeholders)" : "Per-model breakdown"}
+        >
+          {browser && !audioOnlyReal && <PlaceholderNote>Heuristic values standing in for model outputs.</PlaceholderNote>}
           <ModelBreakdown result={result} />
         </ResultCard>
       </div>
@@ -172,13 +220,25 @@ export default function ResultDashboard({ result }) {
         {audio?.available && (
           <ResultCard
             label="Audio"
-            title={browser ? "Audio segments (placeholder scores)" : "Audio segments"}
+            title={
+              browser && !audioReal
+                ? "Audio segments (placeholder scores)"
+                : `Audio segments${audio.calibrated ? " (calibrated)" : ""}`
+            }
+            aside={audioReal && browser ? <span className="sb-pill pill-real">trained model</span> : null}
             className="sb-card--chart"
           >
-            {browser && (
+            {browser && !audioReal && (
               <PlaceholderNote>Decoding and 4 s segmentation are real; bar heights are loudness only.</PlaceholderNote>
             )}
-            <AudioSegments segments={audio.segments} threshold={result.threshold} placeholder={browser} />
+            {audioReal && (
+              <p className="sb-small model-note">{audioNote(audio)}</p>
+            )}
+            <AudioSegments
+              segments={audio.segments}
+              threshold={result.threshold}
+              placeholder={browser && !audioReal}
+            />
           </ResultCard>
         )}
       </div>

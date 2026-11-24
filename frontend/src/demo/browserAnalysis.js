@@ -5,12 +5,16 @@
  * detection (MediaPipe BlazeFace), eye-based roll alignment, square margin crops at 299x299,
  * centre-crop fallback, audio decoding and 4 s segmentation, and late-fusion arithmetic.
  *
- * What is NOT real: the scores. No Xception, InceptionV3, temporal or audio network runs here.
- * Each "score" is a squashed pixel or loudness statistic, used only so the dashboard has
- * numbers to plot. They carry no information about manipulation.
+ * What is NOT real: the visual scores. No face classifier runs here; each visual "score" is a
+ * squashed pixel statistic, used only so the dashboard has numbers to plot.
+ *
+ * Audio: when the exported audio CNN is deployed (public/models/audio, see AUDIO_MODEL_URL) the
+ * audio score is real model output computed in the browser; otherwise it is a loudness placeholder.
+ * A real audio score is never averaged with placeholder visual scores.
  */
 import { mediaTypeOf } from "../api.js";
-import { BROWSER_WARNING, PIPELINE } from "./config.js";
+import { calibrate, loadAudioModel, scoreWaveformAsync, sigmoid as sig } from "./audioModel.js";
+import { AUDIO_MODEL_NOTE, AUDIO_MODEL_URL, BROWSER_AUDIO_MAX_SECONDS, BROWSER_WARNING, PIPELINE } from "./config.js";
 import { DETECTOR_NAME, detectFaces } from "./faceDetector.js";
 
 export const HEURISTICS = {
@@ -264,8 +268,50 @@ async function loadImage(file) {
   return { canvas, info };
 }
 
-/** Decode, mix to mono 16 kHz, split into 4 s clips and attach a loudness placeholder per clip. */
-async function analyseAudio(file) {
+let audioModelPromise = null;
+/** Load the exported audio CNN once; resolves to null when it is not deployed. */
+export function getAudioModel() {
+  if (!audioModelPromise) audioModelPromise = loadAudioModel(AUDIO_MODEL_URL).catch(() => null);
+  return audioModelPromise;
+}
+
+async function scoreWithModel(model, mono, sr, onProgress, signal) {
+  const limit = BROWSER_AUDIO_MAX_SECONDS * sr;
+  const x = mono.length > limit ? mono.subarray(0, limit) : mono;
+  const clips = await scoreWaveformAsync(model, x, { onClip: (i, n) => onProgress?.(i / n), signal });
+  if (!clips.length) return { available: false, reason: "audio too short to analyse" };
+  const meanLogit = mean(clips.map((c) => c.logit));
+  const b = model.manifest.benchmark || {};
+  return {
+    available: true,
+    probability: round(calibrate(model, meanLogit), 5),
+    raw_probability: round(sig(meanLogit), 5),
+    calibrated: Boolean(b.platt),
+    duration: round(mono.length / sr, 2),
+    analysed_seconds: round(x.length / sr, 2),
+    truncated: x.length < mono.length,
+    silence_trimmed: Boolean(model.cfg.trim_silence),
+    segments: clips.map((c) => ({
+      start: round(c.start, 2),
+      end: round(c.end, 2),
+      probability: round(calibrate(model, c.logit), 5),
+      raw_probability: round(sig(c.logit), 5),
+    })),
+    status: "trained",
+    model: {
+      name: "Audio CNN (ASVspoof 2019 LA)",
+      system: b.system,
+      eval_eer: b.eval_eer,
+      in_the_wild_eer: b.in_the_wild_eer,
+      run_id: b.run_id,
+      release: b.release,
+    },
+    note: AUDIO_MODEL_NOTE,
+  };
+}
+
+/** Decode, mix to mono 16 kHz, then score with the trained audio CNN or a loudness placeholder. */
+async function analyseAudio(file, { onProgress, signal } = {}) {
   const Offline = window.OfflineAudioContext || window.webkitOfflineAudioContext;
   if (!Offline) return { available: false, reason: "Web Audio is not available in this browser" };
   let buffer;
@@ -295,6 +341,8 @@ async function analyseAudio(file) {
   if (!segments.length || total / mono.length < 1e-8) {
     return { available: false, reason: "audio track is silent" };
   }
+  const model = await getAudioModel();
+  if (model && sr === model.cfg.sample_rate) return scoreWithModel(model, mono, sr, onProgress, signal);
   return {
     available: true,
     probability: round(mean(segments.map((s) => s.probability)), 5),
@@ -355,7 +403,11 @@ export async function analyseInBrowser(file, { onStage, onProgress, signal } = {
     onProgress?.(mediaType === "video" ? 0.5 + ((i + 1) / frames.length) * 0.45 : (i + 1) / frames.length);
   }
 
-  const audio = mediaType === "image" ? null : await analyseAudio(file);
+  const audioStart = mediaType === "video" ? 0.95 : 0;
+  const audio =
+    mediaType === "image"
+      ? null
+      : await analyseAudio(file, { onProgress: (p) => onProgress?.(audioStart + p * (1 - audioStart)), signal });
   if (mediaType === "audio" && !audio.available) {
     throw new Error(`Audio could not be analysed: ${audio.reason}.`);
   }
@@ -391,17 +443,22 @@ export async function analyseInBrowser(file, { onStage, onProgress, signal } = {
     num += PIPELINE.visualWeight * visual.probability;
     den += PIPELINE.visualWeight;
   }
-  if (audio?.available) {
+  const audioReal = audio?.status === "trained";
+  // Never average a real model score with placeholder heuristics: with a placeholder visual branch
+  // the overall number is the visual placeholder alone, and the real audio score is shown on its own.
+  if (audio?.available && (!visual || !audioReal)) {
     used.push("audio");
     num += PIPELINE.audioWeight * audio.probability;
     den += PIPELINE.audioWeight;
   }
 
+  const audioOnlyReal = audioReal && !visual;
   return {
     media_type: mediaType,
     mode: "browser-demo",
+    audio_model: audioReal ? "trained" : "placeholder",
     warning: BROWSER_WARNING,
-    label: null,
+    label: audioOnlyReal ? (audio.probability >= PIPELINE.threshold ? "FAKE" : "REAL") : null,
     probability_fake: round(num / den, 5),
     threshold: PIPELINE.threshold,
     modalities: {
@@ -412,6 +469,11 @@ export async function analyseInBrowser(file, { onStage, onProgress, signal } = {
       method: "weighted",
       weights: { visual: PIPELINE.visualWeight, audio: PIPELINE.audioWeight },
       used,
+      validated: false,
+      note:
+        audioReal && visual
+          ? "The real audio score is not fused with placeholder visual scores; it is reported on its own."
+          : "Fusion weights are a heuristic and have not been evaluated on paired audio-visual data.",
     },
     gradcam: null,
     processing_ms: round(performance.now() - started, 1),

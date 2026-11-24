@@ -17,6 +17,18 @@
   /* Extra chart series beyond the kit's --series-1 / --series-2. */
   --series-3: var(--blue);
   --series-4: var(--rose);
+  /* Benchmark charts: categorical order validated (lightness band, chroma, CVD separation,
+     contrast) against each theme's chart surface; dark steps are chosen, not flipped. */
+  --chart-1: #0f9e6a;
+  --chart-2: #e0662f;
+  --chart-3: #2f5bd3;
+  --chart-4: #c23a5c;
+}
+:root[data-theme="dark"] {
+  --chart-1: #1ea372;
+  --chart-2: #d96a33;
+  --chart-3: #5b86e8;
+  --chart-4: #e0607f;
 }
 
 /* ---------------------------------------------------------------- shell */
@@ -1305,4 +1317,126 @@ pre code,
   display: flex;
   align-items: center;
   gap: 0.6rem;
+}
+
+/* ---------------------------------------------------------------- measured benchmarks */
+.bench {
+  display: grid;
+  gap: 1.25rem;
+}
+.bench-card .sb-h3 {
+  margin: 0.25rem 0 1rem;
+}
+.bench-stats {
+  margin-bottom: 1.5rem;
+}
+.bench-stats .sb-stat__value {
+  font-size: clamp(1.35rem, 2.6vw, 1.75rem);
+}
+.dotplot {
+  margin: 0 0 1.5rem;
+}
+.dotplot-title {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 14px;
+}
+.legend-mark {
+  margin-right: 0.35rem;
+  vertical-align: -1px;
+}
+.dotplot-canvas {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+.dotplot-canvas svg {
+  display: block;
+}
+.chart-grid {
+  stroke: var(--chart-grid);
+  stroke-width: 1;
+}
+.chart-ref {
+  stroke: var(--muted);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+.chart-tick {
+  fill: var(--muted);
+  font: 400 10.5px/1 var(--font-mono);
+}
+.chart-row-label {
+  fill: var(--fg-soft);
+  font-size: 12px;
+}
+.chart-point {
+  cursor: default;
+  outline: none;
+}
+.chart-point:focus-visible circle:first-child {
+  stroke: var(--fg);
+  stroke-width: 1.5;
+}
+.chart-point path,
+.chart-point rect,
+.chart-point circle:last-child {
+  stroke: var(--bg-elev);
+  stroke-width: 1.5;
+}
+.chart-tip {
+  position: absolute;
+  z-index: 2;
+  width: 150px;
+  padding: 0.4rem 0.55rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--bg-elev);
+  box-shadow: 0 6px 20px -8px rgba(0, 0, 0, 0.35);
+  font-size: 12px;
+  line-height: 1.35;
+  pointer-events: none;
+}
+.chart-axis {
+  margin: 0.35rem 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.chart-table {
+  margin-top: 0.5rem;
+  font-size: 12.5px;
+}
+.chart-table summary {
+  cursor: pointer;
+  color: var(--fg-soft);
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+}
+.chart-table .sb-table {
+  min-width: 26rem;
+}
+.provenance {
+  line-height: 1.7;
+}
+.provenance a {
+  color: var(--fg-soft);
+}
+.fusion-note a {
+  color: var(--fg);
+}
+.published-ref summary {
+  cursor: pointer;
+  font-weight: 600;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+}
+.model-note {
+  margin: 0 0 0.75rem;
+  color: var(--fg-soft);
+  line-height: 1.55;
+}
+.result-card .audio-svg {
+  max-height: 300px;
 }

@@ -314,3 +314,31 @@ export function scoreWaveform(model, signal, { onClip } = {}) {
   });
   return clips;
 }
+
+/** Same as scoreWaveform but yields to the event loop between clips so the page stays responsive. */
+export async function scoreWaveformAsync(model, signal, { onClip, signal: abort } = {}) {
+  const cfg = model.cfg;
+  const x = cfg.trim_silence ? trimSilence(signal, cfg.sample_rate, cfg.trim_top_db) : signal;
+  const segs = segment(x, cfg);
+  const clips = [];
+  for (let i = 0; i < segs.length; i++) {
+    if (abort?.aborted) throw new DOMException("Aborted", "AbortError");
+    await new Promise((r) => setTimeout(r, 0));
+    const mel = logMel(segs[i].samples, cfg, model.filterbank);
+    const logit = forward(model, mel);
+    clips.push({ start: segs[i].start, end: segs[i].end, logit });
+    onClip?.(i + 1, segs.length);
+  }
+  return clips;
+}
+
+/**
+ * Platt scaling fitted on the ASVspoof dev split, re-weighted to equal class priors (dev is 90 %
+ * spoofed, so the raw calibrated value would lean towards "fake"). Falls back to the raw sigmoid.
+ */
+export function calibrate(model, logit) {
+  const b = model.manifest.benchmark;
+  if (!b?.platt) return sigmoid(logit);
+  const prior = b.prior_fake ?? 0.5;
+  return sigmoid(b.platt.a * logit + b.platt.b - Math.log(prior / (1 - prior)));
+}
