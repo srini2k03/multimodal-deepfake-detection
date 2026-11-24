@@ -1,5 +1,5 @@
 {
- "checked_at": "2026-11-24T09:11:21+00:00",
+ "checked_at": "2026-11-24T09:20:36+00:00",
  "asvspoof2019_datashare": {
   "handle": "https://datashare.ed.ac.uk/handle/10283/3336",
   "page_status": 200,
@@ -112,9 +112,9 @@
      "content_range": "bytes 0-33554431/7640952520",
      "content_type": "application/zip ;charset=UTF-8",
      "bytes": 33554432,
-     "seconds": 14.631,
+     "seconds": 2.94,
      "error": null,
-     "mb_per_s": 2.29,
+     "mb_per_s": 11.41,
      "magic": "504b0304"
     }
    }
@@ -2195,6 +2195,167 @@
    }
   ]
  },
+ "huggingface_trees": {
+  "xingjunm/WildDeepfake": [
+   {
+    "path": "deepfake_in_the_wild",
+    "type": "directory",
+    "n_files": 0,
+    "bytes": 0,
+    "examples": [],
+    "subdirs": [
+     {
+      "path": "deepfake_in_the_wild/fake_test",
+      "type": "directory",
+      "n_files": 115,
+      "bytes": 6457620480,
+      "examples": [
+       "deepfake_in_the_wild/fake_test/1.tar.gz",
+       "deepfake_in_the_wild/fake_test/10.tar.gz",
+       "deepfake_in_the_wild/fake_test/100.tar.gz",
+       "deepfake_in_the_wild/fake_test/101.tar.gz",
+       "deepfake_in_the_wild/fake_test/102.tar.gz"
+      ],
+      "subdirs": []
+     },
+     {
+      "path": "deepfake_in_the_wild/fake_train",
+      "type": "directory",
+      "n_files": 592,
+      "bytes": 39867299840,
+      "examples": [
+       "deepfake_in_the_wild/fake_train/1.tar.gz",
+       "deepfake_in_the_wild/fake_train/10.tar.gz",
+       "deepfake_in_the_wild/fake_train/100.tar.gz",
+       "deepfake_in_the_wild/fake_train/101.tar.gz",
+       "deepfake_in_the_wild/fake_train/102.tar.gz"
+      ],
+      "subdirs": []
+     },
+     {
+      "path": "deepfake_in_the_wild/real_test",
+      "type": "directory",
+      "n_files": 42,
+      "bytes": 3474401280,
+      "examples": [
+       "deepfake_in_the_wild/real_test/104.tar.gz",
+       "deepfake_in_the_wild/real_test/12.tar.gz",
+       "deepfake_in_the_wild/real_test/13.tar.gz",
+       "deepfake_in_the_wild/real_test/15.tar.gz",
+       "deepfake_in_the_wild/real_test/16.tar.gz"
+      ],
+      "subdirs": []
+     },
+     {
+      "path": "deepfake_in_the_wild/real_train",
+      "type": "directory",
+      "n_files": 371,
+      "bytes": 23004231680,
+      "examples": [
+       "deepfake_in_the_wild/real_train/1.tar.gz",
+       "deepfake_in_the_wild/real_train/101.tar.gz",
+       "deepfake_in_the_wild/real_train/102.tar.gz",
+       "deepfake_in_the_wild/real_train/104.tar.gz",
+       "deepfake_in_the_wild/real_train/105.tar.gz"
+      ],
+      "subdirs": []
+     }
+    ]
+   },
+   {
+    "path": ".gitattributes",
+    "type": "file",
+    "size": 2419
+   },
+   {
+    "path": "README.md",
+    "type": "file",
+    "size": 31
+   }
+  ],
+  "rshaojimmy/Seq-DeepFake": [
+   {
+    "path": "facial_attributes",
+    "type": "directory",
+    "n_files": 1,
+    "bytes": 6148,
+    "examples": [
+     "facial_attributes/.DS_Store"
+    ],
+    "subdirs": [
+     {
+      "path": "facial_attributes/annotations",
+      "type": "directory",
+      "n_files": 3,
+      "bytes": 4071408,
+      "examples": [
+       "facial_attributes/annotations/test.csv",
+       "facial_attributes/annotations/train.csv",
+       "facial_attributes/annotations/val.csv"
+      ],
+      "subdirs": []
+     },
+     {
+      "path": "facial_attributes/images",
+      "type": "directory",
+      "n_files": 3,
+      "bytes": 16090772870,
+      "examples": [
+       "facial_attributes/images/test.zip",
+       "facial_attributes/images/train.zip",
+       "facial_attributes/images/val.zip"
+      ],
+      "subdirs": []
+     }
+    ]
+   },
+   {
+    "path": "facial_components",
+    "type": "directory",
+    "n_files": 1,
+    "bytes": 6148,
+    "examples": [
+     "facial_components/.DS_Store"
+    ],
+    "subdirs": [
+     {
+      "path": "facial_components/annotations",
+      "type": "directory",
+      "n_files": 3,
+      "bytes": 2631789,
+      "examples": [
+       "facial_components/annotations/test.csv",
+       "facial_components/annotations/train.csv",
+       "facial_components/annotations/val.csv"
+      ],
+      "subdirs": []
+     },
+     {
+      "path": "facial_components/images",
+      "type": "directory",
+      "n_files": 3,
+      "bytes": 437576995,
+      "examples": [
+       "facial_components/images/test.zip",
+       "facial_components/images/train.zip",
+       "facial_components/images/val.zip"
+      ],
+      "subdirs": []
+     }
+    ]
+   },
+   {
+    "path": ".gitattributes",
+    "type": "file",
+    "size": 2307
+   },
+   {
+    "path": "README.md",
+    "type": "file",
+    "size": 28
+   }
+  ]
+ },
  "zenodo": {
   "OpenForensics": {
    "record": "5528418",
@@ -2230,7 +2391,7 @@
     "content_range": "bytes 0-13980/13981",
     "content_type": "application/octet-stream",
     "bytes": 13981,
-    "seconds": 10.414,
+    "seconds": 41.674,
     "error": null,
     "mb_per_s": 0.0,
     "magic": "43726561"
@@ -2238,8 +2399,28 @@
   },
   "ASVspoof2021_LA_eval": {
    "record": "4837263",
-   "api_status": null,
-   "error": "TimeoutError: The read operation timed out"
+   "api_status": 200,
+   "title": "ASVspoof 2021 Challenge - Logical Access Database",
+   "access_right": "open",
+   "license": "odc-by",
+   "publication_date": "2021-05-28",
+   "doi": "10.5281/zenodo.4837263",
+   "files": [
+    {
+     "key": "ASVspoof2021_LA_eval.tar.gz",
+     "size": 7763666128
+    }
+   ],
+   "total_bytes": 7763666128,
+   "range_probe_first_file": {
+    "status": null,
+    "final_url": "https://zenodo.org/api/records/4837263/files/ASVspoof2021_LA_eval.tar.gz/content",
+    "content_range": null,
+    "content_type": null,
+    "bytes": 0,
+    "seconds": null,
+    "error": "TimeoutError: The read operation timed out"
+   }
   },
   "ASVspoof2021_DF_eval_part00": {
    "record": "4835108",
@@ -2269,13 +2450,15 @@
    ],
    "total_bytes": 34534483584,
    "range_probe_first_file": {
-    "status": 500,
+    "status": 206,
     "final_url": "https://zenodo.org/api/records/4835108/files/ASVspoof2021_DF_eval_part00.tar.gz/content",
-    "content_range": null,
-    "content_type": "application/json",
-    "bytes": 0,
-    "seconds": null,
-    "error": "HTTP Error 500: INTERNAL SERVER ERROR"
+    "content_range": "bytes 0-4194303/8637050238",
+    "content_type": "application/octet-stream",
+    "bytes": 4194304,
+    "seconds": 43.582,
+    "error": null,
+    "mb_per_s": 0.1,
+    "magic": "1f8b0800"
    }
   }
  },
@@ -2306,10 +2489,10 @@
     "total_bytes": 15503225651
    },
    {
-    "id": 13318702,
-    "title": "System Fingerprint Recognition for Deepfake Audio (SFR) - Clean Set",
+    "id": 23889016,
+    "title": "Does Content Matter? Introducing SWC-LibDeep for Cross-Lingual Audio Deepfake Detection in English and German",
     "license": "cc-by-4.0",
-    "total_bytes": 40118397141
+    "total_bytes": 0
    },
    {
     "id": 16140829,
@@ -2318,10 +2501,10 @@
     "total_bytes": 41961478606
    },
    {
-    "id": 23889016,
-    "title": "Does Content Matter? Introducing SWC-LibDeep for Cross-Lingual Audio Deepfake Detection in English and German",
+    "id": 13318702,
+    "title": "System Fingerprint Recognition for Deepfake Audio (SFR) - Clean Set",
     "license": "cc-by-4.0",
-    "total_bytes": 0
+    "total_bytes": 40118397141
    },
    {
     "id": 13340666,
@@ -2360,10 +2543,10 @@
     "total_bytes": 11444857242
    },
    {
-    "id": 13841652,
-    "title": "Codecfake dataset - training set (part 2 of 3)",
-    "license": "cc-by-nc-nd-4.0",
-    "total_bytes": 26843545600
+    "id": 11186584,
+    "title": "DeepFakeNews",
+    "license": "cc-by-4.0",
+    "total_bytes": 24700322792
    },
    {
     "id": 13838106,
@@ -2398,16 +2581,16 @@
     "total_bytes": 0
    },
    {
-    "id": 7332816,
-    "title": "Dataset literature review on cyberlaw and forgery",
-    "license": "cc-by-4.0",
-    "total_bytes": 7739363
-   },
-   {
     "id": 7332939,
     "title": "dataset literature review on cyberlaw and forgery",
     "license": "cc-by-4.0",
     "total_bytes": 7746856
+   },
+   {
+    "id": 7332816,
+    "title": "Dataset literature review on cyberlaw and forgery",
+    "license": "cc-by-4.0",
+    "total_bytes": 7739363
    },
    {
     "id": 7317589,
@@ -2422,28 +2605,22 @@
     "total_bytes": 1107614181
    },
    {
-    "id": 17141780,
-    "title": "Survey on municipal services in Gori, Georgia, 2018",
-    "license": "odc-odbl",
-    "total_bytes": 978142
-   },
-   {
     "id": 17182966,
     "title": "Court Accessibility in Georgia, 2020",
     "license": "odc-odbl",
     "total_bytes": 1849646
    },
    {
-    "id": 20925144,
-    "title": "General Population Survey on Welfare Deservingness in Ukraine 2024",
+    "id": 17176732,
+    "title": "The Future of Georgia 2020",
     "license": "odc-odbl",
-    "total_bytes": 1174467
+    "total_bytes": 1471865
    },
    {
-    "id": 17176728,
-    "title": "Countering violent extremism in Georgia: a needs assessment 2018",
+    "id": 18608717,
+    "title": "Gender Equality Attitudes Survey in Georgia 2024",
     "license": "odc-odbl",
-    "total_bytes": 3275032
+    "total_bytes": 1557129
    },
    {
     "id": 18493485,
@@ -2458,102 +2635,21 @@
     "total_bytes": 1153839
    },
    {
-    "id": 17176732,
-    "title": "The Future of Georgia 2020",
+    "id": 20925144,
+    "title": "General Population Survey on Welfare Deservingness in Ukraine 2024",
     "license": "odc-odbl",
-    "total_bytes": 1471865
+    "total_bytes": 1174467
+   },
+   {
+    "id": 17141780,
+    "title": "Survey on municipal services in Gori, Georgia, 2018",
+    "license": "odc-odbl",
+    "total_bytes": 978142
    }
   ],
   "in-the-wild audio deepfake": [
    {
-    "id": 23849403,
-    "title": "Watermark shortcuts in speech deepfake detection: code and results",
-    "license": "cc-by-4.0",
-    "total_bytes": 0
-   },
-   {
-    "id": 12151404,
-    "title": "ADD 2023 Challenge Track 1.2 Training/Development Dataset",
-    "license": "cc-by-nc-nd-4.0",
-    "total_bytes": 4258654693
-   },
-   {
-    "id": 12176904,
-    "title": "ADD 2023 Challenge Track 2 Evaluation Dataset",
-    "license": "cc-by-nc-nd-4.0",
-    "total_bytes": 5168187189
-   },
-   {
-    "id": 12179632,
-    "title": "ADD 2023 Challenge Track 3 Training/Development Dataset",
-    "license": "cc-by-nc-nd-4.0",
-    "total_bytes": 4825328307
-   },
-   {
-    "id": 12176530,
-    "title": "ADD 2023 Challenge Track 2 Training/Development Dataset",
-    "license": "cc-by-nc-nd-4.0",
-    "total_bytes": 7041044253
-   },
-   {
-    "id": 12145773,
-    "title": "ADD 2023 Challenge Track 1.1 Evaluation Dataset",
-    "license": "cc-by-nc-nd-4.0",
-    "total_bytes": 66590075
-   },
-   {
-    "id": 12179884,
-    "title": "ADD 2023 Challenge Track 3 Evaluation Dataset",
-    "license": "cc-by-nc-nd-4.0",
-    "total_bytes": 12540868923
-   },
-   {
-    "id": 12176326,
-    "title": "ADD 2023 Challenge Track 1.2 Evaluation Dataset (Round 2)",
-    "license": "cc-by-nc-nd-4.0",
-    "total_bytes": 15959732149
-   },
-   {
-    "id": 12175884,
-    "title": "ADD 2023 Challenge Track 1.2 Evaluation Dataset (Round 1)",
-    "license": "cc-by-nc-nd-4.0",
-    "total_bytes": 15480539338
-   },
-   {
-    "id": 13318702,
-    "title": "System Fingerprint Recognition for Deepfake Audio (SFR) - Clean Set",
-    "license": "cc-by-4.0",
-    "total_bytes": 40118397141
-   },
-   {
-    "id": 17295933,
-    "title": "Mel Spectrogram Voice Dataset",
-    "license": "cc-by-4.0",
-    "total_bytes": 238372814
-   },
-   {
-    "id": 13340666,
-    "title": "System Fingerprint Recognition for Deepfake Audio (SFR) - Compressed Set",
-    "license": "cc-by-4.0",
-    "total_bytes": 36866405703
-   },
-   {
-    "id": 23889016,
-    "title": "Does Content Matter? Introducing SWC-LibDeep for Cross-Lingual Audio Deepfake Detection in English and German",
-    "license": "cc-by-4.0",
-    "total_bytes": 0
-   },
-   {
-    "id": 7603208,
-    "title": "DEepfake CROss-lingual evaluation dataset (DECRO)",
-    "license": "cc-by-4.0",
-    "total_bytes": 15503225651
-   },
-   {
-    "id": 13838823,
-    "title": "Codecfake dataset - test set (part 1 of 2)",
-    "license": "cc-by-nc-nd-4.0",
-    "total_bytes": 37787855511
+    "error": "status None"
    }
   ]
  },
@@ -2568,7 +2664,15 @@
     "This dataset and the associated documentation are\n          licensed under",
     "a href=\"https://creativecommons.org/licenses/by-nc/4.0/\""
    ],
-   "download_links": []
+   "download_links": [],
+   "all_links": [
+    "https://arxiv.org/abs/2203.16263",
+    "https://creativecommons.org/licenses/by-nc/4.0/",
+    "https://github.com/eurecom-asp/RawGAT-ST-antispoofing",
+    "https://github.com/eurecom-asp/pc-darts-anti-spoofing",
+    "https://github.com/eurecom-asp/rawnet2-antispoofing",
+    "https://huggingface.co/datasets/mueller91/In-The-Wild"
+   ]
   },
   "asvspoof2021_keys": {
    "url": "https://www.asvspoof.org/asvspoof2021/LA-keys-full.tar.gz",
@@ -2577,7 +2681,8 @@
    "content_length": "21235082",
    "content_type": "application/x-gzip",
    "licence_lines": [],
-   "download_links": []
+   "download_links": [],
+   "all_links": []
   }
  }
 }
