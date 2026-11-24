@@ -105,3 +105,34 @@ def test_dff_cli_end_to_end(tmp_path, monkeypatch):
     run_dff.main(["latency", "--work", str(work), "--out", str(out), "--zips", str(root)])
     lat = json.loads((out / "latency.json").read_text())
     assert lat["exports"]["tflite_fp32"]["max_abs_prob_diff_vs_keras"] < 1e-3
+
+
+@pytest.mark.tf
+def test_wilddeepfake_cross_dataset_cli(tmp_path):
+    """Video-level aggregation over sequences read from tar.gz files with the WildDeepfake layout."""
+    import io
+    import tarfile
+
+    from deepfake_detector.benchmarks import wilddeepfake
+    from deepfake_detector.models import build_frame_classifier
+
+    for split, n_videos in (("real_test", 2), ("fake_test", 2)):
+        (tmp_path / "tars" / split).mkdir(parents=True)
+        for v in range(n_videos):
+            with tarfile.open(tmp_path / "tars" / split / f"{v}.tar.gz", "w:gz") as tar:
+                for seq in range(2):
+                    for f in range(5):
+                        _ok, buf = cv2.imencode(".png", synthetic_face(96, seed=v * 100 + seq * 10 + f))
+                        info = tarfile.TarInfo(f"{v}/{seq}/{f}.png")
+                        info.size = len(buf)
+                        tar.addfile(info, io.BytesIO(buf.tobytes()))
+    model = build_frame_classifier("efficientnetv2_b0", 64, weights=None)
+    model.save(tmp_path / "m.keras")
+    out = tmp_path / "out"
+    wilddeepfake.main(["--tars", str(tmp_path / "tars"), "--models", f"ft={tmp_path / 'm.keras'}",
+                       f"ft_eq={tmp_path / 'm.keras'}:eq32", "--out", str(out), "--image-size", "64",
+                       "--frames-per-sequence", "3", "--workers", "2"])  # fmt: skip
+    rep = json.loads((out / "cross_dataset_wilddeepfake.json").read_text())
+    assert rep["n_videos"] == 4 and rep["n_sequences"] == 8 and rep["n_frames"] == 24
+    assert set(rep["systems"]) == {"ft", "ft_eq"}
+    assert set(rep["systems"]["ft"]["sequence_level"]) == {"mean", "median", "max", "topk_mean", "confidence_weighted"}
