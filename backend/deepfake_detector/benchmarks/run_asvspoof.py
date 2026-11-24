@@ -375,7 +375,9 @@ def cmd_robustness(args, cfg: Config) -> None:
     conditions = [c for c in CONDITIONS if not (c in ("mp3_32k", "opus_16k") and shutil.which("ffmpeg") is None)]
     report: dict = {"meta": run_metadata(), "subset": {"n": len(sub), "n_bonafide": int((labels == 0).sum())}}
     report["conditions"] = {}
-    ctx = get_context("fork")
+    # TensorFlow is already loaded (and running threads) here: forking now can deadlock the
+    # children, so the decode/perturb workers are spawned fresh.
+    ctx = get_context("spawn")
     with ctx.Pool(args.workers, initializer=_rob_init, initargs=(args.archive, vars(cfg.audio))) as pool:
         for cond in conditions:
             t0 = time.perf_counter()
@@ -525,6 +527,110 @@ def cmd_latency(args, cfg: Config) -> None:
     _write_json(out_dir / "latency.json", report)
 
 
+# --------------------------------------------------------------------------- cross-dataset
+ITW_SOURCE = "https://huggingface.co/datasets/mueller91/In-The-Wild (Mueller et al., Interspeech 2022)"
+_itw: dict = {}
+
+
+def _itw_init(zip_path: str, cfg_dict: dict) -> None:
+    import zipfile
+
+    _itw["zip"] = zipfile.ZipFile(zip_path)
+    _itw["cfgs"] = {v: AudioConfig(**{**cfg_dict, "trim_silence": v == "trim"}) for v in ("raw", "trim")}
+
+
+def _itw_job(job: tuple[int, str]) -> tuple[int, dict[str, np.ndarray], dict[str, float]]:
+    import io
+
+    import soundfile as sf
+
+    from ..preprocessing.audio import silence_profile
+
+    i, member = job
+    cfg = _itw["cfgs"]["raw"]
+    data, sr = sf.read(io.BytesIO(_itw["zip"].read(member)), dtype="float32", always_2d=True)
+    x = data.mean(axis=1)
+    if sr != cfg.sample_rate:
+        x = resample(x, sr, cfg.sample_rate)
+    stats = silence_profile(x, cfg.sample_rate, cfg.trim_top_db)
+    return i, {v: clip_features(x, c).astype(np.float16) for v, c in _itw["cfgs"].items()}, stats
+
+
+def cmd_itw(args, cfg: Config) -> None:
+    """Cross-dataset test: ASVspoof-trained systems on In-the-Wild (real politicians/celebrities)."""
+    import csv
+    import io
+    import zipfile
+
+    work, out_dir = Path(args.work), Path(args.out)
+    with zipfile.ZipFile(args.zip) as zf:
+        meta_name = next(n for n in zf.namelist() if n.endswith("meta.csv"))
+        base = meta_name.rsplit("/", 1)[0] + "/" if "/" in meta_name else ""
+        rows = list(csv.DictReader(io.StringIO(zf.read(meta_name).decode("utf-8"))))
+    labels = np.array([0 if r["label"].lower().startswith("bona") else 1 for r in rows])
+    members = [base + r["file"] for r in rows]
+    shape = (len(rows), cfg.audio.n_mels, frames_per_clip(cfg.audio))
+    feats = {v: np.zeros(shape, np.float16) for v in ("raw", "trim")}
+    stats: list[dict] = [{}] * len(rows)
+    t0 = time.perf_counter()
+    ctx = get_context("fork")
+    with ctx.Pool(args.workers, initializer=_itw_init, initargs=(args.zip, vars(cfg.audio))) as pool:
+        for i, f, st in pool.imap_unordered(_itw_job, list(enumerate(members)), chunksize=64):
+            feats["raw"][i], feats["trim"][i], stats[i] = f["raw"], f["trim"], st
+    seconds = round(time.perf_counter() - t0, 1)
+
+    class _FS:  # minimal FeatureSplit stand-in for the silence features
+        def __init__(self, st):
+            self.st = st
+
+        def column(self, k):
+            return np.array([s[k] for s in self.st], dtype=np.float64)
+
+    train = load_split(work / "features", "train")
+    systems: dict[str, np.ndarray] = {}
+    systems["silence_lr"] = (
+        LogisticRegression().fit(silence_features(train), train.labels).decision_function(silence_features(_FS(stats)))
+    )
+    lr_mel = LogisticRegression().fit(logmel_stats_features(train.features["raw"]), train.labels)
+    systems["logmel_lr"] = lr_mel.decision_function(logmel_stats_features(feats["raw"]))
+    for system, variant in CNN_SYSTEMS.items():
+        model = _load_cnn(work, system)
+        if model is not None:
+            systems[system] = predict_logits(model, feats[variant])
+    asv_metrics = json.loads((out_dir / "metrics.json").read_text())["systems"]
+    keys = ("duration_s", "lead_silence_s", "trail_silence_s")
+    report: dict = {
+        "meta": run_metadata(),
+        "dataset": "In-the-Wild audio deepfakes",
+        "source": ITW_SOURCE,
+        "licence": "Hugging Face card: cc-by-sa-4.0; project page: CC BY-NC 4.0 (non-commercial use assumed)",
+        "n": len(rows),
+        "n_bonafide": int((labels == 0).sum()),
+        "n_spoof": int((labels == 1).sum()),
+        "n_speakers": len({r["speaker"] for r in rows}),
+        "feature_seconds": seconds,
+        "per_class_median": {
+            name: {k: float(np.median([s[k] for s, y in zip(stats, labels, strict=True) if y == c])) for k in keys}
+            for c, name in ((0, "bonafide"), (1, "spoof"))
+        },
+        "systems": {},
+    }
+    for name, z in systems.items():
+        thr = asv_metrics[name]["dev_threshold_logit"]
+        rep = binary_report(labels, z, threshold=thr).to_dict()
+        a, b = asv_metrics[name]["platt"]["a"], asv_metrics[name]["platt"]["b"]  # fitted on ASVspoof dev only
+        report["systems"][name] = {
+            "eer": eer_from_scores(-z[labels == 0], -z[labels == 1])[0],
+            "roc_auc": rep["auc"],
+            "pr_auc_spoof": rep["pr_auc"],
+            "at_asvspoof_dev_threshold": {k: rep[k] for k in ("accuracy", "fpr", "fnr", "f1", "confusion_matrix")},
+            "ece_raw_sigmoid": expected_calibration_error(labels, _sigmoid(z)),
+            "ece_asvspoof_dev_platt": expected_calibration_error(labels, _sigmoid(a * z + b)),
+        }
+        logger.info("in-the-wild", extra={"system": name, "eer": report["systems"][name]["eer"]})
+    _write_json(out_dir / "cross_dataset_in_the_wild.json", report)
+
+
 # --------------------------------------------------------------------------- CLI
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -552,11 +658,16 @@ def main(argv: list[str] | None = None) -> None:
         p.add_argument("--per-attack", type=int, default=250)
         p.add_argument("--bonafide", type=int, default=1000)
         p.add_argument("--workers", type=int, default=os.cpu_count() or 2)
+    p = sub.add_parser("itw", help="cross-dataset evaluation on In-the-Wild")
+    p.add_argument("--zip", required=True)
+    p.add_argument("--work", required=True)
+    p.add_argument("--out", required=True)
+    p.add_argument("--workers", type=int, default=os.cpu_count() or 2)
     args = parser.parse_args(argv)
     configure_logging(json_logs=False)
     cfg = load_config(args.config)
     {"features": cmd_features, "train": cmd_train, "evaluate": cmd_evaluate, "robustness": cmd_robustness,
-     "latency": cmd_latency}[args.cmd](args, cfg)  # fmt: skip
+     "latency": cmd_latency, "itw": cmd_itw}[args.cmd](args, cfg)  # fmt: skip
 
 
 if __name__ == "__main__":

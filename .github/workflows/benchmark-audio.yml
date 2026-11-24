@@ -16,6 +16,13 @@ on:
         description: "Max CNN epochs (early stopping on dev EER)"
         required: false
         default: "20"
+      robustness_subset:
+        description: "Robustness subset: spoofs per attack,bona fide"
+        default: "250,1000"
+      in_the_wild:
+        description: "Cross-dataset test on In-the-Wild (8.2 GB download)"
+        type: boolean
+        default: true
       publish:
         description: "Commit results and upload the release assets"
         type: boolean
@@ -88,10 +95,21 @@ jobs:
         run: python -m deepfake_detector.benchmarks.run_asvspoof evaluate --archive "$RUNNER_TEMP/data/LA.zip" --work "$RUNNER_TEMP/work" --out "../$OUT"
       - name: Robustness (stratified eval subset)
         working-directory: backend
-        run: python -m deepfake_detector.benchmarks.run_asvspoof robustness --archive "$RUNNER_TEMP/data/LA.zip" --work "$RUNNER_TEMP/work" --out "../$OUT"
+        run: |
+          IFS=, read -r per_attack bonafide <<< "${{ inputs.robustness_subset }}"
+          python -m deepfake_detector.benchmarks.run_asvspoof robustness --archive "$RUNNER_TEMP/data/LA.zip" \
+            --work "$RUNNER_TEMP/work" --out "../$OUT" --per-attack "$per_attack" --bonafide "$bonafide"
       - name: Latency, export and parity
         working-directory: backend
         run: python -m deepfake_detector.benchmarks.run_asvspoof latency --archive "$RUNNER_TEMP/data/LA.zip" --work "$RUNNER_TEMP/work" --out "../$OUT"
+      - name: Cross-dataset test (In-the-Wild)
+        if: inputs.in_the_wild
+        working-directory: backend
+        run: |
+          aria2c -q -x 8 -s 8 -k 64M --file-allocation=none --max-tries=10 --retry-wait=15 -d "$RUNNER_TEMP/data" \
+            -o itw.zip "https://huggingface.co/datasets/mueller91/In-The-Wild/resolve/main/release_in_the_wild.zip"
+          ls -la "$RUNNER_TEMP/data"; df -h /
+          python -m deepfake_detector.benchmarks.run_asvspoof itw --zip "$RUNNER_TEMP/data/itw.zip" --work "$RUNNER_TEMP/work" --out "../$OUT"
       - name: Summary
         run: |
           python - <<'PY'
@@ -100,6 +118,10 @@ jobs:
           for name, s in m["systems"].items():
               e = s["eval"]
               print(f"{name:24s} dev EER {s['dev']['eer']:.4f}  eval EER {e['eer']:.4f}  min t-DCF {e.get('min_tdcf', float('nan')):.4f}  AUC {e['roc_auc']:.4f}")
+          p = os.environ["OUT"] + "/cross_dataset_in_the_wild.json"
+          if os.path.exists(p):
+              for name, s in json.load(open(p))["systems"].items():
+                  print(f"In-the-Wild {name:24s} EER {s['eer']:.4f}  AUC {s['roc_auc']:.4f}")
           PY
           ls -la "$OUT"
       - name: Bundle model files

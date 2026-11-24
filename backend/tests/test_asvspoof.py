@@ -199,3 +199,34 @@ def test_benchmark_cli_end_to_end(la_zip, tmp_path, monkeypatch):
     lat = json.loads((out / "latency.json").read_text())
     assert lat["cnn"]["tflite_fp32"]["max_abs_prob_diff_vs_keras"] < 1e-3
     assert lat["stages"]["log_mel_4s"]["mean_ms"] > 0
+
+
+@pytest.mark.tf
+def test_in_the_wild_cross_dataset(la_zip, tmp_path):
+    """The cross-dataset command reads an In-the-Wild style zip (meta.csv + wav files)."""
+    from deepfake_detector.benchmarks import run_asvspoof as bench
+    from deepfake_detector.preprocessing.audio import write_wav
+
+    rng = np.random.default_rng(3)
+    itw = tmp_path / "itw.zip"
+    with zipfile.ZipFile(itw, "w") as zf:
+        lines = ["file,speaker,label"]
+        for i in range(12):
+            spoof = i % 2 == 1
+            wav = tmp_path / f"{i}.wav"
+            write_wav(wav, _utterance(rng, spoof), SR)
+            zf.write(wav, f"release_in_the_wild/{i}.wav")
+            lines.append(f"{i}.wav,Speaker {i % 3},{'spoof' if spoof else 'bona-fide'}")
+        zf.writestr("release_in_the_wild/meta.csv", "\n".join(lines) + "\n")
+    cfg_path = tmp_path / "cfg.yaml"
+    cfg_path.write_text("audio:\n  clip_seconds: 1.0\naudio_train:\n  epochs: 1\n  batch_size: 8\n")
+    work, out = tmp_path / "work", tmp_path / "results"
+    common = ["--config", str(cfg_path)]
+    bench.main([*common, "features", "--archive", str(la_zip), "--work", str(work), "--workers", "2"])
+    bench.main([*common, "train", "--work", str(work), "--system", "cnn"])
+    bench.main([*common, "evaluate", "--archive", str(la_zip), "--work", str(work), "--out", str(out)])
+    bench.main([*common, "itw", "--zip", str(itw), "--work", str(work), "--out", str(out), "--workers", "2"])
+    rep = json.loads((out / "cross_dataset_in_the_wild.json").read_text())
+    assert rep["n"] == 12 and rep["n_bonafide"] == 6 and rep["n_speakers"] == 3
+    assert {"silence_lr", "logmel_lr", "cnn"} <= set(rep["systems"])
+    assert 0.0 <= rep["systems"]["cnn"]["eer"] <= 1.0
