@@ -473,7 +473,7 @@ def cmd_latency(args, cfg: Config) -> None:
         "log_mel_4s": _timeit(lambda: clip_features(waves[next(i_iter) % n_stage], cfg.audio), 200),
     }
     archive.close()
-    feats = np.stack([clip_features(w, cfg.audio) for w in waves])[..., None].astype(np.float32)
+    feats = np.stack([clip_features(w, cfg.audio) for w in waves[:64]])[..., None].astype(np.float32)
     for system in CNN_SYSTEMS:
         model = _load_cnn(work, system)
         if model is None:
@@ -487,7 +487,7 @@ def cmd_latency(args, cfg: Config) -> None:
             "keras_batch1": _timeit(lambda m=lm, x=x1: m(x, training=False), 100),
             "keras_batch64_per_clip_ms": round(batch64["mean_ms"] / 64, 3),
         }
-        keras_logits = np.asarray(lm(feats, training=False)).reshape(-1)
+        keras_logits = predict_logits(model, feats[..., 0])
         model.save(export_dir / f"{system}.keras")
         entry["keras_file_bytes"] = (export_dir / f"{system}.keras").stat().st_size
         for name, quant in (("tflite_fp32", False), ("tflite_int8_dynamic", True)):
@@ -513,7 +513,7 @@ def cmd_latency(args, cfg: Config) -> None:
         if system not in report:
             continue
         model = _load_cnn(work, system)
-        k = np.asarray(logit_model(model)(parity_feats[variant].astype(np.float32), training=False)).reshape(-1)
+        k = predict_logits(model, parity_feats[variant][..., 0])
         keras_eer = eer_from_scores(-k[labels == 0], -k[labels == 1])[0]
         report[system]["parity_subset"] = {"n": len(sub), "keras_eer": keras_eer}
         for name in ("tflite_fp32", "tflite_int8_dynamic"):
@@ -664,7 +664,7 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--out", required=True)
     p.add_argument("--workers", type=int, default=os.cpu_count() or 2)
     args = parser.parse_args(argv)
-    configure_logging(json_logs=False)
+    configure_logging(json_logs=True)  # JSON lines keep per-epoch metrics visible in CI logs
     cfg = load_config(args.config)
     {"features": cmd_features, "train": cmd_train, "evaluate": cmd_evaluate, "robustness": cmd_robustness,
      "latency": cmd_latency, "itw": cmd_itw}[args.cmd](args, cfg)  # fmt: skip

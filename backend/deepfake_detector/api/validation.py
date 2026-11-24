@@ -28,7 +28,30 @@ def check_extension(filename: str) -> str:
     return ext
 
 
-def check_content(path: Path, media_type: str, max_video_seconds: int) -> dict:
+def probe_audio(path: Path) -> dict:
+    """Duration and sample rate without decoding everything (libsndfile, then ffmpeg)."""
+    try:
+        import soundfile as sf
+
+        info = sf.info(str(path))
+        if info.frames <= 0 or info.samplerate <= 0:
+            raise ValidationError("Audio file contains no samples", status=422)
+        return {"duration": round(info.frames / info.samplerate, 3), "sample_rate": int(info.samplerate),
+                "channels": int(info.channels)}  # fmt: skip
+    except (ImportError, RuntimeError, TypeError):
+        pass  # formats libsndfile cannot read (mp3/m4a on some builds) are checked by full decode
+    from ..preprocessing.audio import AudioUnavailableError, load_audio
+
+    try:
+        signal = load_audio(path, 16000)
+    except AudioUnavailableError as exc:
+        raise ValidationError("File is not decodable audio", status=422) from exc
+    if signal.size == 0:
+        raise ValidationError("Audio file contains no samples", status=422)
+    return {"duration": round(signal.size / 16000, 3), "sample_rate": None, "channels": 1}
+
+
+def check_content(path: Path, media_type: str, max_video_seconds: int, max_audio_seconds: int = 600) -> dict:
     """Make sure the file really decodes as the claimed media type; return basic metadata."""
     if path.stat().st_size == 0:
         raise ValidationError("Uploaded file is empty")
@@ -56,4 +79,11 @@ def check_content(path: Path, media_type: str, max_video_seconds: int) -> dict:
             "width": info.width,
             "height": info.height,
         }
+    if media_type == "audio":
+        meta = probe_audio(path)
+        if meta["duration"] > max_audio_seconds:
+            raise ValidationError(
+                f"Audio is {meta['duration']:.0f}s long; the limit is {max_audio_seconds}s", status=413
+            )
+        return meta
     return {}

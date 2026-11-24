@@ -14,7 +14,9 @@ placeholder if TensorFlow is not installed). Every response says so explicitly.
 
 from __future__ import annotations
 
+import json
 import logging
+import math
 import threading
 import time
 from pathlib import Path
@@ -43,6 +45,33 @@ logger = logging.getLogger(__name__)
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 VIDEO_EXTS = {".mp4", ".avi", ".mov", ".mkv", ".webm"}
 AUDIO_EXTS = {".wav", ".flac", ".mp3", ".m4a", ".ogg"}
+
+FUSION_NOTE = (
+    "Fusion weights are a configured heuristic. No lawfully available dataset pairs labelled audio "
+    "and video of the same clips, so fusion has not been evaluated; read the per-modality scores. "
+    "A missing or silent audio track is never treated as evidence of manipulation."
+)
+
+
+class Calibration:
+    """Platt scaling fitted on a validation split, re-weighted to equal class priors.
+
+    ``p = sigmoid(a * z + b - logit(prior_fake))`` where ``z`` is the model's raw logit and
+    ``prior_fake`` the fake share of the split the scaler was fitted on.
+    """
+
+    def __init__(self, a: float, b: float, prior_fake: float = 0.5, source: str = "") -> None:
+        self.a, self.b, self.prior_fake, self.source = float(a), float(b), float(prior_fake), source
+
+    def __call__(self, raw_prob: np.ndarray | float) -> np.ndarray:
+        p = np.clip(np.asarray(raw_prob, dtype=np.float64), 1e-7, 1 - 1e-7)
+        z = np.log(p / (1 - p))
+        shift = math.log(self.prior_fake / (1 - self.prior_fake))
+        return 1.0 / (1.0 + np.exp(-(self.a * z + self.b - shift)))
+
+    def to_dict(self) -> dict[str, Any]:
+        return {"a": self.a, "b": self.b, "prior_fake": self.prior_fake, "source": self.source}
+
 
 DEMO_WARNING = (
     "DEMO MODE: no trained weights were found, so scores come from untrained "
@@ -80,6 +109,8 @@ class DeepfakeDetector:
         self.frame_scorers: dict[str, Any] = {}
         self.temporal: KerasTemporalScorer | None = None
         self.audio: Any | None = None
+        self.card: dict[str, Any] = {}
+        self.calibration: dict[str, Calibration] = {}
         self._load()
 
     # ------------------------------------------------------------------ loading
@@ -92,7 +123,34 @@ class DeepfakeDetector:
             return "numpy"
         return backend
 
+    def _load_card(self) -> None:
+        """Read calibration + provenance written next to released weights (see docs/BENCHMARKS.md)."""
+        path = self.weights_dir / self.cfg.api.model_card
+        if not path.is_file():
+            return
+        try:
+            self.card = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            logger.warning("model card unreadable, ignoring", extra={"path": str(path)})
+            return
+        # Preprocessing must match how the released model was trained.
+        audio = self.card.get("audio") or {}
+        if "trim_silence" in audio and bool(audio["trim_silence"]) != self.cfg.audio.trim_silence:
+            logger.info("audio.trim_silence set from model card", extra={"value": bool(audio["trim_silence"])})
+            self.cfg.audio.trim_silence = bool(audio["trim_silence"])
+        visual = self.card.get("visual") or {}
+        if visual.get("image_size") and int(visual["image_size"]) != self.cfg.data.image_size:
+            logger.info("data.image_size set from model card", extra={"value": int(visual["image_size"])})
+            self.cfg.data.image_size = int(visual["image_size"])
+        for modality in ("visual", "audio"):
+            cal = (self.card.get(modality) or {}).get("calibration")
+            if cal:
+                self.calibration[modality] = Calibration(
+                    cal["a"], cal["b"], cal.get("prior_fake", 0.5), cal.get("source", "")
+                )
+
     def _load(self) -> None:
+        self._load_card()
         api, size = self.cfg.api, self.cfg.data.image_size
         force_demo = api.demo_mode == "on"
         missing = []
@@ -167,6 +225,9 @@ class DeepfakeDetector:
             },
             "frame_aggregation": self.cfg.api.frame_aggregation,
             "threshold": self.cfg.fusion.threshold,
+            "calibration": {k: v.to_dict() for k, v in self.calibration.items()},
+            "model_card": self.card or None,
+            "fusion_note": FUSION_NOTE,
         }
 
     def _ensemble_weights(self) -> dict[str, float]:
@@ -180,7 +241,9 @@ class DeepfakeDetector:
         size = self.cfg.data.image_size
         batch = np.stack([preprocess_crop(c.crop_bgr, size) for c in crops])
         per_model = {name: scorer.predict(batch) for name, scorer in self.frame_scorers.items()}
-        ensemble = sum(per_model[n] * weights[n] for n in per_model) / sum(weights[n] for n in per_model)
+        raw_ensemble = sum(per_model[n] * weights[n] for n in per_model) / sum(weights[n] for n in per_model)
+        cal = self.calibration.get("visual") if self.mode == "trained" else None
+        ensemble = cal(raw_ensemble) if cal else raw_ensemble
 
         face_mask = np.array([c.face_found for c in crops])
         use = face_mask if face_mask.any() else np.ones_like(face_mask)
@@ -199,6 +262,7 @@ class DeepfakeDetector:
                 "timestamp": round(float(c.timestamp_s), 3),
                 "face_found": bool(c.face_found),
                 "probability": round(float(ensemble[i]), 5),
+                "raw_probability": round(float(raw_ensemble[i]), 5),
                 "per_model": {n: round(float(s[i]), 5) for n, s in per_model.items()},
             }
             for i, c in enumerate(crops)
@@ -220,6 +284,7 @@ class DeepfakeDetector:
             },
             "temporal_probability": None if temporal_prob is None else round(temporal_prob, 5),
             "aggregation": method,
+            "calibrated": cal is not None,
             "frames": frames,
             "faces_detected": int(face_mask.sum()),
             "frames_analyzed": len(crops),
@@ -251,19 +316,39 @@ class DeepfakeDetector:
             signal = load_audio(path, self.cfg.audio.sample_rate)
         except AudioUnavailableError as exc:
             return {"available": False, "reason": str(exc)}
-        if signal.size < self.cfg.audio.sample_rate * 0.5 or float(np.abs(signal).max(initial=0.0)) < 1e-4:
+        sr = self.cfg.audio.sample_rate
+        if signal.size < sr * 0.5 or float(np.abs(signal).max(initial=0.0)) < 1e-4:
             return {"available": False, "reason": "audio track is empty or silent"}
+        duration = signal.size / sr
+        truncated = duration > self.cfg.audio.max_seconds
+        if truncated:
+            signal = signal[: int(self.cfg.audio.max_seconds * sr)]
         clips = audio_to_mel_clips(signal, self.cfg.audio)
-        scores = self.audio.predict(clips)
+        raw = np.clip(self.audio.predict(clips).astype(np.float64), 1e-7, 1 - 1e-7)
+        cal = self.calibration.get("audio") if self.audio.kind == "trained" else None
+        scores = cal(raw) if cal else raw
+        # utterance score: mean clip logit (the benchmark scores one clip per utterance)
+        mean_raw = float(1.0 / (1.0 + np.exp(-np.mean(np.log(raw / (1 - raw))))))
+        probability = float(cal(mean_raw)) if cal else mean_raw
         clip_s = self.cfg.audio.clip_seconds
         return {
             "available": True,
-            "probability": round(float(np.mean(scores)), 5),
+            "probability": round(probability, 5),
+            "raw_probability": round(mean_raw, 5),
+            "calibrated": cal is not None,
             "status": self.audio.kind,
-            "duration": round(signal.size / self.cfg.audio.sample_rate, 3),
+            "duration": round(duration, 3),
+            "analysed_seconds": round(signal.size / sr, 3),
+            "truncated": truncated,
+            "silence_trimmed": self.cfg.audio.trim_silence,
             "segments": [
-                {"start": round(i * clip_s, 3), "end": round((i + 1) * clip_s, 3), "probability": round(float(s), 5)}
-                for i, s in enumerate(scores)
+                {
+                    "start": round(i * clip_s, 3),
+                    "end": round((i + 1) * clip_s, 3),
+                    "probability": round(float(s), 5),
+                    "raw_probability": round(float(r), 5),
+                }
+                for i, (s, r) in enumerate(zip(scores, raw, strict=True))
             ],
         }
 
@@ -315,6 +400,8 @@ class DeepfakeDetector:
                 "method": f.method,
                 "weights": {"visual": f.visual_weight, "audio": f.audio_weight},
                 "used": [k for k, v in probs.items() if v is not None],
+                "validated": False,
+                "note": FUSION_NOTE,
             },
             "gradcam": gradcam,
             "processing_ms": round((time.perf_counter() - start) * 1000.0, 1),

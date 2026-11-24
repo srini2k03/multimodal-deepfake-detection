@@ -129,6 +129,9 @@ class ApiConfig:
     weights_dir: str = "weights"
     max_upload_mb: int = 100
     max_video_seconds: int = 300
+    max_audio_seconds: int = 600
+    rate_limit_per_minute: int = 20  # POST /api/predict per client IP; 0 disables
+    model_card: str = "model_card.json"  # inside weights_dir: calibration + provenance of trained weights
     frames_per_video: int = 16
     frame_aggregation: str = "mean"  # see inference.fusion.AGGREGATIONS
     gradcam: bool = True
