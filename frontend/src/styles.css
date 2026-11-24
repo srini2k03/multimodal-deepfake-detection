@@ -1468,3 +1468,11 @@ pre code,
   margin-top: 0.5rem;
   line-height: 1.55;
 }
+.wdf {
+  margin: 0 0 1.5rem;
+}
+@media (min-width: 640px) {
+  .wdf .sb-table {
+    min-width: 40rem;
+  }
+}

@@ -259,6 +259,56 @@ function AudioBench({ a }) {
   );
 }
 
+const AGG_LABEL = { mean: "mean", median: "median", max: "max", topk_mean: "top-25% mean", confidence_weighted: "confidence-weighted" };
+
+/** Cross-dataset, video-level table: frame AUC vs sequence AUC under each aggregation. */
+function WildDeepfake({ w }) {
+  const systems = Object.entries(w.systems);
+  const aggs = Object.keys(systems[0][1].sequence_auc);
+  return (
+    <div className="wdf">
+      <p className="dotplot-title">
+        Cross-dataset, video level: WildDeepfake test ({w.n_sequences} face sequences from {w.n_videos} videos)
+      </p>
+      <div className="sb-table-wrap table-wrap" tabIndex={0} role="region" aria-label="WildDeepfake results">
+        <table className="sb-table stack-sm">
+          <thead>
+            <tr>
+              <th scope="col">Model</th>
+              <th scope="col" className="num">
+                Frame AUC
+              </th>
+              {aggs.map((a) => (
+                <th scope="col" className="num" key={a}>
+                  Video AUC ({AGG_LABEL[a] || a})
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {systems.map(([k, e]) => (
+              <tr key={k}>
+                <td data-label="Model">{e.label}</td>
+                <td data-label="Frame AUC" className="num">
+                  {fix(e.frame_auc, 3)}
+                </td>
+                {aggs.map((a) => (
+                  <td data-label={`Video AUC (${AGG_LABEL[a] || a})`} className="num" key={a}>
+                    {fix(e.sequence_auc[a], 3)}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="chart-axis">
+        Trained on DeepFakeFace stills only; no threshold or calibration is fitted on WildDeepfake. 0.5 is chance.
+      </p>
+    </div>
+  );
+}
+
 const TYPE_LABEL = { inpainting: "inpainting (SD)", insight: "face swap (InsightFace)", text2img: "text-to-image (SD)" };
 
 function VisualBench({ v }) {
@@ -304,6 +354,7 @@ function VisualBench({ v }) {
           refLine={{ value: 0.5, label: "chance" }}
         />
       )}
+      {v.wilddeepfake && <WildDeepfake w={v.wilddeepfake} />}
       <Provenance meta={v.meta} path="results/visual/dff" />
     </article>
   );
