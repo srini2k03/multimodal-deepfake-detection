@@ -56,3 +56,14 @@ def test_env_overrides():
     assert cfg.train.mixed_precision is False
     assert cfg.model.ensemble_weights == [0.3, 0.7]
     assert cfg.api.cors_origins == ["http://a", "http://b"]
+
+
+def test_new_audio_and_api_keys_validate_and_coerce():
+    from deepfake_detector.config import Config, apply_env_overrides
+
+    cfg = apply_env_overrides(Config(), {"DFD_AUDIO__CNN_FILTERS": "8,16", "DFD_API__RATE_LIMIT_PER_MINUTE": "5"})
+    assert cfg.audio.cnn_filters == [8, 16] and cfg.api.rate_limit_per_minute == 5
+    cfg.validate()
+    cfg.audio.pad_mode = "mirror"
+    with pytest.raises(ValueError):
+        cfg.validate()
