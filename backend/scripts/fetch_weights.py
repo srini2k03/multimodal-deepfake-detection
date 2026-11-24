@@ -1,4 +1,7 @@
-"""Download the released benchmark models into ``weights/`` and write ``weights/model_card.json``.
+"""Download the benchmark models into ``weights/`` and write ``weights/model_card.json``.
+
+Models come from GitHub release assets when they exist, otherwise from the 90-day
+``released-weights-*`` artifacts of the publish-results workflow (needs the GitHub CLI).
 
     python scripts/fetch_weights.py                       # defaults below
     python scripts/fetch_weights.py --audio-system cnn    # serve the untrimmed-audio CNN instead
@@ -27,6 +30,57 @@ def _get(url: str) -> bytes:
     req = urllib.request.Request(url, headers={"User-Agent": "dfd-fetch-weights", "Accept": "*/*"})
     with urllib.request.urlopen(req, timeout=120) as resp:
         return resp.read()
+
+
+def fetch_from_artifact(kind: str, name: str, dest: Path, run_id: str | None = None) -> str:
+    """Copy one model file from the ``released-weights-<kind>`` artifact of a publish-results run.
+
+    Used because the workflow token cannot create releases in this repository. Needs the GitHub
+    CLI with a token that can read Actions artifacts (artifacts are kept for 90 days).
+    """
+    import subprocess
+    import tempfile
+
+    if run_id is None:
+        out = subprocess.run(
+            ["gh", "run", "list", "--repo", REPO, "--workflow", "publish-results.yml", "--status", "success",
+             "--limit", "20", "--json", "databaseId", "--jq", ".[].databaseId"],
+            capture_output=True, text=True, check=True,
+        ).stdout.split()  # fmt: skip
+    else:
+        out = [run_id]
+    for rid in out:
+        with tempfile.TemporaryDirectory() as tmp:
+            res = subprocess.run(["gh", "run", "download", rid, "--repo", REPO, "-n", f"released-weights-{kind}",
+                                  "-D", tmp], capture_output=True, check=False)  # fmt: skip
+            src = Path(tmp) / name
+            if res.returncode != 0 or not src.exists():
+                continue
+            sums = {}
+            if (Path(tmp) / "SHA256SUMS").exists():
+                for line in (Path(tmp) / "SHA256SUMS").read_text().splitlines():
+                    digest, _, fname = line.partition("  ")
+                    sums[fname.strip()] = digest
+            data = src.read_bytes()
+            digest = hashlib.sha256(data).hexdigest()
+            if sums and sums.get(name) != digest:
+                raise SystemExit(f"checksum mismatch for {name}")
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_bytes(data)
+            print(f"artifact released-weights-{kind} (run {rid})/{name} -> {dest} ({len(data):,} bytes)")
+            return digest
+    raise SystemExit(f"{name} not found in any released-weights-{kind} artifact")
+
+
+def fetch(kind: str, tag: str, name: str, dest: Path, source: str, run_id: str | None) -> str:
+    if source in ("release", "auto"):
+        try:
+            return fetch_asset(tag, name, dest)
+        except (OSError, SystemExit) as exc:
+            if source == "release":
+                raise
+            print(f"release {tag} unavailable ({exc}); trying workflow artifacts")
+    return fetch_from_artifact(kind, name, dest, run_id)
 
 
 def fetch_asset(tag: str, name: str, dest: Path) -> str:
@@ -110,15 +164,25 @@ def main() -> None:
     parser.add_argument("--visual-system", default="effnet_ft")
     parser.add_argument("--skip-visual", action="store_true")
     parser.add_argument("--skip-audio", action="store_true")
+    parser.add_argument(
+        "--source",
+        choices=["auto", "release", "artifact"],
+        default="auto",
+        help="release assets, or the released-weights-* artifacts of publish-results runs",
+    )
+    parser.add_argument("--audio-run", default=None, help="publish-results run ID holding the audio weights")
+    parser.add_argument("--visual-run", default=None, help="publish-results run ID holding the visual weights")
     args = parser.parse_args()
     weights = Path(args.weights_dir)
     card: dict = {}
     if not args.skip_audio:
-        digest = fetch_asset(args.audio_tag, f"{args.audio_system}.keras", weights / "audio_cnn.keras")
+        name = f"{args.audio_system}.keras"
+        digest = fetch("audio", args.audio_tag, name, weights / "audio_cnn.keras", args.source, args.audio_run)
         card["audio"] = audio_card(args.audio_system, digest, args.audio_tag)
     if not args.skip_visual:
         name = f"{args.visual_system}_model.keras"
-        digest = fetch_asset(args.visual_tag, name, weights / "efficientnetv2_b0.keras")
+        dest = weights / "efficientnetv2_b0.keras"
+        digest = fetch("visual", args.visual_tag, name, dest, args.source, args.visual_run)
         card["visual"] = visual_card(args.visual_system, digest, args.visual_tag)
     (weights / "model_card.json").write_text(json.dumps(card, indent=1) + "\n")
     print(f"wrote {weights / 'model_card.json'}")

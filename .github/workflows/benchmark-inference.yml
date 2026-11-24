@@ -9,9 +9,16 @@ on:
     inputs:
       audio_system:
         default: "cnn_trim"
+      audio_run:
+        description: "publish-results run ID with the released-weights-audio artifact (empty = newest)"
+        default: ""
+      visual_run:
+        description: "publish-results run ID with the released-weights-visual artifact (empty = newest)"
+        default: ""
 
 permissions:
   contents: write
+  actions: read
 
 concurrency:
   group: benchmark-inference
@@ -36,9 +43,15 @@ jobs:
           sudo apt-get update -q && sudo apt-get install -y -q ffmpeg > /dev/null
           pip install -q -r backend/requirements-bench.txt -r backend/requirements-base.txt
           pip install -q --no-deps -e backend
-      - name: Fetch released weights
+      - name: Fetch the benchmark weights
         working-directory: backend
-        run: python scripts/fetch_weights.py --audio-system ${{ inputs.audio_system }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          extra=""
+          [ -n "${{ inputs.audio_run }}" ] && extra="$extra --audio-run ${{ inputs.audio_run }}"
+          [ -n "${{ inputs.visual_run }}" ] && extra="$extra --visual-run ${{ inputs.visual_run }}"
+          python scripts/fetch_weights.py --audio-system ${{ inputs.audio_system }} --source auto $extra
       - name: Measure
         working-directory: backend
         run: python scripts/bench_inference.py --config configs/serve.yaml --out ../results/inference/latency.json
