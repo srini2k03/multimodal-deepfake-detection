@@ -12,6 +12,9 @@ import base64
 import cv2
 import numpy as np
 
+# Building the gradient sub-model costs far more than one Grad-CAM pass, so it is cached per model.
+_GRAD_MODELS: dict = {}
+
 
 def compute_gradcam(model, image: np.ndarray, conv_layer: str | None = None) -> np.ndarray:
     """Return a ``[0, 1]`` heatmap of shape ``image.shape[:2]``.
@@ -24,14 +27,20 @@ def compute_gradcam(model, image: np.ndarray, conv_layer: str | None = None) -> 
 
     from ..models.backbones import BACKBONES, get_backbone
 
-    backbone = get_backbone(model)
-    if conv_layer is None:
-        key = backbone.name.removesuffix("_backbone")
-        conv_layer = BACKBONES[key][1] if key in BACKBONES else _last_conv_layer(backbone)
-    grad_model = keras.Model(backbone.inputs, [backbone.get_layer(conv_layer).output, backbone.output])
-    pos = model.layers.index(backbone)
-    pre = [layer for layer in model.layers[1:pos] if not isinstance(layer, keras.layers.InputLayer)]
-    head = model.layers[pos + 1 :]
+    cache_key = (id(model), conv_layer)
+    cached = _GRAD_MODELS.get(cache_key)
+    if cached is None or cached[0] is not model:
+        backbone = get_backbone(model)
+        layer_name = conv_layer
+        if layer_name is None:
+            key = backbone.name.removesuffix("_backbone")
+            layer_name = BACKBONES[key][1] if key in BACKBONES else _last_conv_layer(backbone)
+        grad_model = keras.Model(backbone.inputs, [backbone.get_layer(layer_name).output, backbone.output])
+        pos = model.layers.index(backbone)
+        pre = [layer for layer in model.layers[1:pos] if not isinstance(layer, keras.layers.InputLayer)]
+        cached = (model, grad_model, pre, model.layers[pos + 1 :])
+        _GRAD_MODELS[cache_key] = cached
+    _, grad_model, pre, head = cached
 
     x = tf.convert_to_tensor(image[None, ...], dtype=tf.float32)
     for layer in pre:  # e.g. the fixed [-1, 1] -> [0, 255] rescaling in front of EfficientNetV2
