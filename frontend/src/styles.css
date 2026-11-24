@@ -1445,3 +1445,26 @@ pre code,
   line-height: 1.6;
   color: var(--fg-soft);
 }
+.audio-explain {
+  margin: 1rem 0 0;
+}
+.spectro-stack {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.spectro-stack img {
+  display: block;
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+}
+.spectro-stack .gradcam-overlay {
+  position: absolute;
+  inset: 0;
+}
+.audio-explain figcaption {
+  margin-top: 0.5rem;
+  line-height: 1.55;
+}

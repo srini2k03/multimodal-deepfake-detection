@@ -3,6 +3,7 @@ import FrameTimeline from "./FrameTimeline.jsx";
 import GradCamViewer from "./GradCamViewer.jsx";
 import ModelBreakdown from "./ModelBreakdown.jsx";
 import AudioSegments from "./AudioSegments.jsx";
+import AudioExplanation from "./AudioExplanation.jsx";
 import BrowserPreview, { CropGallery } from "./BrowserPreview.jsx";
 import { AlertIcon } from "./Icons.jsx";
 import { SETUP_URL } from "../demo/config.js";
@@ -60,6 +61,10 @@ function audioNote(audio) {
 
 function stripImages(result) {
   const out = { ...result, gradcam: result.gradcam ? "[base64 images omitted]" : null };
+  const audio = result.modalities?.audio;
+  if (audio?.explanation) {
+    out.modalities = { ...result.modalities, audio: { ...audio, explanation: "[spectrogram images omitted]" } };
+  }
   if (result.browser) {
     out.browser = {
       ...result.browser,
@@ -249,6 +254,7 @@ export default function ResultDashboard({ result }) {
               threshold={result.threshold}
               placeholder={browser && !audioReal}
             />
+            {audio.explanation && <AudioExplanation explanation={audio.explanation} />}
           </ResultCard>
         )}
       </div>

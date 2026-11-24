@@ -85,6 +85,15 @@ class KerasAudioScorer:
             )
         return np.asarray(self.model.predict(clips, verbose=0), dtype=np.float32).reshape(-1)
 
+    def heatmap(self, mel: np.ndarray) -> np.ndarray | None:
+        from ..explain.audio import audio_gradcam
+
+        try:
+            return audio_gradcam(self.model, mel[:, : self.n_frames])
+        except Exception:
+            logger.exception("audio grad-cam failed")
+            return None
+
 
 # --------------------------------------------------------------------------- placeholders
 def _stable_unit(data: bytes) -> float:
@@ -119,6 +128,9 @@ class PlaceholderFrameScorer:
 
 class PlaceholderAudioScorer:
     kind = "placeholder"
+
+    def heatmap(self, mel: np.ndarray) -> np.ndarray | None:
+        return None
 
     def predict(self, clips: np.ndarray) -> np.ndarray:
         return np.asarray(
