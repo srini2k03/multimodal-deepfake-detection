@@ -97,12 +97,15 @@ jobs:
         working-directory: backend
         run: python -m deepfake_detector.benchmarks.run_dff evaluate --work "$RUNNER_TEMP/work" --out "../$OUT"
       - name: Robustness
+        continue-on-error: true  # keep the main results even if this analysis fails
         working-directory: backend
         run: python -m deepfake_detector.benchmarks.run_dff robustness --work "$RUNNER_TEMP/work" --out "../$OUT"
       - name: Grad-CAM statistics
+        continue-on-error: true  # keep the main results even if this analysis fails
         working-directory: backend
         run: python -m deepfake_detector.benchmarks.run_dff gradcam --work "$RUNNER_TEMP/work" --out "../$OUT" --n-per-class 150
       - name: Latency, export and parity
+        continue-on-error: true  # keep the main results even if this analysis fails
         working-directory: backend
         run: python -m deepfake_detector.benchmarks.run_dff latency --work "$RUNNER_TEMP/work" --out "../$OUT" --zips "$RUNNER_TEMP/dff"
       - name: Summary

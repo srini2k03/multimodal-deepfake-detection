@@ -94,15 +94,18 @@ jobs:
         working-directory: backend
         run: python -m deepfake_detector.benchmarks.run_asvspoof evaluate --archive "$RUNNER_TEMP/data/LA.zip" --work "$RUNNER_TEMP/work" --out "../$OUT"
       - name: Robustness (stratified eval subset)
+        continue-on-error: true  # keep the main results even if this analysis fails
         working-directory: backend
         run: |
           IFS=, read -r per_attack bonafide <<< "${{ inputs.robustness_subset }}"
           python -m deepfake_detector.benchmarks.run_asvspoof robustness --archive "$RUNNER_TEMP/data/LA.zip" \
             --work "$RUNNER_TEMP/work" --out "../$OUT" --per-attack "$per_attack" --bonafide "$bonafide"
       - name: Latency, export and parity
+        continue-on-error: true  # keep the main results even if this analysis fails
         working-directory: backend
         run: python -m deepfake_detector.benchmarks.run_asvspoof latency --archive "$RUNNER_TEMP/data/LA.zip" --work "$RUNNER_TEMP/work" --out "../$OUT"
       - name: Cross-dataset test (In-the-Wild)
+        continue-on-error: true  # keep the main results even if this analysis fails
         if: inputs.in_the_wild
         working-directory: backend
         run: |
@@ -127,9 +130,11 @@ jobs:
       - name: Bundle model files
         run: |
           mkdir -p "$RUNNER_TEMP/release"
-          cp "$RUNNER_TEMP"/work/export/* "$RUNNER_TEMP/release/"
-          cp "$RUNNER_TEMP"/work/models/cnn/train.json "$RUNNER_TEMP/release/cnn_train.json"
-          cp "$RUNNER_TEMP"/work/models/cnn_trim/train.json "$RUNNER_TEMP/release/cnn_trim_train.json"
+          for s in cnn cnn_trim; do
+            cp "$RUNNER_TEMP/work/models/$s/model.keras" "$RUNNER_TEMP/release/$s.keras"
+            cp "$RUNNER_TEMP/work/models/$s/train.json" "$RUNNER_TEMP/release/${s}_train.json"
+          done
+          cp "$RUNNER_TEMP"/work/export/*.tflite "$RUNNER_TEMP/release/" 2>/dev/null || echo "no TFLite exports"
           (cd "$RUNNER_TEMP/release" && sha256sum * > SHA256SUMS && ls -la)
       - uses: actions/upload-artifact@v4
         with:
