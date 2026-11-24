@@ -32,6 +32,7 @@ HF_CANDIDATES = [
     "ControlNet/LAV-DF",
     "ComplexDataLab/OpenFake",
     "mueller91/MLAAD",
+    "mueller91/In-The-Wild",
     "elsaEU/ELSA_D3",
     "Hemg/deepfake-and-real-images",
 ]

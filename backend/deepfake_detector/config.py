@@ -92,6 +92,27 @@ class AudioConfig:
     fmin: float = 20.0
     fmax: float = 8000.0
     clip_seconds: float = 4.0
+    pad_mode: str = "repeat"  # "repeat" (tile short clips) or "zero"
+    trim_silence: bool = False  # strip leading/trailing non-speech before features
+    trim_top_db: float = 40.0
+    max_seconds: float = 120.0  # longer audio is truncated before scoring (API resource bound)
+    cnn_filters: list[int] = field(default_factory=lambda: [16, 32, 64])
+
+
+@dataclass
+class AudioTrainConfig:
+    """Hyper-parameters for training the audio countermeasure (see benchmarks/asvspoof.py)."""
+
+    epochs: int = 20
+    batch_size: int = 64
+    learning_rate: float = 1e-3
+    spoof_per_bonafide: float = 3.0  # class-balanced resampling of the majority (spoof) class per epoch
+    early_stopping_patience: int = 4
+    lr_decay_patience: int = 2
+    lr_decay_factor: float = 0.5
+    spec_augment: bool = True
+    val_max_spoof: int = 6000  # spoof subset of the dev split used for per-epoch model selection
+    seed: int = 1234
 
 
 @dataclass
@@ -126,6 +147,7 @@ class Config:
     model: ModelConfig = field(default_factory=ModelConfig)
     train: TrainConfig = field(default_factory=TrainConfig)
     audio: AudioConfig = field(default_factory=AudioConfig)
+    audio_train: AudioTrainConfig = field(default_factory=AudioTrainConfig)
     fusion: FusionConfig = field(default_factory=FusionConfig)
     api: ApiConfig = field(default_factory=ApiConfig)
 
@@ -154,6 +176,12 @@ class Config:
             raise ValueError("api.demo_backend must be 'auto', 'keras' or 'numpy'")
         if self.api.frame_aggregation not in ("mean", "median", "max", "topk_mean", "confidence_weighted"):
             raise ValueError("api.frame_aggregation is not a supported aggregation method")
+        if self.audio.pad_mode not in ("repeat", "zero"):
+            raise ValueError("audio.pad_mode must be 'repeat' or 'zero'")
+        if self.audio.max_seconds <= 0 or self.audio.clip_seconds <= 0:
+            raise ValueError("audio.max_seconds and audio.clip_seconds must be positive")
+        if not self.audio.cnn_filters or any(f <= 0 for f in self.audio.cnn_filters):
+            raise ValueError("audio.cnn_filters must be a non-empty list of positive integers")
         if self.data.image_size < 75:
             raise ValueError("data.image_size must be >= 75 (InceptionV3 minimum input)")
         return self
@@ -190,6 +218,8 @@ def _coerce(raw: str, current: Any) -> Any:
         items = [s.strip() for s in raw.split(",") if s.strip()]
         if current and isinstance(current[0], float):
             return [float(s) for s in items]
+        if current and isinstance(current[0], int):
+            return [int(s) for s in items]
         return items
     return raw
 
