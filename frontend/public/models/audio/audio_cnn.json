@@ -1,0 +1,263 @@
+{
+ "format": "dfd-audio-cnn-v1",
+ "weights_file": "audio_cnn.bin",
+ "weights_sha256": "08f27bc85175ac8daa83d25006c4ff2e8ffd80dd33e07352e8d69319a1a6cc4c",
+ "source_model_sha256": "0dac06d20daf7a33995e0ff7ff2a51af959ec7a79054c026e45ecc18b9aca91f",
+ "input": {
+  "n_mels": 64,
+  "n_frames": 401
+ },
+ "audio": {
+  "sample_rate": 16000,
+  "n_fft": 512,
+  "hop_length": 160,
+  "n_mels": 64,
+  "fmin": 20.0,
+  "fmax": 8000.0,
+  "clip_seconds": 4.0,
+  "pad_mode": "repeat",
+  "trim_silence": true,
+  "trim_top_db": 40.0
+ },
+ "mel_filterbank": {
+  "offset": 0,
+  "length": 16448,
+  "shape": [
+   64,
+   257
+  ]
+ },
+ "layers": [
+  {
+   "type": "conv3x3",
+   "name": "block1_conv0",
+   "relu": true,
+   "kernel": {
+    "offset": 65792,
+    "length": 144,
+    "shape": [
+     16,
+     1,
+     3,
+     3
+    ]
+   },
+   "bias": {
+    "offset": 66368,
+    "length": 16,
+    "shape": [
+     16
+    ]
+   }
+  },
+  {
+   "type": "conv3x3",
+   "name": "block1_conv1",
+   "relu": true,
+   "kernel": {
+    "offset": 66432,
+    "length": 2304,
+    "shape": [
+     16,
+     16,
+     3,
+     3
+    ]
+   },
+   "bias": {
+    "offset": 75648,
+    "length": 16,
+    "shape": [
+     16
+    ]
+   }
+  },
+  {
+   "type": "maxpool2",
+   "name": "block1_pool",
+   "relu": false
+  },
+  {
+   "type": "conv3x3",
+   "name": "block2_conv0",
+   "relu": true,
+   "kernel": {
+    "offset": 75712,
+    "length": 4608,
+    "shape": [
+     32,
+     16,
+     3,
+     3
+    ]
+   },
+   "bias": {
+    "offset": 94144,
+    "length": 32,
+    "shape": [
+     32
+    ]
+   }
+  },
+  {
+   "type": "conv3x3",
+   "name": "block2_conv1",
+   "relu": true,
+   "kernel": {
+    "offset": 94272,
+    "length": 9216,
+    "shape": [
+     32,
+     32,
+     3,
+     3
+    ]
+   },
+   "bias": {
+    "offset": 131136,
+    "length": 32,
+    "shape": [
+     32
+    ]
+   }
+  },
+  {
+   "type": "maxpool2",
+   "name": "block2_pool",
+   "relu": false
+  },
+  {
+   "type": "conv3x3",
+   "name": "block3_conv0",
+   "relu": true,
+   "kernel": {
+    "offset": 131264,
+    "length": 18432,
+    "shape": [
+     64,
+     32,
+     3,
+     3
+    ]
+   },
+   "bias": {
+    "offset": 204992,
+    "length": 64,
+    "shape": [
+     64
+    ]
+   }
+  },
+  {
+   "type": "conv3x3",
+   "name": "block3_conv1",
+   "relu": true,
+   "kernel": {
+    "offset": 205248,
+    "length": 36864,
+    "shape": [
+     64,
+     64,
+     3,
+     3
+    ]
+   },
+   "bias": {
+    "offset": 352704,
+    "length": 64,
+    "shape": [
+     64
+    ]
+   }
+  },
+  {
+   "type": "maxpool2",
+   "name": "block3_pool",
+   "relu": false
+  },
+  {
+   "type": "conv3x3",
+   "name": "last_conv",
+   "relu": true,
+   "kernel": {
+    "offset": 352960,
+    "length": 73728,
+    "shape": [
+     128,
+     64,
+     3,
+     3
+    ]
+   },
+   "bias": {
+    "offset": 647872,
+    "length": 128,
+    "shape": [
+     128
+    ]
+   }
+  },
+  {
+   "type": "gap",
+   "name": "gap",
+   "relu": false
+  },
+  {
+   "type": "dense",
+   "name": "fc",
+   "relu": true,
+   "kernel": {
+    "offset": 648384,
+    "length": 8192,
+    "shape": [
+     64,
+     128
+    ]
+   },
+   "bias": {
+    "offset": 681152,
+    "length": 64,
+    "shape": [
+     64
+    ]
+   }
+  },
+  {
+   "type": "dense",
+   "name": "logit",
+   "relu": false,
+   "kernel": {
+    "offset": 681408,
+    "length": 64,
+    "shape": [
+     1,
+     64
+    ]
+   },
+   "bias": {
+    "offset": 681664,
+    "length": 1,
+    "shape": [
+     1
+    ]
+   }
+  }
+ ],
+ "fold_check_max_abs_logit_diff": 1.1485311190995162e-06,
+ "benchmark": {
+  "dataset": "ASVspoof 2019 LA",
+  "system": "cnn_trim",
+  "eval_eer": 0.19007198456552638,
+  "eval_min_tdcf": 0.4492754250602174,
+  "dev_threshold_logit": 1.8667643070220947,
+  "platt": {
+   "a": 1.089400676384831,
+   "b": 0.05307959606532259
+  },
+  "prior_fake": 0.8974400257607471,
+  "run_id": "45371433877",
+  "git_sha": "c9b2215583e4f81ae3d576a24c2aa1c30304e51a",
+  "release": "run-45371433877",
+  "in_the_wild_eer": 0.4545720708056011
+ }
+}

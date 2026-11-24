@@ -1,0 +1,20 @@
+{
+ "system": "cnn_trim",
+ "source_run_id": "45371433877",
+ "export_run_id": "45439509135",
+ "git_sha": "3658814a0202b6d433fe9438eb24af6bbe318e8a",
+ "weights_sha256": "08f27bc85175ac8daa83d25006c4ff2e8ffd80dd33e07352e8d69319a1a6cc4c",
+ "source_model_sha256": "0dac06d20daf7a33995e0ff7ff2a51af959ec7a79054c026e45ecc18b9aca91f",
+ "fold_check_max_abs_logit_diff": 1.1485311190995162e-06,
+ "node_parity": {
+  "n_clips": 2,
+  "expected_clips": 2,
+  "max_abs_log_mel_diff": 7.152557373046875e-07,
+  "max_abs_logit_diff": 1.537819096064652e-06,
+  "js_ms_per_clip": 515.8,
+  "tolerance": {
+   "log_mel": 0.002,
+   "logit": 0.002
+  }
+ }
+}

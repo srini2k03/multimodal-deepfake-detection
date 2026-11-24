@@ -1,0 +1,301 @@
+{
+ "dataset": "ASVspoof 2019 LA",
+ "source": "https://datashare.ed.ac.uk/handle/10283/3336 (doi:10.7488/ds/2555)",
+ "licence": "Open Data Commons Attribution License (ODC-By) 1.0",
+ "archive": {
+  "name": "LA.zip",
+  "bytes": 7640952520,
+  "sha256": "208a7e4e3913f8c75ae1afd19bf32a5b29ae68435e9e30e23e5e98b6a155e4ec"
+ },
+ "limit_per_split": null,
+ "audio": {
+  "sample_rate": 16000,
+  "clip_seconds": 4.0
+ },
+ "splits": {
+  "train": {
+   "split": "train",
+   "n": 25380,
+   "n_bonafide": 2580,
+   "n_spoof": 22800,
+   "n_speakers": 20,
+   "n_speakers_bonafide": 20,
+   "attacks": {
+    "A01": 3800,
+    "A02": 3800,
+    "A03": 3800,
+    "A04": 3800,
+    "A05": 3800,
+    "A06": 3800
+   },
+   "per_class": {
+    "bonafide": {
+     "n": 2580,
+     "duration_s": {
+      "mean": 3.3888,
+      "std": 0.9853,
+      "p05": 2.0467,
+      "p25": 2.6883,
+      "median": 3.24,
+      "p75": 3.9221,
+      "p95": 5.1613
+     },
+     "lead_silence_s": {
+      "mean": 0.7284,
+      "std": 0.4272,
+      "p05": 0.02,
+      "p25": 0.46,
+      "median": 0.71,
+      "p75": 0.99,
+      "p95": 1.4805
+     },
+     "trail_silence_s": {
+      "mean": 0.3269,
+      "std": 0.3553,
+      "p05": 0.0045,
+      "p25": 0.094,
+      "median": 0.2358,
+      "p75": 0.4355,
+      "p95": 0.9614
+     }
+    },
+    "spoof": {
+     "n": 22800,
+     "duration_s": {
+      "mean": 3.43,
+      "std": 1.4598,
+      "p05": 1.5618,
+      "p25": 2.3906,
+      "median": 3.197,
+      "p75": 4.1395,
+      "p95": 6.1734
+     },
+     "lead_silence_s": {
+      "mean": 0.5033,
+      "std": 0.5067,
+      "p05": 0.0,
+      "p25": 0.07,
+      "median": 0.33,
+      "p75": 0.99,
+      "p95": 1.38
+     },
+     "trail_silence_s": {
+      "mean": 0.3228,
+      "std": 0.341,
+      "p05": 0.0085,
+      "p25": 0.1086,
+      "median": 0.2719,
+      "p75": 0.4066,
+      "p95": 0.8695
+     }
+    }
+   }
+  },
+  "dev": {
+   "split": "dev",
+   "n": 24844,
+   "n_bonafide": 2548,
+   "n_spoof": 22296,
+   "n_speakers": 20,
+   "n_speakers_bonafide": 20,
+   "attacks": {
+    "A01": 3716,
+    "A02": 3716,
+    "A03": 3716,
+    "A04": 3716,
+    "A05": 3716,
+    "A06": 3716
+   },
+   "per_class": {
+    "bonafide": {
+     "n": 2548,
+     "duration_s": {
+      "mean": 3.5084,
+      "std": 1.0885,
+      "p05": 2.0003,
+      "p25": 2.7269,
+      "median": 3.387,
+      "p75": 4.1369,
+      "p95": 5.4186
+     },
+     "lead_silence_s": {
+      "mean": 0.9043,
+      "std": 0.5044,
+      "p05": 0.14,
+      "p25": 0.55,
+      "median": 0.88,
+      "p75": 1.16,
+      "p95": 1.73
+     },
+     "trail_silence_s": {
+      "mean": 0.4042,
+      "std": 0.4252,
+      "p05": 0.0105,
+      "p25": 0.1459,
+      "median": 0.2835,
+      "p75": 0.5137,
+      "p95": 1.2132
+     }
+    },
+    "spoof": {
+     "n": 22296,
+     "duration_s": {
+      "mean": 3.4747,
+      "std": 1.4947,
+      "p05": 1.495,
+      "p25": 2.4056,
+      "median": 3.2655,
+      "p75": 4.2474,
+      "p95": 6.253
+     },
+     "lead_silence_s": {
+      "mean": 0.5002,
+      "std": 0.5058,
+      "p05": 0.0,
+      "p25": 0.07,
+      "median": 0.33,
+      "p75": 0.99,
+      "p95": 1.37
+     },
+     "trail_silence_s": {
+      "mean": 0.3294,
+      "std": 0.3437,
+      "p05": 0.0084,
+      "p25": 0.0922,
+      "median": 0.2746,
+      "p75": 0.4094,
+      "p95": 0.923
+     }
+    }
+   }
+  },
+  "eval": {
+   "split": "eval",
+   "n": 71237,
+   "n_bonafide": 7355,
+   "n_spoof": 63882,
+   "n_speakers": 67,
+   "n_speakers_bonafide": 67,
+   "attacks": {
+    "A07": 4914,
+    "A08": 4914,
+    "A09": 4914,
+    "A10": 4914,
+    "A11": 4914,
+    "A12": 4914,
+    "A13": 4914,
+    "A14": 4914,
+    "A15": 4914,
+    "A16": 4914,
+    "A17": 4914,
+    "A18": 4914,
+    "A19": 4914
+   },
+   "per_class": {
+    "bonafide": {
+     "n": 7355,
+     "duration_s": {
+      "mean": 3.3951,
+      "std": 1.0586,
+      "p05": 2.0486,
+      "p25": 2.6433,
+      "median": 3.1961,
+      "p75": 3.9209,
+      "p95": 5.3675
+     },
+     "lead_silence_s": {
+      "mean": 0.8131,
+      "std": 0.5203,
+      "p05": 0.08,
+      "p25": 0.52,
+      "median": 0.75,
+      "p75": 1.01,
+      "p95": 1.61
+     },
+     "trail_silence_s": {
+      "mean": 0.434,
+      "std": 0.4282,
+      "p05": 0.0088,
+      "p25": 0.1631,
+      "median": 0.3169,
+      "p75": 0.5736,
+      "p95": 1.2085
+     }
+    },
+    "spoof": {
+     "n": 63882,
+     "duration_s": {
+      "mean": 3.0746,
+      "std": 1.5184,
+      "p05": 1.241,
+      "p25": 1.9807,
+      "median": 2.7527,
+      "p75": 3.8106,
+      "p95": 6.0832
+     },
+     "lead_silence_s": {
+      "mean": 0.1842,
+      "std": 0.3702,
+      "p05": 0.0,
+      "p25": 0.02,
+      "median": 0.04,
+      "p75": 0.12,
+      "p95": 0.9
+     },
+     "trail_silence_s": {
+      "mean": 0.2171,
+      "std": 0.2544,
+      "p05": 0.0035,
+      "p25": 0.0276,
+      "median": 0.1628,
+      "p75": 0.3077,
+      "p95": 0.6911
+     }
+    }
+   }
+  }
+ },
+ "speaker_overlap": {
+  "dev&eval": 0,
+  "dev&train": 0,
+  "eval&train": 0
+ },
+ "attacks": {
+  "A01": "TTS: neural waveform model",
+  "A02": "TTS: vocoder",
+  "A03": "TTS: vocoder",
+  "A04": "TTS: waveform concatenation",
+  "A05": "VC: vocoder",
+  "A06": "VC: spectral filtering",
+  "A07": "TTS: vocoder + GAN",
+  "A08": "TTS: neural waveform",
+  "A09": "TTS: vocoder",
+  "A10": "TTS: neural waveform",
+  "A11": "TTS: Griffin-Lim",
+  "A12": "TTS: neural waveform",
+  "A13": "TTS+VC: waveform concatenation + filtering",
+  "A14": "TTS+VC: vocoder",
+  "A15": "TTS+VC: neural waveform",
+  "A16": "TTS: waveform concatenation (same system as A04)",
+  "A17": "VC: waveform filtering",
+  "A18": "VC: vocoder",
+  "A19": "VC: spectral filtering (same system as A06)"
+ },
+ "known_attacks_in_eval": {
+  "A16": "A04",
+  "A19": "A06"
+ },
+ "meta": {
+  "date_utc": "2026-11-24T10:46:37+00:00",
+  "git_sha": "c9b2215583e4f81ae3d576a24c2aa1c30304e51a",
+  "run_id": "45371433877",
+  "runner": "Linux x86_64 cpus=4",
+  "python": "3.11.18",
+  "packages": {
+   "numpy": "2.4.6",
+   "tensorflow-cpu": "2.21.0",
+   "keras": "3.15.1",
+   "soundfile": "0.13.1"
+  }
+ }
+}

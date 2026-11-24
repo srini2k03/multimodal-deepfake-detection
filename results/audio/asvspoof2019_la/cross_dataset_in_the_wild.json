@@ -1,0 +1,129 @@
+{
+ "meta": {
+  "date_utc": "2026-11-24T13:22:08+00:00",
+  "git_sha": "c9b2215583e4f81ae3d576a24c2aa1c30304e51a",
+  "run_id": "45371433877",
+  "runner": "Linux x86_64 cpus=4",
+  "python": "3.11.18",
+  "packages": {
+   "numpy": "2.4.6",
+   "tensorflow-cpu": "2.21.0",
+   "keras": "3.15.1",
+   "soundfile": "0.13.1"
+  }
+ },
+ "dataset": "In-the-Wild audio deepfakes",
+ "source": "https://huggingface.co/datasets/mueller91/In-The-Wild (Mueller et al., Interspeech 2022)",
+ "licence": "Hugging Face card: cc-by-sa-4.0; project page: CC BY-NC 4.0 (non-commercial use assumed)",
+ "n": 31779,
+ "n_bonafide": 19963,
+ "n_spoof": 11816,
+ "n_speakers": 54,
+ "feature_seconds": 582.5,
+ "per_class_median": {
+  "bonafide": {
+   "duration_s": 2.991,
+   "lead_silence_s": 0.0,
+   "trail_silence_s": 0.007000000000000117
+  },
+  "spoof": {
+   "duration_s": 4.04553125,
+   "lead_silence_s": 0.23,
+   "trail_silence_s": 0.1250624999999994
+  }
+ },
+ "systems": {
+  "silence_lr": {
+   "eer": 0.49645698214682943,
+   "roc_auc": 0.5044362029131008,
+   "pr_auc_spoof": 0.43285522133860854,
+   "at_asvspoof_dev_threshold": {
+    "accuracy": 0.3836810472324491,
+    "fpr": 0.9671392075339378,
+    "fnr": 0.02361205145565335,
+    "f1": 0.5408813877168308,
+    "confusion_matrix": [
+     [
+      656,
+      19307
+     ],
+     [
+      279,
+      11537
+     ]
+    ]
+   },
+   "ece_raw_sigmoid": 0.35589943397752866,
+   "ece_asvspoof_dev_platt": 0.5914798118868106
+  },
+  "logmel_lr": {
+   "eer": 0.6423438413536268,
+   "roc_auc": 0.3144389522444552,
+   "pr_auc_spoof": 0.2844642976997229,
+   "at_asvspoof_dev_threshold": {
+    "accuracy": 0.31923597344158094,
+    "fpr": 0.9201522817211842,
+    "fnr": 0.27632024373730535,
+    "f1": 0.4415014456836018,
+    "confusion_matrix": [
+     [
+      1594,
+      18369
+     ],
+     [
+      3265,
+      8551
+     ]
+    ]
+   },
+   "ece_raw_sigmoid": 0.6151545787750181,
+   "ece_asvspoof_dev_platt": 0.6149817179510647
+  },
+  "cnn": {
+   "eer": 0.478586868865831,
+   "roc_auc": 0.5030224521492045,
+   "pr_auc_spoof": 0.450834596070382,
+   "at_asvspoof_dev_threshold": {
+    "accuracy": 0.3102992542244879,
+    "fpr": 0.958272804688674,
+    "fnr": 0.23595125253893026,
+    "f1": 0.4516936008405463,
+    "confusion_matrix": [
+     [
+      833,
+      19130
+     ],
+     [
+      2788,
+      9028
+     ]
+    ]
+   },
+   "ece_raw_sigmoid": 0.6562884296503576,
+   "ece_asvspoof_dev_platt": 0.65407037513416
+  },
+  "cnn_trim": {
+   "eer": 0.4545720708056011,
+   "roc_auc": 0.5610468758706654,
+   "pr_auc_spoof": 0.4091732801277609,
+   "at_asvspoof_dev_threshold": {
+    "accuracy": 0.41049120488372826,
+    "fpr": 0.8980113209437459,
+    "fnr": 0.06829722410291131,
+    "f1": 0.5402925009815469,
+    "confusion_matrix": [
+     [
+      2036,
+      17927
+     ],
+     [
+      807,
+      11009
+     ]
+    ]
+   },
+   "ece_raw_sigmoid": 0.5822918713991139,
+   "ece_asvspoof_dev_platt": 0.5860414199483444
+  }
+ }
+}

@@ -1,0 +1,116 @@
+{
+ "meta": {
+  "date_utc": "2026-11-24T13:06:55+00:00",
+  "git_sha": "c9b2215583e4f81ae3d576a24c2aa1c30304e51a",
+  "run_id": "45371433877",
+  "runner": "Linux x86_64 cpus=4",
+  "python": "3.11.18",
+  "packages": {
+   "numpy": "2.4.6",
+   "tensorflow-cpu": "2.21.0",
+   "keras": "3.15.1",
+   "soundfile": "0.13.1"
+  }
+ },
+ "n_utterances": 4250,
+ "threads": 4,
+ "tensorflow_intra_op_threads": 0,
+ "mean_duration_s": 3.048,
+ "stages": {
+  "decode_flac": {
+   "mean_ms": 0.842,
+   "p50_ms": 0.772,
+   "p95_ms": 1.449,
+   "n": 200
+  },
+  "log_mel_4s": {
+   "mean_ms": 1.791,
+   "p50_ms": 1.76,
+   "p95_ms": 1.839,
+   "n": 200
+  }
+ },
+ "cnn": {
+  "params": 154641,
+  "keras_batch1": {
+   "mean_ms": 15.73,
+   "p50_ms": 15.646,
+   "p95_ms": 16.359,
+   "n": 100
+  },
+  "keras_batch64_per_clip_ms": 3.291,
+  "keras_file_bytes": 725104,
+  "tflite_fp32": {
+   "file_bytes": 623180,
+   "batch1": {
+    "mean_ms": 2.171,
+    "p50_ms": 2.171,
+    "p95_ms": 2.208,
+    "n": 100
+   },
+   "max_abs_logit_diff_vs_keras": 5.7220458984375e-06,
+   "max_abs_prob_diff_vs_keras": 8.970000031638392e-08
+  },
+  "tflite_int8_dynamic": {
+   "file_bytes": 168128,
+   "batch1": {
+    "mean_ms": 1.392,
+    "p50_ms": 1.388,
+    "p95_ms": 1.436,
+    "n": 100
+   },
+   "max_abs_logit_diff_vs_keras": 0.15675926208496094,
+   "max_abs_prob_diff_vs_keras": 0.0034482902038300844
+  },
+  "parity_subset": {
+   "n": 4250,
+   "keras_eer": 0.0791923076923077,
+   "tflite_fp32_eer": 0.0791923076923077,
+   "tflite_fp32_max_abs_prob_diff": 8.479298116981226e-07,
+   "tflite_int8_dynamic_eer": 0.0791923076923077,
+   "tflite_int8_dynamic_max_abs_prob_diff": 0.04424104084452296
+  }
+ },
+ "cnn_trim": {
+  "params": 154641,
+  "keras_batch1": {
+   "mean_ms": 15.928,
+   "p50_ms": 15.877,
+   "p95_ms": 16.533,
+   "n": 100
+  },
+  "keras_batch64_per_clip_ms": 2.983,
+  "keras_file_bytes": 725104,
+  "tflite_fp32": {
+   "file_bytes": 623180,
+   "batch1": {
+    "mean_ms": 2.223,
+    "p50_ms": 2.195,
+    "p95_ms": 2.478,
+    "n": 100
+   },
+   "max_abs_logit_diff_vs_keras": 5.7220458984375e-06,
+   "max_abs_prob_diff_vs_keras": 9.68855748184616e-07
+  },
+  "tflite_int8_dynamic": {
+   "file_bytes": 168128,
+   "batch1": {
+    "mean_ms": 1.436,
+    "p50_ms": 1.436,
+    "p95_ms": 1.499,
+    "n": 100
+   },
+   "max_abs_logit_diff_vs_keras": 0.09772825241088867,
+   "max_abs_prob_diff_vs_keras": 0.008501503129766469
+  },
+  "parity_subset": {
+   "n": 4250,
+   "keras_eer": 0.18111538461538462,
+   "tflite_fp32_eer": 0.18111538461538462,
+   "tflite_fp32_max_abs_prob_diff": 9.981573805273314e-07,
+   "tflite_int8_dynamic_eer": 0.18111538461538462,
+   "tflite_int8_dynamic_max_abs_prob_diff": 0.026063358120982816
+  }
+ },
+ "peak_rss_mb": 11640.4
+}
